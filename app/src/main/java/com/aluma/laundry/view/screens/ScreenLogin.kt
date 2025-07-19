@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -15,34 +16,45 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.viewmodel.UserViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenLogin(onLoginClick: (email: String, password: String) -> Unit) {
+fun ScreenLogin(
+    userViewModel: UserViewModel = koinInject(),
+    onSuccess: () -> Unit
+) {
     Scaffold {
         innerPadding ->
         var email by remember { mutableStateOf("") }
@@ -53,6 +65,19 @@ fun ScreenLogin(onLoginClick: (email: String, password: String) -> Unit) {
         val isPasswordValid = password.length >= 6
 
         val isFormValid = isEmailValid && isPasswordValid
+
+        var isLoading by remember { mutableStateOf(false) }
+        var showSnackbar by remember { mutableStateOf(false) }
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        val coroutineScope = rememberCoroutineScope()
+
+        LaunchedEffect(showSnackbar) {
+            if (showSnackbar) {
+                snackbarHostState.showSnackbar("Login berhasil", duration = SnackbarDuration.Short)
+                showSnackbar = false
+            }
+        }
 
         Column(
             modifier = Modifier
@@ -108,13 +133,35 @@ fun ScreenLogin(onLoginClick: (email: String, password: String) -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { onLoginClick(email, password) },
+                onClick = {
+                    isLoading = true
+                    userViewModel.login(
+                        onSuccess = {
+                            isLoading = false
+                            showSnackbar = true
+                        },
+                        onError = {
+                            isLoading = false
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Login gagal", duration = SnackbarDuration.Short)
+                            }
+                        }
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
                 enabled = isFormValid
             ) {
-                Text("Login")
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Login")
+                }
             }
         }
     }

@@ -22,10 +22,11 @@ fun AppNavHost(
             ScreenHome()
         }
         composable(Screens.Login.route) {
-            ScreenLogin(){
-                    email, password ->
-                Log.d("Login", "Email: $email, Password: $password")
-            }
+            ScreenLogin(
+                onSuccess = {
+
+                }
+            )
         }
         composable(Screens.ChoseStore.route) {
             ScreenChoseStore()
