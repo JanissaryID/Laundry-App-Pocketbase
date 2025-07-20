@@ -1,4 +1,4 @@
-package com.aluma.laundry.viewmodel
+package com.aluma.laundry.user
 
 import com.aluma.laundry.data.datastore.StorePreferences
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
@@ -8,6 +8,7 @@ import io.github.agrevster.pocketbaseKotlin.models.AuthRecord
 import io.ktor.http.URLProtocol
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class UserViewModel(
@@ -16,8 +17,8 @@ class UserViewModel(
 
     private val client = PocketbaseClient(
         baseUrl = {
-            protocol = URLProtocol.HTTPS
-            host = "064a733d489b.ngrok-free.app"
+            protocol = URLProtocol.Companion.HTTPS
+            host = "03d4a5b4817b.ngrok-free.app"
         }
     )
 
@@ -41,22 +42,53 @@ class UserViewModel(
     private val _showSuccessLogin = MutableStateFlow(false)
     val showSuccessLogin: StateFlow<Boolean> = _showSuccessLogin
 
+    fun onEmailChange(value: String) { _email.value = value }
+    fun onPasswordChange(value: String) { _password.value = value }
+
+    init {
+        viewModelScope.launch {
+            storePreferences.userEmail.collectLatest { _email.value = it.orEmpty() }
+        }
+        viewModelScope.launch {
+            storePreferences.userPassword.collectLatest { _password.value = it.orEmpty() }
+        }
+        viewModelScope.launch {
+            storePreferences.userIdUser.collectLatest { _idUser.value = it.orEmpty() }
+        }
+        viewModelScope.launch {
+            storePreferences.userToken.collectLatest {
+                _token.value = it
+                val loggedIn = !it.isNullOrEmpty()
+                _isLoggedIn.value = loggedIn
+                _showSuccessLogin.value = loggedIn
+                if (loggedIn) {
+                    client.login(it)
+
+                }
+            }
+        }
+    }
     fun login(onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             isLoading.value = true
             errorMessage.value = null
-            try {
-                if (_email.value.isBlank() || _password.value.isBlank()) {
-                    errorMessage.value = "Email atau password tidak boleh kosong"
-                    onError(errorMessage.value!!)
-                    return@launch
-                }
+            // Validasi form
+            if (_email.value.isBlank() || _password.value.isBlank()) {
+                val msg = "Email atau password tidak boleh kosong"
+                errorMessage.value = msg
+                onError(msg)
+                isLoading.value = false
+                return@launch
+            }
 
+            try {
+                println("login")
                 val loginResult = client.records.authWithPassword<AuthRecord>(
                     collection = "users",
                     email = _email.value,
                     password = _password.value
                 )
+                println("Login = $loginResult")
 
                 val token = loginResult.token
                 val userId = loginResult.record.id.orEmpty()
@@ -68,10 +100,12 @@ class UserViewModel(
 
                 storePreferences.saveLogin(_email.value, _password.value, token, userId)
                 client.login(token)
+
                 onSuccess()
             } catch (e: Exception) {
-                errorMessage.value = "Login gagal: ${e.localizedMessage ?: "Unknown error"}"
-                onError(errorMessage.value!!)
+                val msg = "Login gagal: ${e.localizedMessage ?: "Terjadi kesalahan"}"
+                errorMessage.value = msg
+                onError(msg)
             } finally {
                 isLoading.value = false
             }
