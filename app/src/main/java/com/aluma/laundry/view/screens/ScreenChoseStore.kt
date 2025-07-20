@@ -1,5 +1,6 @@
 package com.aluma.laundry.view.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,6 +11,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -31,9 +34,11 @@ import org.koin.compose.koinInject
 @Composable
 fun ScreenChoseStore(
     modifier: Modifier = Modifier,
-    storeViewModel: StoreViewModel = koinInject()
+    storeViewModel: StoreViewModel = koinInject(),
+    nextScreen: () -> Unit
 ) {
-    val store by storeViewModel.store.collectAsState()
+    val storeList by storeViewModel.store.collectAsState()
+    val selectedStore by storeViewModel.selectedStore.collectAsState()
 
     Scaffold(
         topBar = {
@@ -43,6 +48,26 @@ fun ScreenChoseStore(
                     titleContentColor = MaterialTheme.colorScheme.primary
                 )
             )
+        },
+        bottomBar = {
+            if (selectedStore != null) {
+                BottomAppBar(
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            storeViewModel.saveStoreID()
+                            nextScreen()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        Text("Masuk")
+                    }
+                }
+            }
         }
     ) { innerPadding ->
         Column(
@@ -51,18 +76,23 @@ fun ScreenChoseStore(
                 .padding(innerPadding)
         ) {
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(vertical = 16.dp),
+                contentPadding = PaddingValues(bottom = 80.dp), // beri space buat bottomBar
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                items(store) { store ->
+                items(storeList) { store ->
                     ItemStoreCard(
                         store = store,
+                        isSelected = store.id == selectedStore?.id,
                         onClick = {
-
-                    })
+                            if (store.id == selectedStore?.id) {
+                                storeViewModel.selectStore(null)
+                            } else {
+                                storeViewModel.selectStore(store)
+                            }
+                        }
+                    )
                 }
             }
         }

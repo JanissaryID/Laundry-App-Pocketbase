@@ -71,7 +71,16 @@ fun AppNavHost(
             )
         }
         composable(Screens.ChoseStore.route) {
-            ScreenChoseStore()
+            ScreenChoseStore(
+                nextScreen = {
+                    navController.navigate(Screens.Home.route) {
+                        popUpTo(Screens.Home.route) {
+                            inclusive = true // Hapus Login dari backstack
+                        }
+                        launchSingleTop = true // Hindari multiple instance jika sudah di stack
+                    }
+                }
+            )
         }
     }
 }

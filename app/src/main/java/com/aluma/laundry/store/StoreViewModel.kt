@@ -31,6 +31,19 @@ class StoreViewModel (
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
 
+    private val _selectedStore = MutableStateFlow<Store?>(null)
+    val selectedStore: StateFlow<Store?> = _selectedStore
+
+    fun selectStore(store: Store?) {
+        _selectedStore.value = store
+    }
+
+    fun saveStoreID(){
+        viewModelScope.launch {
+            _selectedStore.value?.id?.let { storePreferences.saveStore(idStore = it) }
+        }
+    }
+
     init {
         viewModelScope.launch {
             storePreferences.userToken.collectLatest {
