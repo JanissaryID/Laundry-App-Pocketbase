@@ -1,5 +1,6 @@
-package com.aluma.laundry.view.screens
+package com.aluma.laundry.ui.view.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,8 +12,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -39,14 +42,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.user.UserViewModel
+import com.aluma.laundry.data.api.user.UserViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -65,6 +71,7 @@ fun ScreenLogin(
     var showSnackbar by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
 
     val isEmailValid = email.contains("@") && email.contains(".")
     val isPasswordValid = password.length >= 6
@@ -89,6 +96,13 @@ fun ScreenLogin(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Icon(
+                imageVector = Icons.Default.Lock,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp).padding(bottom = 16.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+
             Text(
                 text = "Masuk",
                 style = MaterialTheme.typography.headlineMedium,
@@ -100,11 +114,18 @@ fun ScreenLogin(
                 value = email,
                 onValueChange = userViewModel::onEmailChange,
                 label = { Text("Email") },
+                isError = !isEmailValid && email.isNotBlank(),
+                supportingText = {
+                    if (!isEmailValid && email.isNotBlank()) Text("Email tidak valid")
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
                 )
             )
 
@@ -114,11 +135,29 @@ fun ScreenLogin(
                 value = password,
                 onValueChange = userViewModel::onPasswordChange,
                 label = { Text("Password") },
+                isError = !isPasswordValid && password.isNotBlank(),
+                supportingText = {
+                    if (!isPasswordValid && password.isNotBlank()) Text("Minimal 6 karakter")
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        if (isFormValid && !isLoading) {
+                            userViewModel.login(
+                                onSuccess = { showSnackbar = true },
+                                onError = { errorMsg ->
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(errorMsg)
+                                    }
+                                }
+                            )
+                        }
+                    }
                 ),
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -135,18 +174,14 @@ fun ScreenLogin(
 
             Button(
                 onClick = {
-                    if (!isLoading) {
-                        userViewModel.login(
-                            onSuccess = {
-                                showSnackbar = true
-                            },
-                            onError = { errorMsg ->
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar(errorMsg, duration = SnackbarDuration.Short)
-                                }
+                    userViewModel.login(
+                        onSuccess = { showSnackbar = true },
+                        onError = { errorMsg ->
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(errorMsg)
                             }
-                        )
-                    }
+                        }
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()

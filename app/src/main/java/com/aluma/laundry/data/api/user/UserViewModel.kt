@@ -1,4 +1,4 @@
-package com.aluma.laundry.user
+package com.aluma.laundry.data.api.user
 
 import com.aluma.laundry.data.datastore.StorePreferences
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
@@ -63,7 +63,6 @@ class UserViewModel(
                 _showSuccessLogin.value = loggedIn
                 if (loggedIn) {
                     client.login(it)
-
                 }
             }
         }

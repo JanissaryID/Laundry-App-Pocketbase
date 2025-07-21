@@ -1,4 +1,4 @@
-package com.aluma.laundry.store
+package com.aluma.laundry.data.api.store
 
 import io.github.agrevster.pocketbaseKotlin.models.Record
 import kotlinx.serialization.Serializable

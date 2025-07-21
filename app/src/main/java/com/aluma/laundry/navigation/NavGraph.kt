@@ -1,7 +1,6 @@
 package com.aluma.laundry.navigation
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,10 +14,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
-import com.aluma.laundry.view.screens.ScreenChoseStore
-import com.aluma.laundry.view.screens.ScreenHome
-import com.aluma.laundry.view.screens.ScreenLoading
-import com.aluma.laundry.view.screens.ScreenLogin
+import com.aluma.laundry.ui.view.screens.ScreenChoseStore
+import com.aluma.laundry.ui.view.screens.ScreenHome
+import com.aluma.laundry.ui.view.screens.ScreenLoading
+import com.aluma.laundry.ui.view.screens.ScreenLogin
 import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
 
@@ -34,6 +33,7 @@ fun AppNavHost(
     val token by storePreferenceViewModel.token.collectAsState()
     val idUser by storePreferenceViewModel.idUser.collectAsState()
     val idStore by storePreferenceViewModel.idStore.collectAsState()
+    val nameStore by storePreferenceViewModel.nameStore.collectAsState()
 
     // Delay loading screen untuk UX (500ms)
     LaunchedEffect(Unit) {
@@ -59,7 +59,11 @@ fun AppNavHost(
     // Setelah loading selesai dan tujuan siap
     NavHost(navController = navController, startDestination = startDestination!!) {
         composable(Screens.Home.route) {
-            ScreenHome()
+            ScreenHome(
+                onNavigate = {
+
+                }
+            )
         }
         composable(Screens.Login.route) {
             ScreenLogin(

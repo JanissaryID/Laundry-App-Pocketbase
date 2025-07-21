@@ -1,6 +1,8 @@
-package com.aluma.laundry.store
+package com.aluma.laundry.data.api.service
 
 import android.util.Log
+import com.aluma.laundry.data.api.machine.Machine
+import com.aluma.laundry.data.api.store.Store
 import com.aluma.laundry.data.datastore.StorePreferences
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
@@ -11,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class StoreViewModel (
+class ServiceViewModel (
     private val storePreferences: StorePreferences,
 ): ViewModel() {
     private val client = PocketbaseClient(
@@ -21,30 +23,23 @@ class StoreViewModel (
         }
     )
 
-    private val collection = "Store"
-
-    private val _store = MutableStateFlow<List<Store>>(emptyList())
-    val store: StateFlow<List<Store>> = _store
+    private val collection = "Service"
 
     private val _token = MutableStateFlow<String?>(null)
-    val token: StateFlow<String?> = _token
+    private val _idStore = MutableStateFlow<String?>(null)
     private val _isLoggedIn = MutableStateFlow(false)
-    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
+    private val _idUser = MutableStateFlow<String?>(null)
 
-    private val _selectedStore = MutableStateFlow<Store?>(null)
-    val selectedStore: StateFlow<Store?> = _selectedStore
-
-    fun selectStore(store: Store?) {
-        _selectedStore.value = store
-    }
-
-    fun saveStoreID(){
-        viewModelScope.launch {
-            _selectedStore.value?.id?.let { storePreferences.saveStore(idStore = it) }
-        }
-    }
+    private val _service = MutableStateFlow<List<Service>>(emptyList())
+    val service: StateFlow<List<Service>> = _service
 
     init {
+        viewModelScope.launch {
+            storePreferences.userIdUser.collectLatest { _idUser.value = it.orEmpty() }
+        }
+        viewModelScope.launch {
+            storePreferences.userIdStore.collectLatest { _idStore.value = it.orEmpty() }
+        }
         viewModelScope.launch {
             storePreferences.userToken.collectLatest {
                 _token.value = it
@@ -52,19 +47,19 @@ class StoreViewModel (
                 _isLoggedIn.value = loggedIn
                 if (loggedIn) {
                     client.login(it)
-                    fetchStore()
+                    fetchService()
                 }
             }
         }
     }
 
-    fun fetchStore() {
+    fun fetchService() {
         viewModelScope.launch {
             try {
-                val fetched = client.records.getList<Store>(collection, page = 1, perPage = 500)
-                _store.value = fetched.items.reversed()
+                val fetched = client.records.getList<Service>(collection, page = 1, perPage = 100)
+                _service.value = fetched.items.reversed()
             } catch (e: Exception) {
-                Log.e("MainViewModel", "Fetch store failed", e)
+                Log.e("MainViewModel", "Fetch machine failed", e)
             }
         }
     }

@@ -19,6 +19,7 @@ class StorePreferences(private val context: Context) {
         val KEY_ID_USER = stringPreferencesKey("id_user")
         val KEY_IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
         val KEY_ID_STORE = stringPreferencesKey("id_store")
+        val KEY_NAME_STORE = stringPreferencesKey("name_store")
     }
 
     // ✅ Simpan data login
@@ -38,10 +39,12 @@ class StorePreferences(private val context: Context) {
     }
 
     suspend fun saveStore(
-        idStore: String
+        idStore: String,
+        nameStore: String,
     ) {
         context.dataStore.edit { prefs ->
             prefs[KEY_ID_STORE] = idStore
+            prefs[KEY_NAME_STORE] = nameStore
         }
     }
 
@@ -59,4 +62,5 @@ class StorePreferences(private val context: Context) {
     val userIdUser: Flow<String?> = context.dataStore.data.map { it[KEY_ID_USER] }
     val isLoggedIn: Flow<Boolean> = context.dataStore.data.map { it[KEY_IS_LOGGED_IN] ?: false }
     val userIdStore: Flow<String?> = context.dataStore.data.map { it[KEY_ID_STORE] }
+    val userNameStore: Flow<String?> = context.dataStore.data.map { it[KEY_NAME_STORE] }
 }
