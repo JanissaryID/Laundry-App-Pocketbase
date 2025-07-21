@@ -1,5 +1,6 @@
 package com.aluma.laundry.ui.view.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,8 +20,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.api.store.StoreViewModel
-import com.aluma.laundry.ui.view.components.ItemStoreCard
-import com.aluma.laundry.ui.view.components.StoreBottomBar
+import com.aluma.laundry.ui.view.components.itemscard.ItemStoreCard
+import com.aluma.laundry.ui.view.components.bottombar.StoreBottomBar
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,9 +57,11 @@ fun ScreenChoseStore(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .padding(horizontal = 16.dp)
         ) {
             LazyColumn(
-                contentPadding = PaddingValues(bottom = 80.dp), // beri space buat bottomBar
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(vertical = 16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)

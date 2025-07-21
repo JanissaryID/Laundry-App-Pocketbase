@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -29,20 +30,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.data.api.order.Order
+import com.aluma.laundry.data.api.order.OrderViewModel
 import com.aluma.laundry.data.api.store.StoreViewModel
 import com.aluma.laundry.data.api.user.UserViewModel
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheet
 import com.aluma.laundry.ui.view.components.fab.FabWithSubmenu
+import com.aluma.laundry.ui.view.components.itemscard.ItemOrderCard
+import com.aluma.laundry.ui.view.components.itemscard.ItemStoreCard
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenHome(
-    userViewModel: UserViewModel = koinInject(),
+    orderViewModel: OrderViewModel = koinInject(),
     storeViewModel: StoreViewModel = koinInject(),
     onNavigate: (String) -> Unit
 ) {
     val nameStore by storeViewModel.nameStore.collectAsState()
+    val orders by orderViewModel.orders.collectAsState()
     var isFabExpanded by remember { mutableStateOf(false) }
 
     var showOrderSheet by remember { mutableStateOf(false) }
@@ -75,15 +81,23 @@ fun ScreenHome(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
         ) {
             LazyColumn(
-                contentPadding = PaddingValues(bottom = 80.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(vertical = 16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                // List content di sini jika ada
+                items(orders) { order ->
+                    ItemOrderCard(
+                        order = order,
+                        onSelectToggle = {
+
+                        }
+                    )
+                }
             }
         }
     }
@@ -91,9 +105,8 @@ fun ScreenHome(
     if (showOrderSheet) {
         OrderBottomSheet(
             onDismissRequest = { showOrderSheet = false },
-            onSubmit = { customerName, service, machine ->
-                // 🔥 Proses order di sini
-                println("Order: $customerName - $service - $machine")
+            onSubmit = {
+                orderViewModel.createItem(order = it)
             }
         )
     }

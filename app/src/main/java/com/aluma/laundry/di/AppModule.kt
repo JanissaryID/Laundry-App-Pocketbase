@@ -1,6 +1,7 @@
 package com.aluma.laundry.di
 
 import com.aluma.laundry.data.api.machine.MachineViewModel
+import com.aluma.laundry.data.api.order.OrderViewModel
 import com.aluma.laundry.data.api.service.ServiceViewModel
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.data.datastore.StorePreferences
@@ -16,4 +17,5 @@ val appModule = module {
     single { StoreViewModel(storePreferences = get()) }
     single { MachineViewModel(storePreferences = get()) }
     single { ServiceViewModel(storePreferences = get()) }
+    single { OrderViewModel(storePreferences = get()) }
 }

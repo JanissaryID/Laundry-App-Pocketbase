@@ -1,8 +1,6 @@
-package com.aluma.laundry.data.api.service
+package com.aluma.laundry.data.api.order
 
 import android.util.Log
-import com.aluma.laundry.data.api.machine.Machine
-import com.aluma.laundry.data.api.store.Store
 import com.aluma.laundry.data.datastore.StorePreferences
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
@@ -12,8 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
-class ServiceViewModel (
+class OrderViewModel (
     private val storePreferences: StorePreferences,
 ): ViewModel() {
     private val client = PocketbaseClient(
@@ -23,17 +22,15 @@ class ServiceViewModel (
         }
     )
 
-    private val collection = "Service"
+    private val collection = "Order"
 
     private val _token = MutableStateFlow<String?>(null)
     private val _idStore = MutableStateFlow<String?>(null)
-    val idStore: StateFlow<String?> = _idStore
     private val _isLoggedIn = MutableStateFlow(false)
     private val _idUser = MutableStateFlow<String?>(null)
-    val idUser: StateFlow<String?> = _idUser
 
-    private val _service = MutableStateFlow<List<Service>>(emptyList())
-    val service: StateFlow<List<Service>> = _service
+    private val _orders = MutableStateFlow<List<Order>>(emptyList())
+    val orders: StateFlow<List<Order>> = _orders
 
     init {
         viewModelScope.launch {
@@ -49,19 +46,29 @@ class ServiceViewModel (
                 _isLoggedIn.value = loggedIn
                 if (loggedIn) {
                     client.login(it)
-                    fetchService()
+                    fetchOrder()
                 }
             }
         }
     }
 
-    fun fetchService() {
+    fun fetchOrder() {
         viewModelScope.launch {
             try {
-                val fetched = client.records.getList<Service>(collection, page = 1, perPage = 100)
-                _service.value = fetched.items.reversed()
+                val fetched = client.records.getList<Order>(collection, page = 1, perPage = 200)
+                _orders.value = fetched.items.reversed()
             } catch (e: Exception) {
-                Log.e("MainViewModel", "Fetch Services failed", e)
+                Log.e("MainViewModel", "Fetch Orders failed", e)
+            }
+        }
+    }
+
+    fun createItem(order: Order) {
+        viewModelScope.launch {
+            try {
+                val created = client.records.create<Order>(collection, Json.encodeToString(order))
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Create Orders failed", e)
             }
         }
     }

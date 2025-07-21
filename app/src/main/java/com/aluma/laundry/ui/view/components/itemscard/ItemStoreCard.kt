@@ -1,4 +1,4 @@
-package com.aluma.laundry.ui.view.components
+package com.aluma.laundry.ui.view.components.itemscard
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween

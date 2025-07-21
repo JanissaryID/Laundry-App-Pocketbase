@@ -1,4 +1,4 @@
-package com.aluma.laundry.ui.view.components
+package com.aluma.laundry.ui.view.components.bottombar
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

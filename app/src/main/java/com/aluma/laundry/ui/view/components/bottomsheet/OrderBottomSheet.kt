@@ -1,5 +1,6 @@
 package com.aluma.laundry.ui.view.components.bottomsheet
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -8,16 +9,26 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -25,20 +36,22 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.api.machine.Machine
 import com.aluma.laundry.data.api.machine.MachineViewModel
+import com.aluma.laundry.data.api.order.Order
+import com.aluma.laundry.data.api.order.TypePayment
 import com.aluma.laundry.data.api.service.Service
 import com.aluma.laundry.data.api.service.ServiceViewModel
-import com.aluma.laundry.ui.view.components.dropdown.MachineDropdown
 import com.aluma.laundry.ui.view.components.dropdown.ServiceDropdown
-import com.aluma.laundry.utils.capitalizeEachWord
 import com.aluma.laundry.utils.formatRupiah
 import org.koin.compose.koinInject
 
@@ -47,17 +60,18 @@ import org.koin.compose.koinInject
 fun OrderBottomSheet(
     onDismissRequest: () -> Unit,
     serviceViewModel: ServiceViewModel = koinInject(),
-    machineViewModel: MachineViewModel = koinInject(),
-    onSubmit: (customerName: String, service: Service, machine: Machine) -> Unit
+    onSubmit: (order: Order) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var customerName by remember { mutableStateOf("") }
     var selectedService by remember { mutableStateOf<Service?>(null) }
-    var selectedMachine by remember { mutableStateOf<Machine?>(null) }
+    var selectedMethod by remember { mutableStateOf(TypePayment.TUNAI) }
 
     val services by serviceViewModel.service.collectAsState()
-    val machines by machineViewModel.machineFilter.collectAsState()
-    val availableMachines = machines.filter { !it.inUse }
+    val idUser by serviceViewModel.idUser.collectAsState()
+    val idStore by serviceViewModel.idStore.collectAsState()
+
+    var isSubmitting by remember { mutableStateOf(false) }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -92,18 +106,74 @@ fun OrderBottomSheet(
                 services = services,
                 selectedService = selectedService,
                 onServiceSelected = {
-                    selectedMachine = null
                     selectedService = it
-                    machineViewModel.filterMachine(type = it.typeMachine, size = it.sizeMachine)
                 }
             )
 
-            MachineDropdown(
-                availableMachines = availableMachines,
-                selectedMachine = selectedMachine,
-                onMachineSelected = { selectedMachine = it },
-                enabled = selectedService != null && machines.isNotEmpty()
-            )
+            Text("Metode Pembayaran", style = MaterialTheme.typography.titleSmall)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                TypePayment.entries.forEach { method ->
+                    val isSelected = selectedMethod == method
+
+                    Card(
+                        onClick = { selectedMethod = method },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(96.dp)
+                            .border(
+                                width = if (isSelected) 2.dp else 1.dp,
+                                color = if (isSelected)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.outline,
+                                shape = RoundedCornerShape(16.dp)
+                            ),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isSelected)
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+                            else
+                                MaterialTheme.colorScheme.surface
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(12.dp)
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = when (method) {
+                                    TypePayment.TUNAI -> Icons.Default.AttachMoney
+                                    TypePayment.QRIS -> Icons.Default.QrCode
+                                },
+                                contentDescription = method.label,
+                                tint = if (isSelected)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = method.label,
+                                style = if (isSelected)
+                                    MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
+                                else
+                                    MaterialTheme.typography.bodyMedium,
+                                color = if (isSelected)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -111,34 +181,53 @@ fun OrderBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text(
-                        text = selectedService?.let {
-                            "${it.nameService} - ${formatRupiah(it.priceService)}"
-                        } ?: "",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = selectedMachine?.let {
-                            "Mesin ${it.numberMachine} - ${if (it.sizeMachine) "Besar (12kg)" else "Kecil (7kg)"}"
-                        } ?: "",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    if(selectedService != null){
+                        Text(
+                            text = selectedService?.let {
+                                "${it.nameService} - ${formatRupiah(it.priceService)}"
+                            } ?: "",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = selectedMethod.name,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
-
                 Button(
                     onClick = {
+                        isSubmitting = true
                         val service = selectedService
-                        val machine = selectedMachine
-                        if (service != null && machine != null) {
-                            onSubmit(customerName, service, machine)
+                        if (service != null) {
+
+                            val order = Order(
+                                customerName = customerName,
+                                serviceName = service.nameService,
+                                sizeMachine = service.sizeMachine,
+                                stepMachine = 0,
+                                price = service.priceService,
+                                typePayment = selectedMethod.name,
+                                user = idUser,
+                                store = idStore
+                            )
+
+                            onSubmit(order)
                             onDismissRequest()
                         }
                     },
-                    enabled = customerName.isNotBlank() && selectedService != null && if(selectedService!!.typeMachine < 3) selectedMachine != null else true,
+                    enabled = !isSubmitting && customerName.isNotBlank() && selectedService != null,
                 ) {
-                    Text("Lanjutkan")
+                    if (isSubmitting) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    } else {
+                        Text("Lanjutkan")
+                    }
                 }
             }
         }

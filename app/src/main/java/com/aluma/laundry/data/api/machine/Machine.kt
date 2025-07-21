@@ -10,5 +10,6 @@ data class Machine(
     val sizeMachine: Boolean = false,
     val user: String? = null,
     val store: String? = null,
+    val bluetoothAddress: String? = null,
     val inUse: Boolean = false,
 ) : Record()
