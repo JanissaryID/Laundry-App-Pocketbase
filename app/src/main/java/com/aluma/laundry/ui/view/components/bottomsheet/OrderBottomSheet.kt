@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,12 +26,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.api.machine.Machine
 import com.aluma.laundry.data.api.machine.MachineViewModel
 import com.aluma.laundry.data.api.service.Service
 import com.aluma.laundry.data.api.service.ServiceViewModel
+import com.aluma.laundry.ui.view.components.dropdown.MachineDropdown
+import com.aluma.laundry.ui.view.components.dropdown.ServiceDropdown
+import com.aluma.laundry.utils.capitalizeEachWord
 import com.aluma.laundry.utils.formatRupiah
 import org.koin.compose.koinInject
 
@@ -47,15 +55,9 @@ fun OrderBottomSheet(
     var selectedService by remember { mutableStateOf<Service?>(null) }
     var selectedMachine by remember { mutableStateOf<Machine?>(null) }
 
-    var serviceDropdownExpanded by remember { mutableStateOf(false) }
-    var machineDropdownExpanded by remember { mutableStateOf(false) }
-
     val services by serviceViewModel.service.collectAsState()
-    val machines by machineViewModel.machine.collectAsState()
+    val machines by machineViewModel.machineFilter.collectAsState()
     val availableMachines = machines.filter { !it.inUse }
-
-    val smallMachines = availableMachines.filter { !it.sizeMachine }
-    val bigMachines = availableMachines.filter { it.sizeMachine }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -71,161 +73,73 @@ fun OrderBottomSheet(
 
             OutlinedTextField(
                 value = customerName,
-                onValueChange = { customerName = it },
+                onValueChange = { input ->
+                    customerName = input
+                        .split(" ")
+                        .joinToString(" ") { word ->
+                            word.lowercase().replaceFirstChar { it.uppercase() }
+                        }
+                },
                 label = { Text("Nama Pelanggan") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words,
+                    imeAction = ImeAction.Next
+                )
             )
 
-            Text("Pilih Layanan", style = MaterialTheme.typography.labelMedium)
-
-            ExposedDropdownMenuBox(
-                expanded = serviceDropdownExpanded,
-                onExpandedChange = { serviceDropdownExpanded = !serviceDropdownExpanded },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedTextField(
-                    readOnly = true,
-                    value = selectedService?.nameService ?: "",
-                    onValueChange = {},
-                    label = { Text("Layanan") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = serviceDropdownExpanded)
-                    },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
-                )
-
-                ExposedDropdownMenu(
-                    expanded = serviceDropdownExpanded,
-                    onDismissRequest = { serviceDropdownExpanded = false }
-                ) {
-                    if (services.isEmpty()) {
-                        DropdownMenuItem(
-                            text = { Text("Tidak ada layanan tersedia") },
-                            onClick = {},
-                            enabled = false
-                        )
-                    } else {
-                        services.forEach { service ->
-                            DropdownMenuItem(
-
-                                text = {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        service.nameService?.let { Text(it) }
-                                        Text(formatRupiah(service.priceService.orEmpty()))
-                                    }
-                               },
-                                onClick = {
-                                    selectedService = service
-                                    serviceDropdownExpanded = false
-                                }
-                            )
-                        }
-                    }
+            ServiceDropdown(
+                services = services,
+                selectedService = selectedService,
+                onServiceSelected = {
+                    selectedMachine = null
+                    selectedService = it
+                    machineViewModel.filterMachine(type = it.typeMachine, size = it.sizeMachine)
                 }
-            }
+            )
 
-            Text("Pilih Mesin", style = MaterialTheme.typography.labelMedium)
+            MachineDropdown(
+                availableMachines = availableMachines,
+                selectedMachine = selectedMachine,
+                onMachineSelected = { selectedMachine = it },
+                enabled = selectedService != null && machines.isNotEmpty()
+            )
 
-            ExposedDropdownMenuBox(
-                expanded = machineDropdownExpanded,
-                onExpandedChange = { machineDropdownExpanded = !machineDropdownExpanded },
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedTextField(
-                    readOnly = true,
-                    value = selectedMachine?.let {
-                        "Mesin ${it.numberMachine} - ${if (it.sizeMachine) "Besar (12kg)" else "Kecil (7kg)"}"
-                    } ?: "",
-                    onValueChange = {},
-                    label = { Text("Mesin Tersedia") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = machineDropdownExpanded)
-                    },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
-                )
-
-                ExposedDropdownMenu(
-                    expanded = machineDropdownExpanded,
-                    onDismissRequest = { machineDropdownExpanded = false }
-                ) {
-                    if (availableMachines.isEmpty()) {
-                        DropdownMenuItem(
-                            text = { Text("Tidak ada mesin tersedia") },
-                            onClick = {},
-                            enabled = false
-                        )
-                    } else {
-                        if (smallMachines.isNotEmpty()) {
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        "Mesin Kecil (7kg)",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                },
-                                onClick = {},
-                                enabled = false
-                            )
-                            smallMachines.forEach { machine ->
-                                DropdownMenuItem(
-                                    text = { Text("Mesin ${machine.numberMachine}") },
-                                    onClick = {
-                                        selectedMachine = machine
-                                        machineDropdownExpanded = false
-                                    }
-                                )
-                            }
-                        }
-
-                        if (bigMachines.isNotEmpty()) {
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        "Mesin Besar (12kg)",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                },
-                                onClick = {},
-                                enabled = false
-                            )
-                            bigMachines.forEach { machine ->
-                                DropdownMenuItem(
-                                    text = { Text("Mesin ${machine.numberMachine}") },
-                                    onClick = {
-                                        selectedMachine = machine
-                                        machineDropdownExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
+                Column {
+                    Text(
+                        text = selectedService?.let {
+                            "${it.nameService} - ${formatRupiah(it.priceService)}"
+                        } ?: "",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = selectedMachine?.let {
+                            "Mesin ${it.numberMachine} - ${if (it.sizeMachine) "Besar (12kg)" else "Kecil (7kg)"}"
+                        } ?: "",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = {
-                    val service = selectedService
-                    val machine = selectedMachine
-                    if (service != null && machine != null) {
-                        onSubmit(customerName, service, machine)
-                        onDismissRequest()
-                    }
-                },
-                enabled = customerName.isNotBlank() && selectedService != null && selectedMachine != null,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Lanjutkan")
+                Button(
+                    onClick = {
+                        val service = selectedService
+                        val machine = selectedMachine
+                        if (service != null && machine != null) {
+                            onSubmit(customerName, service, machine)
+                            onDismissRequest()
+                        }
+                    },
+                    enabled = customerName.isNotBlank() && selectedService != null && if(selectedService!!.typeMachine < 3) selectedMachine != null else true,
+                ) {
+                    Text("Lanjutkan")
+                }
             }
         }
     }

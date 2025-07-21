@@ -32,6 +32,9 @@ class MachineViewModel (
     private val _machine = MutableStateFlow<List<Machine>>(emptyList())
     val machine: StateFlow<List<Machine>> = _machine
 
+    private val _machineFilter = MutableStateFlow<List<Machine>>(emptyList())
+    val machineFilter: StateFlow<List<Machine>> = _machineFilter
+
     init {
         viewModelScope.launch {
             storePreferences.userIdUser.collectLatest { _idUser.value = it.orEmpty() }
@@ -60,6 +63,22 @@ class MachineViewModel (
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Fetch machine failed", e)
             }
+        }
+    }
+
+    fun filterMachine(type: Int, size: Boolean) {
+        viewModelScope.launch {
+            val filtered = _machine.value.filter { machine ->
+                val matchType = when (type) {
+                    0 -> !machine.typeMachine
+                    1 -> machine.typeMachine
+                    2 -> !machine.typeMachine
+                    else -> false // 2 = semua type
+                }
+                val matchSize = machine.sizeMachine == size
+                matchType && matchSize
+            }
+            _machineFilter.value = filtered
         }
     }
 }
