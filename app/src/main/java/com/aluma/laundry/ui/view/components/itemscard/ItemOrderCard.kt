@@ -18,10 +18,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DryCleaning
+import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.HourglassEmpty
+import androidx.compose.material.icons.filled.LocalLaundryService
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material.icons.filled.Water
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -38,11 +45,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.api.order.Order
+import com.aluma.laundry.data.api.order.Quad
+import com.aluma.laundry.ui.view.components.InfoLabelValue
 
 @Composable
 fun ItemOrderCard(
     order: Order,
-    onSelectToggle: () -> Unit = {}
+    onSelect: () -> Unit = {}
 ) {
     val backgroundColor = Color(0xFFFDFDFD)
     val shape = RoundedCornerShape(16.dp)
@@ -50,29 +59,45 @@ fun ItemOrderCard(
 
     val machineType = if (order.sizeMachine) "Besar" else "Kecil"
     val stepMachine = order.stepMachine
-    val machineNumber = order.numberMachine ?: "-"
-    val isComplete = stepMachine == 2
+    val machineNumber = order.numberMachine
 
-    val statusMessage = when (stepMachine) {
-        0 -> "Belum memilih dan menyalakan mesin cuci"
-        1 -> "Belum memilih dan menyalakan mesin pengering"
-        2 -> "Sedang mencuci di mesin nomor $machineNumber"
-        3 -> "Sedang mengeringkan di mesin nomor $machineNumber"
-        else -> "Status tidak diketahui"
-    }
-
-    val statusColor = when (stepMachine) {
-        0 -> Color.Red.copy(alpha = 0.1f)
-        1 -> Color.Yellow.copy(alpha = 0.1f)
-        2 -> Color.Blue.copy(alpha = 0.1f)
-        3 -> Color.Green.copy(alpha = 0.1f)
-        else -> Color.LightGray.copy(alpha = 0.1f)
+    val (statusMessage, statusColor, statusIcon, iconTint) = when (stepMachine) {
+        0 -> Quad(
+            "Belum memilih dan menyalakan mesin cuci",
+            Color.Red.copy(alpha = 0.1f),
+            Icons.Default.ErrorOutline,
+            Color.Red
+        )
+        1 -> Quad(
+            "Belum memilih dan menyalakan mesin pengering",
+            Color(0xFFFFF3CD),
+            Icons.Default.WarningAmber,
+            Color(0xFFFFA000)
+        )
+        2 -> Quad(
+            "Sedang mencuci di mesin nomor $machineNumber",
+            Color(0xFFE3F2FD),
+            Icons.Default.LocalLaundryService,
+            Color(0xFF2196F3)
+        )
+        3 -> Quad(
+            "Sedang mengeringkan di mesin nomor $machineNumber",
+            Color(0xFFE8F5E9),
+            Icons.Default.DryCleaning,
+            Color(0xFF4CAF50)
+        )
+        else -> Quad(
+            "Status tidak diketahui",
+            Color.LightGray.copy(alpha = 0.1f),
+            Icons.Default.HelpOutline,
+            Color.Gray
+        )
     }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .border(2.dp, Color.Transparent, shape = shape),
+            .border(2.dp, Color.Transparent, shape),
         shape = shape,
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
@@ -83,14 +108,13 @@ fun ItemOrderCard(
                 .clickable(
                     interactionSource = interactionSource,
                     indication = LocalIndication.current,
-                    onClick = onSelectToggle
+                    onClick = onSelect
                 )
                 .padding(16.dp)
         ) {
             Text(
                 text = order.customerName ?: "Tanpa Nama",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -101,32 +125,8 @@ fun ItemOrderCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
-                    Text(
-                        text = "Tipe Mesin",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.Gray
-                    )
-                    Text(
-                        text = machineType,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-
-                Column {
-                    Text(
-                        text = "Layanan",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.Gray
-                    )
-                    Text(
-                        text = order.serviceName ?: "-",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+                InfoLabelValue(label = "Layanan", value = order.serviceName ?: "-", highlight = true)
+                InfoLabelValue(label = "Tipe Mesin", value = machineType)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -139,15 +139,9 @@ fun ItemOrderCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = if (stepMachine == 2) Icons.Default.Water else Icons.Default.Warning,
+                    imageVector = statusIcon,
                     contentDescription = null,
-                    tint = when (stepMachine) {
-                        0 -> Color.Red
-                        1 -> Color(0xFFFFA000)
-                        2 -> Color(0xFF4CAF50)
-                        3 -> Color(0xFF4CAF50)
-                        else -> Color.Gray
-                    },
+                    tint = iconTint,
                     modifier = Modifier.size(20.dp)
                 )
 
@@ -155,9 +149,10 @@ fun ItemOrderCard(
 
                 Text(
                     text = statusMessage,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Black
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black
+                    )
                 )
             }
         }

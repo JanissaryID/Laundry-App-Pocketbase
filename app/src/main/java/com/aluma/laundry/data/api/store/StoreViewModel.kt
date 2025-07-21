@@ -17,7 +17,7 @@ class StoreViewModel (
     private val client = PocketbaseClient(
         baseUrl = {
             protocol = URLProtocol.Companion.HTTPS
-            host = "03d4a5b4817b.ngrok-free.app"
+            host = "0f9489584773.ngrok-free.app"
         }
     )
 

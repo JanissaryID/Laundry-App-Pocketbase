@@ -30,11 +30,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.data.api.machine.MachineViewModel
 import com.aluma.laundry.data.api.order.Order
 import com.aluma.laundry.data.api.order.OrderViewModel
 import com.aluma.laundry.data.api.store.StoreViewModel
 import com.aluma.laundry.data.api.user.UserViewModel
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheet
+import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheetInformation
 import com.aluma.laundry.ui.view.components.fab.FabWithSubmenu
 import com.aluma.laundry.ui.view.components.itemscard.ItemOrderCard
 import com.aluma.laundry.ui.view.components.itemscard.ItemStoreCard
@@ -45,6 +47,7 @@ import org.koin.compose.koinInject
 fun ScreenHome(
     orderViewModel: OrderViewModel = koinInject(),
     storeViewModel: StoreViewModel = koinInject(),
+    machineViewModel: MachineViewModel = koinInject(),
     onNavigate: (String) -> Unit
 ) {
     val nameStore by storeViewModel.nameStore.collectAsState()
@@ -52,6 +55,7 @@ fun ScreenHome(
     var isFabExpanded by remember { mutableStateOf(false) }
 
     var showOrderSheet by remember { mutableStateOf(false) }
+    var showOrderSheetMachine by remember { mutableStateOf(false) }
 
 
     Scaffold(
@@ -93,8 +97,11 @@ fun ScreenHome(
                 items(orders) { order ->
                     ItemOrderCard(
                         order = order,
-                        onSelectToggle = {
-
+                        onSelect = {
+                            if(order.stepMachine < 2){
+                                showOrderSheetMachine = true
+                                machineViewModel.filterMachine(type = order.typeMachine, size = it.sizeMachine)
+                            }
                         }
                     )
                 }
@@ -108,6 +115,17 @@ fun ScreenHome(
             onSubmit = {
                 orderViewModel.createItem(order = it)
             }
+        )
+    }
+
+    if (showOrderSheetMachine) {
+        OrderBottomSheetInformation(
+            order = orders[0],
+            onDismissRequest = { showOrderSheetMachine = false },
+            onSubmit = {
+//                orderViewModel.createItem(order = it)
+            },
+            isSubmitting = true
         )
     }
 }
