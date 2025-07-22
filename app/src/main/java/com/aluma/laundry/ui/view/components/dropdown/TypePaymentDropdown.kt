@@ -1,6 +1,5 @@
 package com.aluma.laundry.ui.view.components.dropdown
 
-import android.R.attr.enabled
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -15,7 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.aluma.laundry.data.api.order.TypePayment
+import com.aluma.laundry.data.api.order.model.TypePayment
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

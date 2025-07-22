@@ -57,7 +57,6 @@ fun ScreenChoseStore(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
         ) {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp),

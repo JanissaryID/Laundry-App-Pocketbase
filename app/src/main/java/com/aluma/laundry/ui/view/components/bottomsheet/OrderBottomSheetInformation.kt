@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.LocalLaundryService
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -37,7 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.api.machine.Machine
 import com.aluma.laundry.data.api.machine.MachineViewModel
-import com.aluma.laundry.data.api.order.Order
+import com.aluma.laundry.data.api.order.model.Order
 import com.aluma.laundry.ui.view.components.dropdown.MachineDropdown
 import com.aluma.laundry.utils.formatRupiah
 import org.koin.compose.koinInject
@@ -48,14 +47,15 @@ fun OrderBottomSheetInformation(
     machineViewModel: MachineViewModel = koinInject(),
     order: Order,
     onDismissRequest: () -> Unit,
-    onSubmit: (Machine?) -> Unit,
-    isSubmitting: Boolean = false
+    onSubmit: (Machine?, onDone: () -> Unit) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val machines by machineViewModel.machineFilter.collectAsState()
     var selectedMachine by remember { mutableStateOf<Machine?>(null) }
 
     val availableMachines = machines.filter { !it.inUse }
+
+    var isSubmitting by remember { mutableStateOf(false) }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -64,59 +64,82 @@ fun OrderBottomSheetInformation(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 28.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .padding(bottom = 20.dp)
+                .padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Header
             Text(
-                text = "Konfirmasi Order",
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                text = "Detail Pesanan",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
             )
 
-            HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
+            // Informasi Pesanan
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OrderInfo(label = "Nama Pelanggan", value = order.customerName ?: "-")
+                OrderInfo(
+                    label = "Layanan",
+                    value = "${order.serviceName ?: "-"} (${if (order.sizeMachine) "Mesin Besar" else "Mesin Kecil"})"
+                )
+                OrderInfo(
+                    label = "Harga & Pembayaran",
+                    value = "${formatRupiah(order.price ?: "0")} • ${order.typePayment ?: "-"}"
+                )
+            }
 
-            InfoRow(Icons.Default.Person, "Nama Pelanggan", order.customerName ?: "-")
-            InfoRow(
-                Icons.Default.LocalLaundryService,
-                "Layanan",
-                "${order.serviceName ?: "-"} (${if (order.sizeMachine) "Besar" else "Kecil"})"
-            )
-            InfoRow(
-                Icons.Default.AttachMoney,
-                "Harga",
-                "${formatRupiah(order.price ?: "0")} • ${order.typePayment ?: "-"}"
-            )
+            HorizontalDivider()
 
-            HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
-
+            // Dropdown mesin
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    text = "Pilih Mesin",
+                    text = "Pilih Mesin yang Tersedia",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
                 MachineDropdown(
                     availableMachines = availableMachines,
                     selectedMachine = selectedMachine,
                     onMachineSelected = { selectedMachine = it },
-                    enabled = machines.isNotEmpty()
+                    enabled = availableMachines.isNotEmpty()
                 )
+
+                if (availableMachines.isEmpty()) {
+                    Text(
+                        text = "Semua mesin sedang digunakan.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
             Button(
-                onClick = { onSubmit(selectedMachine) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !isSubmitting && selectedMachine != null
+                onClick = {
+                    isSubmitting = true
+                    onSubmit(selectedMachine) {
+                        isSubmitting = false
+                        onDismissRequest() // ⬅️ Tutup setelah semua selesai
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                enabled = selectedMachine != null && !isSubmitting
             ) {
                 if (isSubmitting) {
-                    CircularProgressIndicator(
-                        color = Color.White,
-                        strokeWidth = 2.dp,
-                        modifier = Modifier.size(18.dp)
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text("Memproses...")
+                    }
                 } else {
-                    Text("Konfirmasi dan Lanjutkan")
+                    Text("Konfirmasi & Mulai")
                 }
             }
         }
@@ -124,30 +147,27 @@ fun OrderBottomSheetInformation(
 }
 
 @Composable
-fun InfoRow(icon: ImageVector, label: String, value: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = label,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(20.dp)
+fun OrderInfo(label: String, value: String, isHighlight: Boolean = false) {
+    Column {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Column {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
+        Text(
+            text = value,
+            style = if (isHighlight) {
+                MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            } else {
+                MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        )
     }
 }
 

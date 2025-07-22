@@ -1,4 +1,4 @@
-package com.aluma.laundry.data.api.order
+package com.aluma.laundry.data.api.order.model
 
 import io.github.agrevster.pocketbaseKotlin.models.Record
 import kotlinx.serialization.Serializable
@@ -10,6 +10,7 @@ data class Order(
     val sizeMachine: Boolean = false,
     val stepMachine: Int = 0,
     val numberMachine: Int = 0,
+    val typeMachineService: Int = 0,
     val price: String? = null,
     val typePayment: String? = null,
     val user: String? = null,

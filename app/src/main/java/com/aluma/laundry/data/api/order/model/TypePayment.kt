@@ -1,4 +1,4 @@
-package com.aluma.laundry.data.api.order
+package com.aluma.laundry.data.api.order.model
 
 enum class TypePayment(val label: String) {
     TUNAI("Tunai"),
