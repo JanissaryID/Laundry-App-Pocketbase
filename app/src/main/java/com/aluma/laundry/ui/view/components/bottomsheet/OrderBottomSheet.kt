@@ -197,11 +197,13 @@ fun OrderBottomSheet(
                                 customerName = customerName,
                                 serviceName = service.nameService,
                                 sizeMachine = service.sizeMachine,
-                                stepMachine = 0,
+                                stepMachine = service.typeMachine,
                                 price = service.priceService,
                                 typePayment = selectedMethod.name,
                                 user = idUser,
-                                store = idStore
+                                store = idStore,
+                                typeMachineService = service.typeMachine,
+                                numberMachine = 0
                             )
 
                             onSubmit(order)

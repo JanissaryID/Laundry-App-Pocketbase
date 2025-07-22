@@ -26,6 +26,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -33,6 +34,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.io.EOFException
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
+import kotlin.coroutines.cancellation.CancellationException
 
 class OrderViewModel(
     private val storePreferences: StorePreferences
@@ -51,6 +53,9 @@ class OrderViewModel(
 
     private val _orders = MutableStateFlow<List<Order>>(emptyList())
     val orders: StateFlow<List<Order>> = _orders
+
+    private val _ordersFilter = MutableStateFlow<List<Order>>(emptyList())
+    val ordersFilter: StateFlow<List<Order>> = _ordersFilter
 
     private val _selectedOrder = MutableStateFlow<Order?>(null)
     val selectedOrder: StateFlow<Order?> = _selectedOrder
@@ -93,52 +98,76 @@ class OrderViewModel(
             try {
                 val fetched = client.records.getList<Order>(collection, page = 1, perPage = 200)
                 _orders.value = fetched.items.reversed()
+                filterOrdersByStepMachine()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                Log.e("OrderViewModel", "Fetch Orders failed", e)
+                Log.e("OrderViewModel", "❌ Fetch Orders failed", e)
             }
+        }
+    }
+
+    fun filterOrdersByStepMachine(maxStep: Int = 4) {
+        viewModelScope.launch {
+            val filtered = _orders.value.filter { order ->
+                order.stepMachine < maxStep
+            }
+            _ordersFilter.value = filtered
+            Log.d("OrderViewModel", "Filtered orders (step < 4): ${filtered.size}")
         }
     }
 
     fun createOrder(order: Order) {
         viewModelScope.launch {
             try {
-                client.records.create<Order>(collection, Json.encodeToString(order))
+                client.records.create<Order>(
+                    collection,
+                    Json.encodeToString(order)
+                )
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                Log.e("OrderViewModel", "Create Order failed", e)
+                Log.e("OrderViewModel", "❌ Create Order failed", e)
             }
         }
     }
 
     fun patchOrder(id: String?, order: Order) {
         viewModelScope.launch {
+            if (id.isNullOrBlank()) {
+                Log.e("OrderViewModel", "❌ Patch Order skipped: ID is null or blank")
+                return@launch
+            }
+
             try {
                 client.records.update<Order>(
-                    id = id!!,
+                    id = id,
                     sub = collection,
                     body = Json.encodeToString(order)
                 )
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                Log.e("OrderViewModel", "Patch Order failed", e)
+                Log.e("OrderViewModel", "❌ Patch Order failed", e)
             }
         }
     }
 
     fun subscribeRealtimeOrders() {
-        sseJob = viewModelScope.launch(Dispatchers.IO) {
+        sseJob = viewModelScope.launch(Dispatchers.IO + SupervisorJob()) {
             while (isActive) {
                 try {
                     if (!sseIsConnected.value) {
                         Log.d("SseClient", "Trying to connect to SSE...")
 
                         client.httpClient.sse(path = "/api/realtime") {
-                            incoming
-                                .flowOn(Dispatchers.IO)
-                                .onEach { sseEvent ->
-                                    sseEvent.id?.let { id ->
-                                        sseId.value = id
+                            try {
+                                incoming
+                                    .onEach { sseEvent ->
                                         sseIsConnected.value = true
+                                        sseId.value = sseEvent.id
 
-                                        Log.d("SseClient", "SSE Connected with ID: $id")
+                                        Log.d("SseClient", "SSE Event: id=${sseEvent.id}, data=${sseEvent.data}")
 
                                         viewModelScope.launch {
                                             sendSubscribeRequest()
@@ -146,26 +175,32 @@ class OrderViewModel(
 
                                         processEvent(sseEvent.data)
                                     }
-                                }
-                                .catch { e ->
-                                    Log.e("OrderViewModel", "SSE flow error: ${e.message}", e)
-                                    sseIsConnected.value = false
-                                }
-                                .collect()
+                                    .catch { e ->
+                                        sseIsConnected.value = false
+                                        Log.e("SseClient", "SSE flow error (catch): ${e.message}", e)
+                                    }
+                                    .collect()
+                            } catch (e: Exception) {
+                                Log.e("SseClient", "SSE inner error", e)
+                                sseIsConnected.value = false
+                            }
                         }
                     } else {
                         Log.d("SseClient", "SSE already connected")
                     }
                 } catch (e: EOFException) {
-                    Log.e("OrderViewModel", "EOF - SSE Connection closed by server", e)
+                    Log.e("SseClient", "EOF - SSE Connection closed by server", e)
                     sseIsConnected.value = false
+                } catch (e: CancellationException) {
+                    Log.w("SseClient", "SSE Cancelled (likely viewModelScope cleared)", e)
+                    break // keluar dari loop
                 } catch (e: Exception) {
-                    Log.e("OrderViewModel", "SSE connection error", e)
+                    Log.e("SseClient", "SSE connection error (outer catch)", e)
                     sseIsConnected.value = false
                 }
 
                 Log.d("SseClient", "Waiting 5s before retrying SSE connection...")
-                delay(5_000)
+                delay(5000)
             }
         }
     }

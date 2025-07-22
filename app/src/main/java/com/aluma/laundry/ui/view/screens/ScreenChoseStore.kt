@@ -20,8 +20,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.api.store.StoreViewModel
+import com.aluma.laundry.ui.view.components.EmptyState
 import com.aluma.laundry.ui.view.components.itemscard.ItemStoreCard
 import com.aluma.laundry.ui.view.components.bottombar.StoreBottomBar
+import com.aluma.laundry.ui.view.components.itemscard.ItemOrderCard
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,26 +59,34 @@ fun ScreenChoseStore(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .padding(horizontal = 16.dp)
         ) {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(vertical = 16.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                items(storeList) { store ->
-                    ItemStoreCard(
-                        store = store,
-                        isSelected = store.id == selectedStore?.id,
-                        onClick = {
-                            if (store.id == selectedStore?.id) {
-                                storeViewModel.selectStore(null)
-                            } else {
-                                storeViewModel.selectStore(store)
+            if (storeList.isEmpty()) {
+                EmptyState(
+                    title = "Belum ada Toko",
+                    message = "Hubungi Pengembang untuk menambahkan Toko,\nkemudian akan muncul di sini secara otomatis."
+                )
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(vertical = 16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    items(storeList) { store ->
+                        ItemStoreCard(
+                            store = store,
+                            isSelected = store.id == selectedStore?.id,
+                            onClick = {
+                                if (store.id == selectedStore?.id) {
+                                    storeViewModel.selectStore(null)
+                                } else {
+                                    storeViewModel.selectStore(store)
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }

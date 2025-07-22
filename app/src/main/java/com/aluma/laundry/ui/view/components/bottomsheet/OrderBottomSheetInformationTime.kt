@@ -1,6 +1,7 @@
 package com.aluma.laundry.ui.view.components.bottomsheet
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,12 +12,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DryCleaning
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.LocalLaundryService
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Print
+import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -44,26 +52,67 @@ import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.api.machine.Machine
 import com.aluma.laundry.data.api.machine.MachineViewModel
 import com.aluma.laundry.data.api.order.model.Order
+import com.aluma.laundry.data.api.order.model.Quad
+import com.aluma.laundry.ui.view.components.CountdownTimer
 import com.aluma.laundry.ui.view.components.OrderInfo
 import com.aluma.laundry.ui.view.components.dropdown.MachineDropdown
 import com.aluma.laundry.utils.formatRupiah
 import org.koin.compose.koinInject
+import java.time.Duration
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrderBottomSheetInformation(
-    machineViewModel: MachineViewModel = koinInject(),
+fun OrderBottomSheetInformationTime(
     order: Order,
+    machine: Machine,
+    stepMachine: Int,
+    machineNumber: Int?,
     onDismissRequest: () -> Unit,
-    onSubmit: (Machine?, onDone: () -> Unit) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val machines by machineViewModel.machineFilter.collectAsState()
-    var selectedMachine by remember { mutableStateOf<Machine?>(null) }
-
-    val availableMachines = machines.filter { !it.inUse }
-
     var isSubmitting by remember { mutableStateOf(false) }
+
+    val (startTimeMillis, endTimeMillis) = remember(machine.timeOn, machine.timer) {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX")
+            .withZone(ZoneOffset.UTC)
+
+        try {
+            val startInstant = formatter.parse(machine.timeOn, Instant::from)
+            val endInstant = startInstant.plus(Duration.ofMinutes(machine.timer.toLong()))
+            startInstant.toEpochMilli() to endInstant.toEpochMilli()
+        } catch (e: Exception) {
+            val now = System.currentTimeMillis()
+            now to now
+        }
+    }
+
+    val currentTimeMillis = System.currentTimeMillis()
+    val isTimeUp = currentTimeMillis >= endTimeMillis
+
+    // 🌟 Header Status Mesin Berdasarkan stepMachine
+    val (statusMessage, statusColor, statusIcon, iconTint) = when (stepMachine) {
+        2 -> Quad(
+            "Sedang mencuci di mesin nomor ${machineNumber ?: "-"}",
+            Color(0xFFE3F2FD),
+            Icons.Default.LocalLaundryService,
+            Color(0xFF2196F3)
+        )
+        3 -> Quad(
+            "Sedang mengeringkan di mesin nomor ${machineNumber ?: "-"}",
+            Color(0xFFE8F5E9),
+            Icons.Default.DryCleaning,
+            Color(0xFF4CAF50)
+        )
+        else -> Quad(
+            "Status tidak diketahui",
+            Color.LightGray.copy(alpha = 0.1f),
+            Icons.AutoMirrored.Filled.HelpOutline,
+            Color.Gray
+        )
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -76,13 +125,14 @@ fun OrderBottomSheetInformation(
                 .padding(horizontal = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header
+            // 🧾 Header Dinamis
             Text(
-                text = "Detail Pesanan",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+                text = statusMessage,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                color = iconTint
             )
 
-            // Informasi Pesanan
+            // Detail Pesanan
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OrderInfo(label = "Nama Pelanggan", value = order.customerName ?: "-")
                 OrderInfo(
@@ -97,28 +147,20 @@ fun OrderBottomSheetInformation(
 
             HorizontalDivider()
 
-            // Dropdown mesin
+            // ⏳ Countdown Mesin
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    text = "Pilih Mesin yang Tersedia",
+                    text = "Sisa Waktu Mesin",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                MachineDropdown(
-                    availableMachines = availableMachines,
-                    selectedMachine = selectedMachine,
-                    onMachineSelected = { selectedMachine = it },
-                    enabled = availableMachines.isNotEmpty()
+                CountdownTimer(
+                    startTimeMillis = startTimeMillis,
+                    endTimeMillis = endTimeMillis,
+                    onFinish = { println("Waktu mesin habis!") },
+                    modifier = Modifier.padding(16.dp)
                 )
-
-                if (availableMachines.isEmpty()) {
-                    Text(
-                        text = "Semua mesin sedang digunakan.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
             }
 
             Row(
@@ -150,37 +192,25 @@ fun OrderBottomSheetInformation(
                 }
 
                 Button(
-                    onClick = {
-                        isSubmitting = true
-                        onSubmit(selectedMachine) {
-                            isSubmitting = false
-                            onDismissRequest() // ⬅️ Tutup setelah semua selesai
-                        }
-                    },
+                    onClick = onDismissRequest,
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp),
-                    enabled = selectedMachine != null && !isSubmitting
+                    shape = CircleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = Color.White
+                    )
                 ) {
-                    if (isSubmitting) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            CircularProgressIndicator(
-                                color = Color.White,
-                                strokeWidth = 2.dp,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Text("Memproses...")
-                        }
-                    } else {
-                        Text("Mulai")
-                    }
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text("Tutup")
                 }
             }
         }
     }
 }
-
-
