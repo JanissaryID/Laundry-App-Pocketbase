@@ -35,9 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.room.machine.MachineRoom
-import com.aluma.laundry.data.room.machine.MachineRoomViewModel
-import com.aluma.laundry.data.room.order.OrderRoom
+import com.aluma.laundry.data.machine.local.MachineLocalViewModel
+import com.aluma.laundry.data.machine.model.MachineLocal
+import com.aluma.laundry.data.order.model.OrderLocal
 import com.aluma.laundry.ui.view.components.OrderInfo
 import com.aluma.laundry.ui.view.components.dropdown.MachineDropdown
 import com.aluma.laundry.utils.formatRupiah
@@ -46,14 +46,14 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderBottomSheetInformation(
-    machineRoomViewModel: MachineRoomViewModel = koinInject(),
-    order: OrderRoom,
+    machineLocalViewModel: MachineLocalViewModel = koinInject(),
+    order: OrderLocal,
     onDismissRequest: () -> Unit,
-    onSubmit: (MachineRoom?, onDone: () -> Unit) -> Unit
+    onSubmit: (MachineLocal?, onDone: () -> Unit) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val machines by machineRoomViewModel.machineFilter.collectAsState()
-    var selectedMachine by remember { mutableStateOf<MachineRoom?>(null) }
+    val machines by machineLocalViewModel.machineFilter.collectAsState()
+    var selectedMachine by remember { mutableStateOf<MachineLocal?>(null) }
 
     val availableMachines = machines.filter { !it.inUse }
 

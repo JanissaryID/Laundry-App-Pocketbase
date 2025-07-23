@@ -35,11 +35,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.api.store.Store
+import com.aluma.laundry.data.store.StoreRemote
 
 @Composable
 fun ItemStoreCard(
-    store: Store,
+    storeRemote: StoreRemote,
     isSelected: Boolean = false,
     onClick: () -> Unit = {}
 ) {
@@ -98,28 +98,28 @@ fun ItemStoreCard(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = store.storeName.orEmpty().ifBlank { "Nama Toko Tidak Diketahui" },
+                    text = storeRemote.storeName.orEmpty().ifBlank { "Nama Toko Tidak Diketahui" },
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
-                if (!store.city.isNullOrBlank() || !store.address.isNullOrBlank()) {
+                if (!storeRemote.city.isNullOrBlank() || !storeRemote.address.isNullOrBlank()) {
                     val locationText = buildAnnotatedString {
-                        if (!store.city.isNullOrBlank()) {
+                        if (!storeRemote.city.isNullOrBlank()) {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                                append(store.city)
+                                append(storeRemote.city)
                             }
                         }
 
-                        if (!store.city.isNullOrBlank() && !store.address.isNullOrBlank()) {
+                        if (!storeRemote.city.isNullOrBlank() && !storeRemote.address.isNullOrBlank()) {
                             append(" • ")
                         }
 
-                        if (!store.address.isNullOrBlank()) {
+                        if (!storeRemote.address.isNullOrBlank()) {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Normal)) {
-                                append(store.address)
+                                append(storeRemote.address)
                             }
                         }
                     }

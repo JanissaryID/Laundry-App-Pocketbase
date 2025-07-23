@@ -38,10 +38,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.api.order.model.TypePayment
-import com.aluma.laundry.data.api.service.Service
-import com.aluma.laundry.data.api.service.ServiceViewModel
-import com.aluma.laundry.data.room.order.OrderRoom
+import com.aluma.laundry.data.order.model.OrderLocal
+import com.aluma.laundry.data.order.utils.SyncStatus
+import com.aluma.laundry.data.order.utils.TypePayment
+import com.aluma.laundry.data.service.model.ServiceRemote
+import com.aluma.laundry.data.service.remote.ServiceViewModel
 import com.aluma.laundry.ui.view.components.dropdown.ServiceDropdown
 import com.aluma.laundry.utils.formatRupiah
 import org.koin.compose.koinInject
@@ -51,14 +52,14 @@ import org.koin.compose.koinInject
 fun OrderBottomSheet(
     onDismissRequest: () -> Unit,
     serviceViewModel: ServiceViewModel = koinInject(),
-    onSubmit: (order: OrderRoom) -> Unit
+    onSubmit: (order: OrderLocal) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var customerName by remember { mutableStateOf("") }
-    var selectedService by remember { mutableStateOf<Service?>(null) }
+    var selectedServiceRemote by remember { mutableStateOf<ServiceRemote?>(null) }
     var selectedMethod by remember { mutableStateOf(TypePayment.TUNAI) }
 
-    val services by serviceViewModel.service.collectAsState()
+    val services by serviceViewModel.serviceRemote.collectAsState()
     val idUser by serviceViewModel.idUser.collectAsState()
     val idStore by serviceViewModel.idStore.collectAsState()
 
@@ -94,10 +95,10 @@ fun OrderBottomSheet(
             )
 
             ServiceDropdown(
-                services = services,
-                selectedService = selectedService,
+                serviceRemotes = services,
+                selectedServiceRemote = selectedServiceRemote,
                 onServiceSelected = {
-                    selectedService = it
+                    selectedServiceRemote = it
                 }
             )
 
@@ -172,9 +173,9 @@ fun OrderBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    if(selectedService != null){
+                    if(selectedServiceRemote != null){
                         Text(
-                            text = selectedService?.let {
+                            text = selectedServiceRemote?.let {
                                 "${it.nameService} - ${formatRupiah(it.priceService)}"
                             } ?: "",
                             style = MaterialTheme.typography.bodyMedium,
@@ -190,7 +191,7 @@ fun OrderBottomSheet(
                 Button(
                     onClick = {
                         isSubmitting = true
-                        val service = selectedService
+                        val service = selectedServiceRemote
                         if (service != null) {
 
                             val step = if(service.typeMachine == 2){
@@ -203,7 +204,7 @@ fun OrderBottomSheet(
                                 service.typeMachine
                             }
 
-                            val order = OrderRoom(
+                            val order = OrderLocal(
                                 customerName = customerName,
                                 serviceName = service.nameService,
                                 sizeMachine = service.sizeMachine,
@@ -213,14 +214,15 @@ fun OrderBottomSheet(
                                 user = idUser,
                                 store = idStore,
                                 typeMachineService = service.typeMachine,
-                                numberMachine = 0
+                                numberMachine = 0,
+                                syncStatus = SyncStatus.PENDING
                             )
 
                             onSubmit(order)
                             onDismissRequest()
                         }
                     },
-                    enabled = !isSubmitting && customerName.isNotBlank() && selectedService != null,
+                    enabled = !isSubmitting && customerName.isNotBlank() && selectedServiceRemote != null,
                 ) {
                     if (isSubmitting) {
                         CircularProgressIndicator(

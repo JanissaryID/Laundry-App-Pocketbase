@@ -1,20 +1,19 @@
 package com.aluma.laundry.di
 
 import androidx.room.Room
-import com.aluma.laundry.data.api.machine.MachineViewModel
-import com.aluma.laundry.data.api.order.OrderViewModel
-import com.aluma.laundry.data.api.service.ServiceViewModel
-import com.aluma.laundry.data.api.store.StoreViewModel
-import com.aluma.laundry.data.api.user.UserViewModel
+import com.aluma.laundry.data.AppDatabase
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.data.datastore.StorePreferences
-import com.aluma.laundry.data.room.AppDatabase
-import com.aluma.laundry.data.room.machine.MachineRepository
-import com.aluma.laundry.data.room.machine.MachineRoomViewModel
-import com.aluma.laundry.data.room.order.OrderRepository
-import com.aluma.laundry.data.room.order.OrderRoomViewModel
+import com.aluma.laundry.data.machine.local.MachineLocalViewModel
+import com.aluma.laundry.data.machine.local.MachineRepository
+import com.aluma.laundry.data.machine.remote.MachineViewModel
+import com.aluma.laundry.data.order.local.OrderLocalViewModel
+import com.aluma.laundry.data.order.local.OrderRepository
+import com.aluma.laundry.data.order.remote.OrderViewModel
+import com.aluma.laundry.data.service.remote.ServiceViewModel
+import com.aluma.laundry.data.store.StoreViewModel
+import com.aluma.laundry.data.user.UserViewModel
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
@@ -25,7 +24,7 @@ val appModule = module {
     single { UserViewModel(storePreferences = get()) }
     single { StorePreferenceViewModel(storePreferences = get()) }
     single { StoreViewModel(storePreferences = get()) }
-    single { MachineViewModel(storePreferences = get(), machineRoomViewModel = get()) }
+    single { MachineViewModel(storePreferences = get(), machineLocalViewModel = get()) }
     single { ServiceViewModel(storePreferences = get()) }
     single { OrderViewModel(storePreferences = get()) }
 
@@ -42,6 +41,6 @@ val appModule = module {
     single { MachineRepository(get()) }
     single { OrderRepository(get()) }
 
-    single { MachineRoomViewModel(get()) }
-    single { OrderRoomViewModel(get(), get()) }
+    single { MachineLocalViewModel(get()) }
+    single { OrderLocalViewModel(get(), get()) }
 }

@@ -14,11 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.api.store.Store
+import com.aluma.laundry.data.store.StoreRemote
 
 @Composable
 fun StoreBottomBar(
-    selectedStore: Store?,
+    selectedStoreRemote: StoreRemote?,
     onSaveAndNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -33,7 +33,7 @@ fun StoreBottomBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                if (selectedStore == null) {
+                if (selectedStoreRemote == null) {
                     Text(
                         "Silakan pilih toko untuk melanjutkan",
                         style = MaterialTheme.typography.bodyMedium,
@@ -45,7 +45,7 @@ fun StoreBottomBar(
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    selectedStore.storeName?.let {
+                    selectedStoreRemote.storeName?.let {
                         Text(
                             it,
                             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
@@ -57,7 +57,7 @@ fun StoreBottomBar(
 
             Button(
                 onClick = onSaveAndNext,
-                enabled = selectedStore != null
+                enabled = selectedStoreRemote != null
             ) {
                 Text("Masuk")
             }

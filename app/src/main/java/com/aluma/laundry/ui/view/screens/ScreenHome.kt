@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,17 +22,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.api.machine.MachineViewModel
-import com.aluma.laundry.data.api.store.StoreViewModel
-import com.aluma.laundry.data.room.machine.MachineRoomViewModel
-import com.aluma.laundry.data.room.order.OrderRoomViewModel
+import com.aluma.laundry.data.machine.local.MachineLocalViewModel
+import com.aluma.laundry.data.machine.remote.MachineViewModel
+import com.aluma.laundry.data.order.local.OrderLocalViewModel
+import com.aluma.laundry.data.store.StoreViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheet
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheetInformation
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheetInformationTime
 import com.aluma.laundry.ui.view.components.fab.FabWithSubmenu
 import com.aluma.laundry.ui.view.components.itemscard.ItemOrderCard
-import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
 import java.time.Instant
 import java.time.ZoneOffset
@@ -44,32 +42,20 @@ import java.time.format.DateTimeFormatter
 fun ScreenHome(
     storeViewModel: StoreViewModel = koinInject(),
     machineViewModel: MachineViewModel = koinInject(),
-    machineRoomViewModel: MachineRoomViewModel = koinInject(),
-    orderRoomViewModel: OrderRoomViewModel = koinInject(),
+    machineLocalViewModel: MachineLocalViewModel = koinInject(),
+    orderLocalViewModel: OrderLocalViewModel = koinInject(),
     onNavigate: (String) -> Unit
 ) {
     val nameStore by storeViewModel.nameStore.collectAsState()
-    val orders by orderRoomViewModel.ordersFilter.collectAsState()
-    val machines by machineRoomViewModel.machines.collectAsState()
-    val selectedOrder by orderRoomViewModel.selectedOrder.collectAsState()
+    val orders by orderLocalViewModel.ordersFilter.collectAsState()
+    val machines by machineLocalViewModel.machines.collectAsState()
+    val selectedOrder by orderLocalViewModel.selectedOrder.collectAsState()
 
     var isFabExpanded by remember { mutableStateOf(false) }
 
     var showOrderSheet by remember { mutableStateOf(false) }
     var showOrderSheetMachine by remember { mutableStateOf(false) }
     var showOrderSheetMachineRunning by remember { mutableStateOf(false) }
-
-//    LaunchedEffect(Unit) {
-//        while (true) {
-//            delay(30_000)
-//            orderRoomViewModel.checkMachineTimeouts(
-//                machines = machineRoomViewModel.machines.value,
-//                orders = orderRoomViewModel.orders.value,
-//                machineViewModel = machineRoomViewModel,
-//                orderViewModel = orderRoomViewModel
-//            )
-//        }
-//    }
 
     Scaffold(
         topBar = {
@@ -113,9 +99,9 @@ fun ScreenHome(
                         ItemOrderCard(
                             order = order,
                             onSelect = {
-                                orderRoomViewModel.setSelectedOrder(order)
+                                orderLocalViewModel.setSelectedOrder(order)
                                 if (order.stepMachine < 2) {
-                                    machineRoomViewModel.filterMachine(
+                                    machineLocalViewModel.filterMachine(
                                         type = order.typeMachineService,
                                         size = order.sizeMachine,
                                         stepMachine = order.stepMachine
@@ -139,7 +125,7 @@ fun ScreenHome(
     if (showOrderSheet) {
         OrderBottomSheet(
             onDismissRequest = { showOrderSheet = false },
-            onSubmit = { orderRoomViewModel.addOrder(orderRoom = it) }
+            onSubmit = { orderLocalViewModel.addOrder(orderLocal = it) }
         )
     }
 
@@ -153,7 +139,7 @@ fun ScreenHome(
                         stepMachine = selectedOrder!!.stepMachine + 2,
                         numberMachine = machine.numberMachine,
                     )
-                    orderRoomViewModel.updateOrder(orderRoom = updatedOrder)
+                    orderLocalViewModel.updateOrder(orderLocal = updatedOrder)
 
                     val later = Instant.now()
                     val formatted = DateTimeFormatter
@@ -167,7 +153,7 @@ fun ScreenHome(
                         timeOn = formatted
                     )
 
-                    machineRoomViewModel.updateMachine(machineRoom = updatedMachine)
+                    machineLocalViewModel.updateMachine(machineLocal = updatedMachine)
                     onDone()
                 }
             },

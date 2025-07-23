@@ -15,14 +15,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.aluma.laundry.data.room.machine.MachineRoom
+import com.aluma.laundry.data.machine.model.MachineLocal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MachineDropdown(
-    availableMachines: List<MachineRoom>,
-    selectedMachine: MachineRoom?,
-    onMachineSelected: (MachineRoom) -> Unit,
+    availableMachines: List<MachineLocal>,
+    selectedMachine: MachineLocal?,
+    onMachineSelected: (MachineLocal) -> Unit,
     enabled: Boolean = true
 ) {
     var expanded by remember { mutableStateOf(false) }

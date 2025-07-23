@@ -1,8 +1,6 @@
 package com.aluma.laundry.ui.view.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,8 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.api.store.StoreViewModel
+import com.aluma.laundry.data.store.StoreViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
 import com.aluma.laundry.ui.view.components.bottombar.StoreBottomBar
 import com.aluma.laundry.ui.view.components.itemscard.ItemStoreCard
@@ -31,8 +28,8 @@ fun ScreenChoseStore(
     storeViewModel: StoreViewModel = koinInject(),
     nextScreen: () -> Unit
 ) {
-    val storeList by storeViewModel.store.collectAsState()
-    val selectedStore by storeViewModel.selectedStore.collectAsState()
+    val storeList by storeViewModel.storeRemote.collectAsState()
+    val selectedStore by storeViewModel.selectedStoreRemote.collectAsState()
 
     Scaffold(
         topBar = {
@@ -45,7 +42,7 @@ fun ScreenChoseStore(
         },
         bottomBar = {
             StoreBottomBar(
-                selectedStore = selectedStore,
+                selectedStoreRemote = selectedStore,
                 onSaveAndNext = {
                     storeViewModel.saveStoreID()
                     nextScreen()
@@ -58,7 +55,6 @@ fun ScreenChoseStore(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
         ) {
             if (storeList.isEmpty()) {
                 EmptyState(
@@ -67,15 +63,13 @@ fun ScreenChoseStore(
                 )
             } else {
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(vertical = 16.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
                 ) {
                     items(storeList) { store ->
                         ItemStoreCard(
-                            store = store,
+                            storeRemote = store,
                             isSelected = store.id == selectedStore?.id,
                             onClick = {
                                 if (store.id == selectedStore?.id) {

@@ -45,7 +45,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.api.user.UserViewModel
+import com.aluma.laundry.data.user.UserViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 

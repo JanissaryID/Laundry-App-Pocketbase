@@ -36,9 +36,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.api.order.model.Quad
-import com.aluma.laundry.data.room.machine.MachineRoom
-import com.aluma.laundry.data.room.order.OrderRoom
+import com.aluma.laundry.data.machine.model.MachineLocal
+import com.aluma.laundry.data.order.model.OrderLocal
+import com.aluma.laundry.data.order.utils.Quad
 import com.aluma.laundry.ui.view.components.CountdownTimer
 import com.aluma.laundry.ui.view.components.OrderInfo
 import com.aluma.laundry.utils.formatRupiah
@@ -50,8 +50,8 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderBottomSheetInformationTime(
-    order: OrderRoom,
-    machine: MachineRoom,
+    order: OrderLocal,
+    machine: MachineLocal,
     stepMachine: Int,
     machineNumber: Int?,
     onDismissRequest: () -> Unit,

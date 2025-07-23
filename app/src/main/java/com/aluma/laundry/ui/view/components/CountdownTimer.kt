@@ -30,9 +30,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.room.order.OrderRoomViewModel
 import kotlinx.coroutines.delay
-import org.koin.compose.koinInject
 
 @Composable
 fun CountdownTimer(

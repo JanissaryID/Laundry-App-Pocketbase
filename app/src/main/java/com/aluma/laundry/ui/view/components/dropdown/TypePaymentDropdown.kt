@@ -14,7 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.aluma.laundry.data.api.order.model.TypePayment
+import com.aluma.laundry.data.order.utils.TypePayment
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
