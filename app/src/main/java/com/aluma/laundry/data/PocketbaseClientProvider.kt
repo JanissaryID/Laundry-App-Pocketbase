@@ -7,8 +7,8 @@ object PocketbaseClientProvider {
     val client by lazy {
         PocketbaseClient(
             baseUrl = {
-                protocol = URLProtocol.Companion.HTTPS
-                host = "xxx.ngrok-free.app"
+                protocol = URLProtocol.HTTPS
+                host = "0f9489584773.ngrok-free.app"
             }
         )
     }

@@ -42,7 +42,7 @@ import com.aluma.laundry.data.order.model.OrderLocal
 import com.aluma.laundry.data.order.utils.SyncStatus
 import com.aluma.laundry.data.order.utils.TypePayment
 import com.aluma.laundry.data.service.model.ServiceRemote
-import com.aluma.laundry.data.service.remote.ServiceViewModel
+import com.aluma.laundry.data.service.remote.ServiceRemoteViewModel
 import com.aluma.laundry.ui.view.components.dropdown.ServiceDropdown
 import com.aluma.laundry.utils.formatRupiah
 import org.koin.compose.koinInject
@@ -51,7 +51,7 @@ import org.koin.compose.koinInject
 @Composable
 fun OrderBottomSheet(
     onDismissRequest: () -> Unit,
-    serviceViewModel: ServiceViewModel = koinInject(),
+    serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
     onSubmit: (order: OrderLocal) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -59,9 +59,9 @@ fun OrderBottomSheet(
     var selectedServiceRemote by remember { mutableStateOf<ServiceRemote?>(null) }
     var selectedMethod by remember { mutableStateOf(TypePayment.TUNAI) }
 
-    val services by serviceViewModel.serviceRemote.collectAsState()
-    val idUser by serviceViewModel.idUser.collectAsState()
-    val idStore by serviceViewModel.idStore.collectAsState()
+    val services by serviceRemoteViewModel.serviceRemote.collectAsState()
+    val idUser by serviceRemoteViewModel.idUser.collectAsState()
+    val idStore by serviceRemoteViewModel.idStore.collectAsState()
 
     var isSubmitting by remember { mutableStateOf(false) }
 

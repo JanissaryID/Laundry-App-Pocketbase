@@ -23,9 +23,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
-import com.aluma.laundry.data.machine.remote.MachineViewModel
+import com.aluma.laundry.data.machine.remote.MachineRemoteViewModel
 import com.aluma.laundry.data.order.local.OrderLocalViewModel
-import com.aluma.laundry.data.store.StoreViewModel
+import com.aluma.laundry.data.store.StoreRemoteViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheet
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheetInformation
@@ -40,13 +40,13 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenHome(
-    storeViewModel: StoreViewModel = koinInject(),
-    machineViewModel: MachineViewModel = koinInject(),
+    storeRemoteViewModel: StoreRemoteViewModel = koinInject(),
+    machineRemoteViewModel: MachineRemoteViewModel = koinInject(),
     machineLocalViewModel: MachineLocalViewModel = koinInject(),
     orderLocalViewModel: OrderLocalViewModel = koinInject(),
     onNavigate: (String) -> Unit
 ) {
-    val nameStore by storeViewModel.nameStore.collectAsState()
+    val nameStore by storeRemoteViewModel.nameStore.collectAsState()
     val orders by orderLocalViewModel.ordersFilter.collectAsState()
     val machines by machineLocalViewModel.machines.collectAsState()
     val selectedOrder by orderLocalViewModel.selectedOrder.collectAsState()

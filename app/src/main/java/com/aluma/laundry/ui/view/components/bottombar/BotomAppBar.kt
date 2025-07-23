@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.store.StoreRemote
+import com.aluma.laundry.data.store.model.StoreRemote
 
 @Composable
 fun StoreBottomBar(

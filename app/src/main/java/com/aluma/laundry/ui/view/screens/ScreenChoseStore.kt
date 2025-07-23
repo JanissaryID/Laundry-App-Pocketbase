@@ -16,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.aluma.laundry.data.store.StoreViewModel
+import com.aluma.laundry.data.store.StoreRemoteViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
 import com.aluma.laundry.ui.view.components.bottombar.StoreBottomBar
 import com.aluma.laundry.ui.view.components.itemscard.ItemStoreCard
@@ -25,11 +25,11 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenChoseStore(
-    storeViewModel: StoreViewModel = koinInject(),
+    storeRemoteViewModel: StoreRemoteViewModel = koinInject(),
     nextScreen: () -> Unit
 ) {
-    val storeList by storeViewModel.storeRemote.collectAsState()
-    val selectedStore by storeViewModel.selectedStoreRemote.collectAsState()
+    val storeList by storeRemoteViewModel.storeRemote.collectAsState()
+    val selectedStore by storeRemoteViewModel.selectedStoreRemote.collectAsState()
 
     Scaffold(
         topBar = {
@@ -44,7 +44,7 @@ fun ScreenChoseStore(
             StoreBottomBar(
                 selectedStoreRemote = selectedStore,
                 onSaveAndNext = {
-                    storeViewModel.saveStoreID()
+                    storeRemoteViewModel.saveStoreID()
                     nextScreen()
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -73,9 +73,9 @@ fun ScreenChoseStore(
                             isSelected = store.id == selectedStore?.id,
                             onClick = {
                                 if (store.id == selectedStore?.id) {
-                                    storeViewModel.selectStore(null)
+                                    storeRemoteViewModel.selectStore(null)
                                 } else {
-                                    storeViewModel.selectStore(store)
+                                    storeRemoteViewModel.selectStore(store)
                                 }
                             }
                         )

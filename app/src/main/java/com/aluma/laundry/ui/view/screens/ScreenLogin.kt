@@ -45,19 +45,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.user.UserViewModel
+import com.aluma.laundry.data.user.remote.UserRemoteViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenLogin(
-    userViewModel: UserViewModel = koinInject(),
+    userRemoteViewModel: UserRemoteViewModel = koinInject(),
     onSuccess: () -> Unit
 ) {
-    val email by userViewModel.email.collectAsState()
-    val password by userViewModel.password.collectAsState()
-    val isLoading by userViewModel.isLoading.collectAsState()
+    val email by userRemoteViewModel.email.collectAsState()
+    val password by userRemoteViewModel.password.collectAsState()
+    val isLoading by userRemoteViewModel.isLoading.collectAsState()
 
     var passwordVisible by remember { mutableStateOf(false) }
     var showSnackbar by remember { mutableStateOf(false) }
@@ -104,7 +104,7 @@ fun ScreenLogin(
 
             OutlinedTextField(
                 value = email,
-                onValueChange = userViewModel::onEmailChange,
+                onValueChange = userRemoteViewModel::onEmailChange,
                 label = { Text("Email") },
                 isError = !isEmailValid && email.isNotBlank(),
                 supportingText = {
@@ -125,7 +125,7 @@ fun ScreenLogin(
 
             OutlinedTextField(
                 value = password,
-                onValueChange = userViewModel::onPasswordChange,
+                onValueChange = userRemoteViewModel::onPasswordChange,
                 label = { Text("Password") },
                 isError = !isPasswordValid && password.isNotBlank(),
                 supportingText = {
@@ -140,7 +140,7 @@ fun ScreenLogin(
                 keyboardActions = KeyboardActions(
                     onDone = {
                         if (isFormValid && !isLoading) {
-                            userViewModel.login(
+                            userRemoteViewModel.login(
                                 onSuccess = { showSnackbar = true },
                                 onError = { errorMsg ->
                                     coroutineScope.launch {
@@ -166,7 +166,7 @@ fun ScreenLogin(
 
             Button(
                 onClick = {
-                    userViewModel.login(
+                    userRemoteViewModel.login(
                         onSuccess = { showSnackbar = true },
                         onError = { errorMsg ->
                             coroutineScope.launch {
