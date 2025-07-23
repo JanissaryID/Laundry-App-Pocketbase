@@ -4,7 +4,7 @@ import android.util.Log
 import com.aluma.laundry.data.order.model.OrderLocal
 import kotlinx.coroutines.flow.Flow
 
-class OrderRepository(private val dao: OrderDAO) {
+class OrderLocalRepository(private val dao: OrderDAO) {
     val orders: Flow<List<OrderLocal>> = dao.getAllOrders()
 
     suspend fun addOrder(orderLocal: OrderLocal) = dao.insert(orderLocal)

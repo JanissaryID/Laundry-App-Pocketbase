@@ -2,7 +2,6 @@ package com.aluma.laundry.data.user.remote
 
 import com.aluma.laundry.data.user.model.LoginResult
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
-import io.github.agrevster.pocketbaseKotlin.dsl.login
 import io.github.agrevster.pocketbaseKotlin.models.AuthRecord
 
 class UserRemoteRepositoryImpl(

@@ -4,7 +4,7 @@ import android.util.Log
 import com.aluma.laundry.data.order.model.OrderRemote
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
 import kotlinx.coroutines.CancellationException
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
 
 class OrderRemoteRepositoryImpl(
     private val client: PocketbaseClient

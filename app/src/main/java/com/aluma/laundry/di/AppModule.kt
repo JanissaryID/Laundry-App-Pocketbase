@@ -10,8 +10,8 @@ import com.aluma.laundry.data.machine.local.MachineRepository
 import com.aluma.laundry.data.machine.remote.MachineRemoteRepository
 import com.aluma.laundry.data.machine.remote.MachineRemoteRepositoryImpl
 import com.aluma.laundry.data.machine.remote.MachineRemoteViewModel
+import com.aluma.laundry.data.order.local.OrderLocalRepository
 import com.aluma.laundry.data.order.local.OrderLocalViewModel
-import com.aluma.laundry.data.order.local.OrderRepository
 import com.aluma.laundry.data.order.remote.OrderRemoteRepository
 import com.aluma.laundry.data.order.remote.OrderRemoteRepositoryImpl
 import com.aluma.laundry.data.order.remote.OrderRemoteViewModel
@@ -97,9 +97,15 @@ val appModule = module {
 
     // Repositories
     single { MachineRepository(get()) }
-    single { OrderRepository(get()) }
+    single { OrderLocalRepository(get()) }
 
     // Local ViewModels
     single { MachineLocalViewModel(get()) }
-    single { OrderLocalViewModel(get(), get()) }
+    single { OrderLocalViewModel(
+        repo =get(),
+        machineRepo = get(),
+        client = get(),
+        storePreferences = get(),
+        orderRemoteRepository = get())
+    }
 }

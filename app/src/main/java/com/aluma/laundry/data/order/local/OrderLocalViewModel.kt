@@ -1,14 +1,21 @@
 package com.aluma.laundry.data.order.local
 
 import android.util.Log
+import com.aluma.laundry.data.datastore.StorePreferences
 import com.aluma.laundry.data.machine.local.MachineRepository
 import com.aluma.laundry.data.machine.model.MachineLocal
 import com.aluma.laundry.data.order.model.OrderLocal
+import com.aluma.laundry.data.order.model.OrderRemote
+import com.aluma.laundry.data.order.remote.OrderRemoteRepository
+import com.aluma.laundry.data.order.utils.SyncStatus
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
+import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
+import io.github.agrevster.pocketbaseKotlin.dsl.login
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
@@ -16,22 +23,29 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import kotlin.coroutines.cancellation.CancellationException
 
 class OrderLocalViewModel(
-    private val repo: OrderRepository,
-    private val machineRepo: MachineRepository
+    private val repo: OrderLocalRepository,
+    private val machineRepo: MachineRepository,
+    private val orderRemoteRepository: OrderRemoteRepository,
+    private val client: PocketbaseClient,
+    private val storePreferences: StorePreferences
 ) : ViewModel() {
 
     private val _maxStep = MutableStateFlow(4)
+    private val _isLoggedIn = MutableStateFlow(false)
+
+    private val sharingStarted = SharingStarted.WhileSubscribed(5_000)
 
     val ordersFilter: StateFlow<List<OrderLocal>> = _maxStep
         .combine(repo.orders) { maxStep, allOrders ->
             allOrders.filter { it.stepMachine < maxStep }
         }
-        .stateIn(viewModelScope, SharingStarted.Companion.WhileSubscribed(5_000), emptyList())
+        .stateIn(viewModelScope, sharingStarted, emptyList())
 
     val orders: StateFlow<List<OrderLocal>> = repo.orders
-        .stateIn(viewModelScope, SharingStarted.Companion.WhileSubscribed(5_000), emptyList())
+        .stateIn(viewModelScope, sharingStarted, emptyList())
 
     private val _selectedOrder = MutableStateFlow<OrderLocal?>(null)
     val selectedOrder: StateFlow<OrderLocal?> = _selectedOrder
@@ -65,6 +79,17 @@ class OrderLocalViewModel(
 
     init {
         viewModelScope.launch {
+            storePreferences.userToken.collectLatest { token ->
+                if (!token.isNullOrEmpty()) {
+                    client.login(token)
+                    _isLoggedIn.value = true
+                } else {
+                    _isLoggedIn.value = false
+                }
+            }
+        }
+
+        viewModelScope.launch {
             combine(
                 tickerFlow(10_000),
                 machineRepo.machineLocal,
@@ -75,6 +100,9 @@ class OrderLocalViewModel(
                 .collect { (machines, orders) ->
                     Log.d("TimeoutChecker", "Triggered. Machines: ${machines.size}, Orders: ${orders.size}")
                     checkMachineTimeouts(machines, orders)
+                    if (_isLoggedIn.value) {
+                        syncPendingOrders(orders)
+                    }
                 }
         }
     }
@@ -133,23 +161,39 @@ class OrderLocalViewModel(
         }
     }
 
-//    private suspend fun syncPendingOrders(orders: List<OrderLocal>) {
-//        val pendingOrders = orders.filter {
-//            it.syncStatus == SyncStatus.PENDING || it.syncStatus == SyncStatus.FAILED
-//        }
-//
-//        for (order in pendingOrders) {
-//            try {
-//                client.records.create(
-//                    "orders",
-//                    order.toNetworkModel() // kamu harus implementasikan ini
-//                )
-//                repo.updateOrder(order.copy(syncStatus = SyncStatus.SYNCED))
-//                Log.d("SyncChecker", "Synced order ${order.id}")
-//            } catch (e: Exception) {
-//                Log.e("SyncChecker", "Failed to sync order ${order.id}", e)
-//                repo.updateOrder(order.copy(syncStatus = SyncStatus.FAILED))
-//            }
-//        }
+    private suspend fun syncPendingOrders(orders: List<OrderLocal>) {
+        val pendingOrders = orders.filter {
+            it.syncStatus == SyncStatus.PENDING || it.syncStatus == SyncStatus.FAILED
+        }
+
+        for (order in pendingOrders) {
+            try {
+                orderRemoteRepository.createOrder(order.toRemoteModel())
+                repo.updateOrder(order.copy(syncStatus = SyncStatus.SYNCED))
+                Log.d("SyncChecker", "✅ Synced order ${order.id}")
+            } catch (e: CancellationException) {
+                throw e // biarkan propagasi
+            } catch (e: Exception) {
+                repo.updateOrder(order.copy(syncStatus = SyncStatus.FAILED))
+                Log.e("SyncChecker", "❌ Failed to sync order ${order.id}", e)
+            }
+        }
+    }
+
+//    fun syncNow() = viewModelScope.launch {
+//        syncPendingOrders(repo.orders)
 //    }
+}
+
+fun OrderLocal.toRemoteModel(): OrderRemote {
+    return OrderRemote(
+        customerName = customerName,
+        serviceName = serviceName,
+        sizeMachine = sizeMachine,
+        typeMachineService = typeMachineService,
+        price = price,
+        typePayment = typePayment,
+        user = user,
+        store = store
+    )
 }

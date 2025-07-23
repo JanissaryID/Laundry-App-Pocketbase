@@ -2,7 +2,6 @@ package com.aluma.laundry.data.store
 
 import com.aluma.laundry.data.store.model.StoreRemote
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
-import io.github.agrevster.pocketbaseKotlin.dsl.login
 
 class StoreRemoteRepositoryImpl(
     private val client: PocketbaseClient
