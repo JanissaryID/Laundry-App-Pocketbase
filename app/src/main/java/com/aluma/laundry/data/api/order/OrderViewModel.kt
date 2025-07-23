@@ -1,7 +1,6 @@
 package com.aluma.laundry.data.api.order
 
 import android.util.Log
-import com.aluma.laundry.data.api.machine.Machine
 import com.aluma.laundry.data.api.order.model.Order
 import com.aluma.laundry.data.api.order.model.RealtimeEvent
 import com.aluma.laundry.data.datastore.StorePreferences
@@ -12,26 +11,25 @@ import io.github.agrevster.pocketbaseKotlin.toJsonPrimitive
 import io.ktor.client.plugins.sse.sse
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
 import io.ktor.http.URLProtocol
+import io.ktor.http.contentType
 import io.ktor.http.path
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.io.EOFException
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlin.coroutines.cancellation.CancellationException
@@ -89,31 +87,17 @@ class OrderViewModel(
         }
     }
 
-    fun setSelectedOrder(order: Order?) {
-        _selectedOrder.value = order
-    }
-
     fun fetchOrder() {
         viewModelScope.launch {
             try {
                 val fetched = client.records.getList<Order>(collection, page = 1, perPage = 200)
                 _orders.value = fetched.items.reversed()
-                filterOrdersByStepMachine()
+//                filterOrdersByStepMachine()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 Log.e("OrderViewModel", "❌ Fetch Orders failed", e)
             }
-        }
-    }
-
-    fun filterOrdersByStepMachine(maxStep: Int = 4) {
-        viewModelScope.launch {
-            val filtered = _orders.value.filter { order ->
-                order.stepMachine < maxStep
-            }
-            _ordersFilter.value = filtered
-            Log.d("OrderViewModel", "Filtered orders (step < 4): ${filtered.size}")
         }
     }
 

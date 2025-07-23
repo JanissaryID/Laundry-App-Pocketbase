@@ -8,8 +8,6 @@ data class Order(
     val customerName: String? = null,
     val serviceName: String? = null,
     val sizeMachine: Boolean = false,
-    val stepMachine: Int = 0,
-    val numberMachine: Int = 0,
     val typeMachineService: Int = 0,
     val price: String? = null,
     val typePayment: String? = null,

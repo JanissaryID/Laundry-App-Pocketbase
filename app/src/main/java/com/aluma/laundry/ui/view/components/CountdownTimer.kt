@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -23,17 +22,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.data.room.order.OrderRoomViewModel
 import kotlinx.coroutines.delay
+import org.koin.compose.koinInject
 
 @Composable
 fun CountdownTimer(
@@ -42,15 +41,17 @@ fun CountdownTimer(
     onFinish: () -> Unit,
     modifier: Modifier = Modifier,
     warningThresholdSeconds: Long = 10,
-    showProgressBar: Boolean = true
+    showProgressBar: Boolean = true,
 ) {
     var currentTimeMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
     val totalDuration = endTimeMillis - startTimeMillis
     val remainingTime = (endTimeMillis - currentTimeMillis).coerceAtLeast(0L)
 
+    val rawProgress = if (totalDuration > 0) remainingTime / totalDuration.toFloat() else 0f
+
     val progress by animateFloatAsState(
-        targetValue = remainingTime / totalDuration.toFloat(),
+        targetValue = rawProgress.coerceIn(0f, 1f),
         animationSpec = tween(durationMillis = 1000),
         label = "progress"
     )

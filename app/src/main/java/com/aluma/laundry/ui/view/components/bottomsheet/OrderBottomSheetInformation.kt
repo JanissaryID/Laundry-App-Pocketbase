@@ -12,15 +12,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.LocalLaundryService
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -38,12 +33,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.api.machine.Machine
-import com.aluma.laundry.data.api.machine.MachineViewModel
-import com.aluma.laundry.data.api.order.model.Order
+import com.aluma.laundry.data.room.machine.MachineRoom
+import com.aluma.laundry.data.room.machine.MachineRoomViewModel
+import com.aluma.laundry.data.room.order.OrderRoom
 import com.aluma.laundry.ui.view.components.OrderInfo
 import com.aluma.laundry.ui.view.components.dropdown.MachineDropdown
 import com.aluma.laundry.utils.formatRupiah
@@ -52,14 +46,14 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderBottomSheetInformation(
-    machineViewModel: MachineViewModel = koinInject(),
-    order: Order,
+    machineRoomViewModel: MachineRoomViewModel = koinInject(),
+    order: OrderRoom,
     onDismissRequest: () -> Unit,
-    onSubmit: (Machine?, onDone: () -> Unit) -> Unit
+    onSubmit: (MachineRoom?, onDone: () -> Unit) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val machines by machineViewModel.machineFilter.collectAsState()
-    var selectedMachine by remember { mutableStateOf<Machine?>(null) }
+    val machines by machineRoomViewModel.machineFilter.collectAsState()
+    var selectedMachine by remember { mutableStateOf<MachineRoom?>(null) }
 
     val availableMachines = machines.filter { !it.inUse }
 
@@ -182,5 +176,3 @@ fun OrderBottomSheetInformation(
         }
     }
 }
-
-

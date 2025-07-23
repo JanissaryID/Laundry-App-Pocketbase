@@ -3,6 +3,8 @@ package com.aluma.laundry.data.api.machine
 import android.util.Log
 import com.aluma.laundry.data.api.order.model.RealtimeEvent
 import com.aluma.laundry.data.datastore.StorePreferences
+import com.aluma.laundry.data.room.machine.MachineRoom
+import com.aluma.laundry.data.room.machine.MachineRoomViewModel
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
 import io.github.agrevster.pocketbaseKotlin.dsl.login
@@ -35,6 +37,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class MachineViewModel (
     private val storePreferences: StorePreferences,
+    private val machineRoomViewModel: MachineRoomViewModel
 ): ViewModel() {
     private val client = PocketbaseClient(
         baseUrl = {
@@ -82,7 +85,6 @@ class MachineViewModel (
                 if (loggedIn) {
                     client.login(it)
                     fetchMachine()
-                    subscribeRealtimeMachine()
                 }
             }
         }
@@ -91,8 +93,42 @@ class MachineViewModel (
     fun fetchMachine() {
         viewModelScope.launch {
             try {
-                val fetched = client.records.getList<Machine>(collection, page = 1, perPage = 100)
-                _machine.value = fetched.items.orEmpty().reversed()
+                val fetched = client.records.getList<Machine>(
+                    collection,
+                    page = 1,
+                    perPage = 100
+                )
+                _machine.value = fetched.items.reversed()
+
+                _machine.value.forEach { machine ->
+                    val existing = machineRoomViewModel.getMachineById(machine.id!!)
+
+                    if (existing == null) {
+                        val newMachine = MachineRoom(
+                            id = machine.id!!,
+                            numberMachine = machine.numberMachine,
+                            typeMachine = machine.typeMachine,
+                            sizeMachine = machine.sizeMachine,
+                            user = machine.user,
+                            store = machine.store,
+                            bluetoothAddress = machine.bluetoothAddress,
+                            timer = machine.timer,
+                            inUse = false,
+                            timeOn = null,
+                            order = null,
+                        )
+                        machineRoomViewModel.addMachine(newMachine)
+                    } else {
+                        val updated = existing.copy(
+                            numberMachine = machine.numberMachine,
+                            typeMachine = machine.typeMachine,
+                            sizeMachine = machine.sizeMachine,
+                            bluetoothAddress = machine.bluetoothAddress,
+                            timer = machine.timer
+                        )
+                        machineRoomViewModel.updateMachine(updated)
+                    }
+                }
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Fetch machine failed", e)
             }

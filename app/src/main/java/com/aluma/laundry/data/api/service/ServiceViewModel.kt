@@ -1,8 +1,6 @@
 package com.aluma.laundry.data.api.service
 
 import android.util.Log
-import com.aluma.laundry.data.api.machine.Machine
-import com.aluma.laundry.data.api.store.Store
 import com.aluma.laundry.data.datastore.StorePreferences
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient

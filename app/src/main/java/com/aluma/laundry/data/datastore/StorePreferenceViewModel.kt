@@ -3,7 +3,6 @@ package com.aluma.laundry.data.datastore
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
 import io.github.agrevster.pocketbaseKotlin.dsl.login
-import io.github.agrevster.pocketbaseKotlin.models.AuthRecord
 import io.ktor.http.URLProtocol
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -21,9 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.api.store.StoreViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
-import com.aluma.laundry.ui.view.components.itemscard.ItemStoreCard
 import com.aluma.laundry.ui.view.components.bottombar.StoreBottomBar
-import com.aluma.laundry.ui.view.components.itemscard.ItemOrderCard
+import com.aluma.laundry.ui.view.components.itemscard.ItemStoreCard
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)

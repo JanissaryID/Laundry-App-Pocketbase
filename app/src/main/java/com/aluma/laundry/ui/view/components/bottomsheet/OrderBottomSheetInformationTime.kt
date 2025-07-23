@@ -1,7 +1,6 @@
 package com.aluma.laundry.ui.view.components.bottomsheet
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,22 +11,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DryCleaning
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.LocalLaundryService
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Print
-import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -35,29 +26,22 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.api.machine.Machine
-import com.aluma.laundry.data.api.machine.MachineViewModel
-import com.aluma.laundry.data.api.order.model.Order
 import com.aluma.laundry.data.api.order.model.Quad
+import com.aluma.laundry.data.room.machine.MachineRoom
+import com.aluma.laundry.data.room.order.OrderRoom
 import com.aluma.laundry.ui.view.components.CountdownTimer
 import com.aluma.laundry.ui.view.components.OrderInfo
-import com.aluma.laundry.ui.view.components.dropdown.MachineDropdown
 import com.aluma.laundry.utils.formatRupiah
-import org.koin.compose.koinInject
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneOffset
@@ -66,8 +50,8 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderBottomSheetInformationTime(
-    order: Order,
-    machine: Machine,
+    order: OrderRoom,
+    machine: MachineRoom,
     stepMachine: Int,
     machineNumber: Int?,
     onDismissRequest: () -> Unit,

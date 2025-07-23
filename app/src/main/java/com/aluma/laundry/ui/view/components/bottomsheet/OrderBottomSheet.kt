@@ -38,10 +38,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.api.order.model.Order
 import com.aluma.laundry.data.api.order.model.TypePayment
 import com.aluma.laundry.data.api.service.Service
 import com.aluma.laundry.data.api.service.ServiceViewModel
+import com.aluma.laundry.data.room.order.OrderRoom
 import com.aluma.laundry.ui.view.components.dropdown.ServiceDropdown
 import com.aluma.laundry.utils.formatRupiah
 import org.koin.compose.koinInject
@@ -51,7 +51,7 @@ import org.koin.compose.koinInject
 fun OrderBottomSheet(
     onDismissRequest: () -> Unit,
     serviceViewModel: ServiceViewModel = koinInject(),
-    onSubmit: (order: Order) -> Unit
+    onSubmit: (order: OrderRoom) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var customerName by remember { mutableStateOf("") }
@@ -193,11 +193,21 @@ fun OrderBottomSheet(
                         val service = selectedService
                         if (service != null) {
 
-                            val order = Order(
+                            val step = if(service.typeMachine == 2){
+                                0
+                            }
+                            else if(service.typeMachine > 2){
+                                4
+                            }
+                            else{
+                                service.typeMachine
+                            }
+
+                            val order = OrderRoom(
                                 customerName = customerName,
                                 serviceName = service.nameService,
                                 sizeMachine = service.sizeMachine,
-                                stepMachine = service.typeMachine,
+                                stepMachine = step,
                                 price = service.priceService,
                                 typePayment = selectedMethod.name,
                                 user = idUser,

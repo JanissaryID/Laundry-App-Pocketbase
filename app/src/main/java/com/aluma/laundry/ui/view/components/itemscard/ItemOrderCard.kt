@@ -35,13 +35,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.api.order.model.Order
 import com.aluma.laundry.data.api.order.model.Quad
+import com.aluma.laundry.data.room.order.OrderRoom
 import com.aluma.laundry.ui.view.components.InfoLabelValue
 
 @Composable
 fun ItemOrderCard(
-    order: Order,
+    order: OrderRoom,
     onSelect: () -> Unit = {}
 ) {
     val backgroundColor = Color(0xFFFDFDFD)

@@ -1,7 +1,5 @@
 package com.aluma.laundry.ui.view.components.dropdown
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,16 +15,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.aluma.laundry.data.api.machine.Machine
-import com.aluma.laundry.data.api.service.Service
-import com.aluma.laundry.utils.formatRupiah
+import com.aluma.laundry.data.room.machine.MachineRoom
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MachineDropdown(
-    availableMachines: List<Machine>,
-    selectedMachine: Machine?,
-    onMachineSelected: (Machine) -> Unit,
+    availableMachines: List<MachineRoom>,
+    selectedMachine: MachineRoom?,
+    onMachineSelected: (MachineRoom) -> Unit,
     enabled: Boolean = true
 ) {
     var expanded by remember { mutableStateOf(false) }
