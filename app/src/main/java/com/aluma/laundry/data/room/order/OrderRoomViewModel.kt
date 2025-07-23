@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -61,14 +62,24 @@ class OrderRoomViewModel(
         machineRepo.updateMachine(machineRoom)
     }
 
+    private fun tickerFlow(periodMillis: Long) = flow {
+        while (true) {
+            emit(Unit) // trigger setiap periode
+            delay(periodMillis)
+        }
+    }
+
     init {
         viewModelScope.launch {
             combine(
-                machineRepo.machineRoom,
-                repo.orders
-            ) { machines, orders -> machines to orders }
-                .distinctUntilChanged()
-                .collect { (machines, orders) ->
+                tickerFlow(10_000),             // ⏱ timer pemicu
+                machineRepo.machineRoom,        // 🧺 data mesin
+                repo.orders                     // 📦 data order
+            ) { _, machines, orders ->
+                machines to orders              // hasil combine: Pair
+            }
+                .collect { (machines, orders) ->    // 🎯 eksekusi setiap 10 detik
+                    Log.d("TimeoutChecker", "Triggered. Machines: ${machines.size}, Orders: ${orders.size}")
                     checkMachineTimeouts(machines, orders)
                 }
         }
