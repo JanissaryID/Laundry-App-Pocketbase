@@ -16,15 +16,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.aluma.laundry.data.service.model.ServiceRemote
+import com.aluma.laundry.data.service.model.ServiceLocal
 import com.aluma.laundry.utils.formatRupiah
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServiceDropdown(
-    serviceRemotes: List<ServiceRemote>,
-    selectedServiceRemote: ServiceRemote?,
-    onServiceSelected: (ServiceRemote) -> Unit
+    serviceLocal: List<ServiceLocal>,
+    selectedServiceLocal: ServiceLocal?,
+    onServiceSelected: (ServiceLocal) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -35,7 +35,7 @@ fun ServiceDropdown(
     ) {
         OutlinedTextField(
             readOnly = true,
-            value = selectedServiceRemote?.let {
+            value = selectedServiceLocal?.let {
                 "${it.nameService.orEmpty()} (${if (it.sizeMachine) "Besar" else "Kecil"})"
             } ?: "",
             onValueChange = {},
@@ -52,14 +52,14 @@ fun ServiceDropdown(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            if (serviceRemotes.isEmpty()) {
+            if (serviceLocal.isEmpty()) {
                 DropdownMenuItem(
                     text = { Text("Tidak ada layanan tersedia") },
                     onClick = {},
                     enabled = false
                 )
             } else {
-                serviceRemotes.forEach { service ->
+                serviceLocal.forEach { service ->
                     DropdownMenuItem(
                         text = {
                             Row(

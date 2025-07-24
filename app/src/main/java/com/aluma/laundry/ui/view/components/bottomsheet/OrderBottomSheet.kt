@@ -41,7 +41,8 @@ import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.order.model.OrderLocal
 import com.aluma.laundry.data.order.utils.SyncStatus
 import com.aluma.laundry.data.order.utils.TypePayment
-import com.aluma.laundry.data.service.model.ServiceRemote
+import com.aluma.laundry.data.service.local.ServiceLocalViewModel
+import com.aluma.laundry.data.service.model.ServiceLocal
 import com.aluma.laundry.data.service.remote.ServiceRemoteViewModel
 import com.aluma.laundry.ui.view.components.dropdown.ServiceDropdown
 import com.aluma.laundry.utils.formatRupiah
@@ -52,14 +53,15 @@ import org.koin.compose.koinInject
 fun OrderBottomSheet(
     onDismissRequest: () -> Unit,
     serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
+    serviceLocalViewModel: ServiceLocalViewModel = koinInject(),
     onSubmit: (order: OrderLocal) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var customerName by remember { mutableStateOf("") }
-    var selectedServiceRemote by remember { mutableStateOf<ServiceRemote?>(null) }
+    var selectedServiceLocal by remember { mutableStateOf<ServiceLocal?>(null) }
     var selectedMethod by remember { mutableStateOf(TypePayment.TUNAI) }
 
-    val services by serviceRemoteViewModel.serviceRemote.collectAsState()
+    val services by serviceLocalViewModel.services.collectAsState()
     val idUser by serviceRemoteViewModel.idUser.collectAsState()
     val idStore by serviceRemoteViewModel.idStore.collectAsState()
 
@@ -95,10 +97,10 @@ fun OrderBottomSheet(
             )
 
             ServiceDropdown(
-                serviceRemotes = services,
-                selectedServiceRemote = selectedServiceRemote,
+                serviceLocal = services,
+                selectedServiceLocal = selectedServiceLocal,
                 onServiceSelected = {
-                    selectedServiceRemote = it
+                    selectedServiceLocal = it
                 }
             )
 
@@ -173,9 +175,9 @@ fun OrderBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    if(selectedServiceRemote != null){
+                    if(selectedServiceLocal != null){
                         Text(
-                            text = selectedServiceRemote?.let {
+                            text = selectedServiceLocal?.let {
                                 "${it.nameService} - ${formatRupiah(it.priceService)}"
                             } ?: "",
                             style = MaterialTheme.typography.bodyMedium,
@@ -191,7 +193,7 @@ fun OrderBottomSheet(
                 Button(
                     onClick = {
                         isSubmitting = true
-                        val service = selectedServiceRemote
+                        val service = selectedServiceLocal
                         if (service != null) {
 
                             val step = if(service.typeMachine == 2){
@@ -222,7 +224,7 @@ fun OrderBottomSheet(
                             onDismissRequest()
                         }
                     },
-                    enabled = !isSubmitting && customerName.isNotBlank() && selectedServiceRemote != null,
+                    enabled = !isSubmitting && customerName.isNotBlank() && selectedServiceLocal != null,
                 ) {
                     if (isSubmitting) {
                         CircularProgressIndicator(

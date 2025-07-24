@@ -3,7 +3,7 @@ package com.aluma.laundry.data.machine.local
 import com.aluma.laundry.data.machine.model.MachineLocal
 import kotlinx.coroutines.flow.Flow
 
-class MachineRepository(private val dao: MachineDAO) {
+class MachineLocalRepository(private val dao: MachineDAO) {
     val machineLocal: Flow<List<MachineLocal>> = dao.getAllMachine()
 
     suspend fun addMachine(machineLocal: MachineLocal) = dao.insert(machineLocal)

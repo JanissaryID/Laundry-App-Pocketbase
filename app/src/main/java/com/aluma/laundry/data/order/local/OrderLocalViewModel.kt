@@ -2,7 +2,7 @@ package com.aluma.laundry.data.order.local
 
 import android.util.Log
 import com.aluma.laundry.data.datastore.StorePreferences
-import com.aluma.laundry.data.machine.local.MachineRepository
+import com.aluma.laundry.data.machine.local.MachineLocalRepository
 import com.aluma.laundry.data.machine.model.MachineLocal
 import com.aluma.laundry.data.order.model.OrderLocal
 import com.aluma.laundry.data.order.model.OrderRemote
@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -27,7 +28,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class OrderLocalViewModel(
     private val repo: OrderLocalRepository,
-    private val machineRepo: MachineRepository,
+    private val machineRepo: MachineLocalRepository,
     private val orderRemoteRepository: OrderRemoteRepository,
     private val client: PocketbaseClient,
     private val storePreferences: StorePreferences
@@ -72,7 +73,7 @@ class OrderLocalViewModel(
 
     private fun tickerFlow(periodMillis: Long) = flow {
         while (true) {
-            emit(Unit) // trigger setiap periode
+            emit(Unit)
             delay(periodMillis)
         }
     }
@@ -92,72 +93,72 @@ class OrderLocalViewModel(
         viewModelScope.launch {
             combine(
                 tickerFlow(10_000),
-                machineRepo.machineLocal,
-                repo.orders
-            ) { _, machines, orders ->
-                machines to orders
-            }
-                .collect { (machines, orders) ->
-                    Log.d("TimeoutChecker", "Triggered. Machines: ${machines.size}, Orders: ${orders.size}")
-                    checkMachineTimeouts(machines, orders)
-                    if (_isLoggedIn.value) {
-                        syncPendingOrders(orders)
-                    }
+                machineRepo.machineLocal
+            ) { _, machines -> machines }
+                .collect { machines ->
+                    Log.d("TimeoutChecker", "Triggered. Machines: ${machines.size}")
+                    checkMachineTimeouts(machines)
                 }
         }
     }
 
-    private fun checkMachineTimeouts(
-        machines: List<MachineLocal>,
-        orders: List<OrderLocal>
-    ) {
+    private suspend fun checkMachineTimeouts(machines: List<MachineLocal>) {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX")
             .withZone(ZoneOffset.UTC)
 
         val now = Instant.now().toEpochMilli()
 
         machines.filter { it.inUse && it.timeOn != null }.forEach { machine ->
-            try {
-                val timeOnMillis = Instant.from(formatter.parse(machine.timeOn!!)).toEpochMilli()
-                val expiredMillis = timeOnMillis + machine.timer * 60_000
+            viewModelScope.launch {
+                try {
+                    val timeOnMillis = Instant.from(formatter.parse(machine.timeOn!!)).toEpochMilli()
+                    val expiredMillis = timeOnMillis + machine.timer * 60_000
 
-                if (now > expiredMillis) {
-                    val relatedOrder = orders.find { it.id == machine.order }
+                    if (now > expiredMillis) {
+                        val relatedOrder = repo.getOrderById(machine.order ?: return@launch)
 
-                    Log.d("TimeoutChecker", "Machine Order ID: ${machine.order}")
-                    Log.d("TimeoutChecker", "Related Order Found: ${relatedOrder != null}")
-                    relatedOrder?.let {
-                        Log.d("TimeoutChecker", "Before Update - ID: ${it.id}, stepMachine: ${it.stepMachine}, numberMachine: ${it.numberMachine}, typeMachineService: ${it.typeMachineService}")
-                    }
+                        Log.d("TimeoutChecker", "Machine Order ID: ${machine.order}")
+                        Log.d("TimeoutChecker", "Related Order Found: ${relatedOrder != null}")
 
-                    if (relatedOrder != null) {
-                        val updatedStep = when (relatedOrder.typeMachineService) {
-                            0, 1 -> 4
-                            2 -> if (relatedOrder.stepMachine == 2) 1 else 4
-                            else -> relatedOrder.stepMachine
+                        if (relatedOrder != null) {
+                            val updatedStep = determineUpdatedStep(relatedOrder)
+
+                            Log.d("TimeoutChecker", "Order ${relatedOrder.id}: stepMachine from ${relatedOrder.stepMachine} → $updatedStep")
+
+                            val updatedOrder = relatedOrder.copy(
+                                stepMachine = updatedStep,
+                                numberMachine = 0
+                            )
+                            updateOrder(updatedOrder)
+
+                            val updatedMachine = machine.copy(
+                                inUse = false,
+                                order = null,
+                                timeOn = null
+                            )
+                            updateMachine(updatedMachine)
+
+                            Log.d("TimeoutChecker", "Machine ${machine.numberMachine} expired. Reset done.")
                         }
-
-                        val updatedOrder = relatedOrder.copy(
-                            stepMachine = updatedStep,
-                            numberMachine = 0
-                        )
-
-                        Log.d("TimeoutChecker", "After Update - ID: ${updatedOrder.id}, stepMachine: ${updatedOrder.stepMachine}, numberMachine: ${updatedOrder.numberMachine}")
-                        updateOrder(updatedOrder)
-
-                        val updatedMachine = machine.copy(
-                            inUse = false,
-                            order = null,
-                            timeOn = null
-                        )
-                        updateMachine(updatedMachine)
-
-                        Log.d("TimeoutChecker", "Machine ${machine.numberMachine} expired. Reset done.")
                     }
+                } catch (e: Exception) {
+                    Log.e("TimeoutChecker", "Error parsing timeOn: ${machine.timeOn}", e)
                 }
-            } catch (e: Exception) {
-                Log.e("TimeoutChecker", "Error parsing timeOn: ${machine.timeOn}", e)
             }
+        }
+
+        // setelah semua selesai, sync
+        if (_isLoggedIn.value) {
+            val currentOrders = repo.orders.first() // get latest snapshot
+            syncPendingOrders(currentOrders)
+        }
+    }
+
+    private fun determineUpdatedStep(order: OrderLocal): Int {
+        return when (order.typeMachineService) {
+            0, 1 -> 4
+            2 -> if (order.stepMachine == 2) 1 else 4
+            else -> order.stepMachine
         }
     }
 
@@ -172,7 +173,7 @@ class OrderLocalViewModel(
                 repo.updateOrder(order.copy(syncStatus = SyncStatus.SYNCED))
                 Log.d("SyncChecker", "✅ Synced order ${order.id}")
             } catch (e: CancellationException) {
-                throw e // biarkan propagasi
+                throw e
             } catch (e: Exception) {
                 repo.updateOrder(order.copy(syncStatus = SyncStatus.FAILED))
                 Log.e("SyncChecker", "❌ Failed to sync order ${order.id}", e)
@@ -180,9 +181,10 @@ class OrderLocalViewModel(
         }
     }
 
-//    fun syncNow() = viewModelScope.launch {
-//        syncPendingOrders(repo.orders)
-//    }
+    fun syncNow() = viewModelScope.launch {
+        val latest = repo.orders.first()
+        syncPendingOrders(latest)
+    }
 }
 
 fun OrderLocal.toRemoteModel(): OrderRemote {

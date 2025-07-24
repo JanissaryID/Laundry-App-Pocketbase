@@ -2,6 +2,8 @@ package com.aluma.laundry.data.service.remote
 
 import android.util.Log
 import com.aluma.laundry.data.datastore.StorePreferences
+import com.aluma.laundry.data.service.local.ServiceLocalRepository
+import com.aluma.laundry.data.service.model.ServiceLocal
 import com.aluma.laundry.data.service.model.ServiceRemote
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
@@ -14,7 +16,8 @@ import kotlinx.coroutines.launch
 class ServiceRemoteViewModel(
     private val storePreferences: StorePreferences,
     private val client: PocketbaseClient,
-    private val serviceRepository: ServiceRemoteRepository
+    private val serviceRepository: ServiceRemoteRepository,
+    private val serviceLocalRepository: ServiceLocalRepository
 ) : ViewModel() {
 
     private val _token = MutableStateFlow<String?>(null)
@@ -54,6 +57,32 @@ class ServiceRemoteViewModel(
             try {
                 val fetched = serviceRepository.fetchServices()
                 _serviceRemote.value = fetched
+
+                fetched.forEach { service ->
+                    val existing = serviceLocalRepository.getServiceById(service.id!!)
+
+                    if (existing == null) {
+                        val newService = ServiceLocal(
+                            id = service.id!!,
+                            typeMachine = service.typeMachine,
+                            sizeMachine = service.sizeMachine,
+                            user = service.user,
+                            store = service.store,
+                            priceService = service.priceService,
+                            nameService = service.nameService
+
+                        )
+                        serviceLocalRepository.addService(newService)
+                    } else {
+                        val updated = existing.copy(
+                            typeMachine = service.typeMachine,
+                            sizeMachine = service.sizeMachine,
+                            nameService = service.nameService,
+                            priceService = service.priceService
+                        )
+                        serviceLocalRepository.updateService(updated)
+                    }
+                }
             } catch (e: Exception) {
                 Log.e("ServiceViewModel", "❌ Fetch Services failed", e)
             }

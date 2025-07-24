@@ -2,7 +2,7 @@ package com.aluma.laundry.data.machine.remote
 
 import android.util.Log
 import com.aluma.laundry.data.datastore.StorePreferences
-import com.aluma.laundry.data.machine.local.MachineLocalViewModel
+import com.aluma.laundry.data.machine.local.MachineLocalRepository
 import com.aluma.laundry.data.machine.model.MachineLocal
 import com.aluma.laundry.data.machine.model.MachineRemote
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 class MachineRemoteViewModel(
     private val storePreferences: StorePreferences,
-    private val machineLocalViewModel: MachineLocalViewModel,
+    private val machineLocalRepository: MachineLocalRepository,
     private val machineRepository: MachineRemoteRepository,
     private val client: PocketbaseClient
 ) : ViewModel() {
@@ -54,7 +54,7 @@ class MachineRemoteViewModel(
                 _machineRemote.value = fetched
 
                 fetched.forEach { machine ->
-                    val existing = machineLocalViewModel.getMachineById(machine.id!!)
+                    val existing = machineLocalRepository.getMachineById(machine.id!!)
 
                     if (existing == null) {
                         val newMachine = MachineLocal(
@@ -70,7 +70,7 @@ class MachineRemoteViewModel(
                             timeOn = null,
                             order = null,
                         )
-                        machineLocalViewModel.addMachine(newMachine)
+                        machineLocalRepository.addMachine(newMachine)
                     } else {
                         val updated = existing.copy(
                             numberMachine = machine.numberMachine,
@@ -79,7 +79,7 @@ class MachineRemoteViewModel(
                             bluetoothAddress = machine.bluetoothAddress,
                             timer = machine.timer
                         )
-                        machineLocalViewModel.updateMachine(updated)
+                        machineLocalRepository.updateMachine(updated)
                     }
                 }
             } catch (e: Exception) {

@@ -5,8 +5,8 @@ import com.aluma.laundry.data.AppDatabase
 import com.aluma.laundry.data.PocketbaseClientProvider
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.data.datastore.StorePreferences
+import com.aluma.laundry.data.machine.local.MachineLocalRepository
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
-import com.aluma.laundry.data.machine.local.MachineRepository
 import com.aluma.laundry.data.machine.remote.MachineRemoteRepository
 import com.aluma.laundry.data.machine.remote.MachineRemoteRepositoryImpl
 import com.aluma.laundry.data.machine.remote.MachineRemoteViewModel
@@ -15,6 +15,8 @@ import com.aluma.laundry.data.order.local.OrderLocalViewModel
 import com.aluma.laundry.data.order.remote.OrderRemoteRepository
 import com.aluma.laundry.data.order.remote.OrderRemoteRepositoryImpl
 import com.aluma.laundry.data.order.remote.OrderRemoteViewModel
+import com.aluma.laundry.data.service.local.ServiceLocalRepository
+import com.aluma.laundry.data.service.local.ServiceLocalViewModel
 import com.aluma.laundry.data.service.remote.ServiceRemoteRepository
 import com.aluma.laundry.data.service.remote.ServiceRemoteRepositoryImpl
 import com.aluma.laundry.data.service.remote.ServiceRemoteViewModel
@@ -71,7 +73,8 @@ val appModule = module {
         ServiceRemoteViewModel(
             storePreferences = get(),
             serviceRepository = get(),
-            client = get()
+            client = get(),
+            serviceLocalRepository = get()
         )
     }
 
@@ -79,7 +82,7 @@ val appModule = module {
         MachineRemoteViewModel(
             storePreferences = get(),
             machineRepository = get(),
-            machineLocalViewModel = get(),
+            machineLocalRepository = get(),
             client = get()
         )
     }
@@ -94,13 +97,16 @@ val appModule = module {
 
     single { get<AppDatabase>().machineDao() }
     single { get<AppDatabase>().orderDao() }
+    single { get<AppDatabase>().serviceDao() }
 
     // Repositories
-    single { MachineRepository(get()) }
+    single { MachineLocalRepository(get()) }
     single { OrderLocalRepository(get()) }
+    single { ServiceLocalRepository(get()) }
 
     // Local ViewModels
     single { MachineLocalViewModel(get()) }
+    single { ServiceLocalViewModel(get()) }
     single { OrderLocalViewModel(
         repo =get(),
         machineRepo = get(),

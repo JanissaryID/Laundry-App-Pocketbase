@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.aluma.laundry.data.machine.model.MachineLocal
 import com.aluma.laundry.data.order.model.OrderLocal
 import kotlinx.coroutines.flow.Flow
 
@@ -22,4 +23,7 @@ interface OrderDAO {
 
     @Update
     suspend fun update(orderLocal: OrderLocal)
+
+    @Query("SELECT * FROM orders WHERE id = :id LIMIT 1")
+    suspend fun getOrderById(id: String): OrderLocal?
 }

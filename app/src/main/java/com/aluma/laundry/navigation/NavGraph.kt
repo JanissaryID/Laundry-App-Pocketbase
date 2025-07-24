@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
+import com.aluma.laundry.data.order.local.OrderLocalViewModel
 import com.aluma.laundry.ui.view.screens.ScreenChoseStore
 import com.aluma.laundry.ui.view.screens.ScreenHome
 import com.aluma.laundry.ui.view.screens.ScreenLoading
@@ -25,7 +26,8 @@ import org.koin.compose.koinInject
 @Composable
 fun AppNavHost(
     navController: NavHostController = rememberNavController(),
-    storePreferenceViewModel: StorePreferenceViewModel = koinInject()
+    storePreferenceViewModel: StorePreferenceViewModel = koinInject(),
+    orderLocalViewModel: OrderLocalViewModel = koinInject(),
 ) {
     var startDestination by remember { mutableStateOf<String?>(null) }
     var showLoading by remember { mutableStateOf(true) }

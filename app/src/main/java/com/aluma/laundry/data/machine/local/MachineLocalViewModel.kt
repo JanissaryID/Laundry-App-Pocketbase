@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class MachineLocalViewModel(private val repo: MachineRepository) : ViewModel() {
+class MachineLocalViewModel(private val repo: MachineLocalRepository) : ViewModel() {
 
     private val _machineFilter = MutableStateFlow<List<MachineLocal>>(emptyList())
     val machineFilter: StateFlow<List<MachineLocal>> = _machineFilter
