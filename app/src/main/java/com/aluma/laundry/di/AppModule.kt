@@ -1,6 +1,7 @@
 package com.aluma.laundry.di
 
 import androidx.room.Room
+import androidx.work.ListenableWorker
 import com.aluma.laundry.data.AppDatabase
 import com.aluma.laundry.data.PocketbaseClientProvider
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
@@ -26,9 +27,33 @@ import com.aluma.laundry.data.store.StoreRemoteViewModel
 import com.aluma.laundry.data.user.remote.UserRemoteRepository
 import com.aluma.laundry.data.user.remote.UserRemoteRepositoryImpl
 import com.aluma.laundry.data.user.remote.UserRemoteViewModel
+import com.aluma.laundry.workmanager.ChildWorkerFactory
+import com.aluma.laundry.workmanager.KoinWorkerFactory
+import com.aluma.laundry.workmanager.SyncOrderWorker
+import com.aluma.laundry.workmanager.SyncOrderWorkerFactory
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+
+val workerModule = module {
+    // Bind ChildWorkerFactory
+    single<ChildWorkerFactory> {
+        SyncOrderWorkerFactory(
+            localRepo = get(),
+            remoteRepo = get()
+        )
+    }
+
+    // Worker class map (tanpa javax.inject.Provider)
+    single {
+        mapOf<Class<out ListenableWorker>, () -> ChildWorkerFactory>(
+            SyncOrderWorker::class.java to { get<ChildWorkerFactory>() }
+        )
+    }
+
+    // Custom Koin WorkerFactory
+    single { KoinWorkerFactory(get()) }
+}
 
 val appModule = module {
     // Data Store
@@ -50,7 +75,8 @@ val appModule = module {
         OrderRemoteViewModel(
             storePreferences = get(),
             orderRepository = get(),
-            client = get()
+            client = get(),
+            appContext = androidContext()
         )
     }
 

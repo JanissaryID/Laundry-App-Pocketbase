@@ -6,8 +6,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.aluma.laundry.data.machine.model.MachineLocal
 import com.aluma.laundry.data.order.model.OrderLocal
+import com.aluma.laundry.data.order.utils.SyncStatus
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -26,4 +26,7 @@ interface OrderDAO {
 
     @Query("SELECT * FROM orders WHERE id = :id LIMIT 1")
     suspend fun getOrderById(id: String): OrderLocal?
+
+    @Query("SELECT * FROM orders WHERE syncStatus IN (:pending, :failed)")
+    suspend fun getPendingOrFailedOrders(pending: SyncStatus, failed: SyncStatus): List<OrderLocal>
 }
