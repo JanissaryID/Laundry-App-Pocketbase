@@ -93,12 +93,15 @@ class OrderLocalViewModel(
         viewModelScope.launch {
             combine(
                 tickerFlow(10_000),
-                machineRepo.machineLocal
-            ) { _, machines -> machines }
-                .collect { machines ->
-                    Log.d("TimeoutChecker", "Triggered. Machines: ${machines.size}")
-                    checkMachineTimeouts(machines)
-                }
+                machineRepo.machineLocal,
+                repo.orders
+            ) { _, machines, orders ->
+                machines to orders
+            }.collect { (machines, orders) ->
+                Log.d("TimeoutChecker", "Triggered. Machines: ${machines.size}, Orders: ${orders.size}")
+
+                checkMachineTimeouts(machines)
+            }
         }
     }
 
