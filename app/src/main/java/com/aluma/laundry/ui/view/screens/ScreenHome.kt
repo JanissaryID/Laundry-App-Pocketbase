@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
 import com.aluma.laundry.data.machine.remote.MachineRemoteViewModel
 import com.aluma.laundry.data.order.local.OrderLocalViewModel
+import com.aluma.laundry.data.service.remote.ServiceRemoteViewModel
 import com.aluma.laundry.data.store.StoreRemoteViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheet
@@ -42,6 +43,7 @@ import java.time.format.DateTimeFormatter
 fun ScreenHome(
     storeRemoteViewModel: StoreRemoteViewModel = koinInject(),
     machineRemoteViewModel: MachineRemoteViewModel = koinInject(),
+    serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
     machineLocalViewModel: MachineLocalViewModel = koinInject(),
     orderLocalViewModel: OrderLocalViewModel = koinInject(),
     onNavigate: (String) -> Unit

@@ -2,6 +2,7 @@ package com.aluma.laundry.di
 
 import android.app.Application
 import android.content.Context
+import androidx.work.BackoffPolicy
 import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -62,6 +63,7 @@ class App : Application(), Configuration.Provider {
                         .setRequiredNetworkType(NetworkType.CONNECTED)
                         .build()
                 )
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10, TimeUnit.SECONDS) // ✅ TAMBAHKAN INI
                 .build()
 
             WorkManager.getInstance(context).enqueueUniqueWork(

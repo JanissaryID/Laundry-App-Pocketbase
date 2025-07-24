@@ -10,10 +10,7 @@ class OrderLocalRepository(private val dao: OrderDAO) {
 
     suspend fun addOrder(orderLocal: OrderLocal) = dao.insert(orderLocal)
     suspend fun deleteOrder(orderLocal: OrderLocal) = dao.delete(orderLocal)
-    suspend fun updateOrder(orderLocal: OrderLocal) {
-        val result = dao.update(orderLocal)
-        Log.d("RoomUpdate", "Rows updated: $result")
-    }
+    suspend fun updateOrderWithResult(orderLocal: OrderLocal): Int = dao.update(orderLocal)
     suspend fun getOrderById(id: String): OrderLocal? = dao.getOrderById(id)
 
     suspend fun getPendingOrFailedOrders(): List<OrderLocal> {

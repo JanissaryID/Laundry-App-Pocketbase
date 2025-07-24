@@ -23,6 +23,7 @@ class OrderRemoteRepositoryImpl(
             throw e
         } catch (e: Exception) {
             Log.e("OrderRepository", "❌ Create Order failed", e)
+            throw e
         }
     }
 }

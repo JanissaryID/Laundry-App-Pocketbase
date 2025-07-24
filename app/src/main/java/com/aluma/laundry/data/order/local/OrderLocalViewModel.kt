@@ -42,6 +42,7 @@ class OrderLocalViewModel(
     val ordersFilter: StateFlow<List<OrderLocal>> = _maxStep
         .combine(repo.orders) { maxStep, allOrders ->
             allOrders.filter { it.stepMachine < maxStep }
+                .reversed()
         }
         .stateIn(viewModelScope, sharingStarted, emptyList())
 
@@ -64,7 +65,7 @@ class OrderLocalViewModel(
     }
 
     fun updateOrder(orderLocal: OrderLocal) = viewModelScope.launch {
-        repo.updateOrder(orderLocal)
+        repo.updateOrderWithResult(orderLocal)
     }
 
     fun updateMachine(machineLocal: MachineLocal) = viewModelScope.launch {
@@ -91,69 +92,66 @@ class OrderLocalViewModel(
         }
 
         viewModelScope.launch {
-            combine(
-                tickerFlow(10_000),
-                machineRepo.machineLocal,
-                repo.orders
-            ) { _, machines, orders ->
-                machines to orders
-            }.collect { (machines, orders) ->
-                Log.d("TimeoutChecker", "Triggered. Machines: ${machines.size}, Orders: ${orders.size}")
+            tickerFlow(1_000).collect {
+                val machines = machineRepo.machineLocal.first()
+                val orders = repo.orders.first()
 
-                checkMachineTimeouts(machines)
+                Log.d("TimeoutChecker", "⏰ Ticker triggered: ${machines.size} machines, ${orders.size} orders")
+
+                checkMachineTimeouts(machines, orders)
             }
         }
     }
 
-    private suspend fun checkMachineTimeouts(machines: List<MachineLocal>) {
+    private suspend fun checkMachineTimeouts(
+        machines: List<MachineLocal>,
+        orders: List<OrderLocal>
+    ) {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX")
             .withZone(ZoneOffset.UTC)
 
         val now = Instant.now().toEpochMilli()
 
-        machines.filter { it.inUse && it.timeOn != null }.forEach { machine ->
-            viewModelScope.launch {
-                try {
-                    val timeOnMillis = Instant.from(formatter.parse(machine.timeOn!!)).toEpochMilli()
-                    val expiredMillis = timeOnMillis + machine.timer * 60_000
+        for (machine in machines) {
+            if (!machine.inUse || machine.timeOn == null) continue
 
-                    if (now > expiredMillis) {
-                        val relatedOrder = repo.getOrderById(machine.order ?: return@launch)
+            try {
+                val timeOnMillis = Instant.from(formatter.parse(machine.timeOn)).toEpochMilli()
+                val expiredMillis = timeOnMillis + machine.timer * 60_000
 
-                        Log.d("TimeoutChecker", "Machine Order ID: ${machine.order}")
-                        Log.d("TimeoutChecker", "Related Order Found: ${relatedOrder != null}")
+                if (now > expiredMillis) {
+                    val relatedOrder = machine.order?.let { repo.getOrderById(it) } ?: continue
+                    val updatedStep = determineUpdatedStep(relatedOrder)
 
-                        if (relatedOrder != null) {
-                            val updatedStep = determineUpdatedStep(relatedOrder)
+                    Log.d("TimeoutChecker", "⌛ Order ${relatedOrder.id} expired. Step: ${relatedOrder.stepMachine} → $updatedStep")
 
-                            Log.d("TimeoutChecker", "Order ${relatedOrder.id}: stepMachine from ${relatedOrder.stepMachine} → $updatedStep")
+                    val updatedOrder = relatedOrder.copy(
+                        stepMachine = updatedStep,
+                        numberMachine = 0
+                    )
 
-                            val updatedOrder = relatedOrder.copy(
-                                stepMachine = updatedStep,
-                                numberMachine = 0
-                            )
-                            updateOrder(updatedOrder)
-
-                            val updatedMachine = machine.copy(
-                                inUse = false,
-                                order = null,
-                                timeOn = null
-                            )
-                            updateMachine(updatedMachine)
-
-                            Log.d("TimeoutChecker", "Machine ${machine.numberMachine} expired. Reset done.")
-                        }
+                    val updatedRows = repo.updateOrderWithResult(updatedOrder)
+                    Log.d("TimeoutChecker", "📦 Updated rows: $updatedRows")
+                    Log.d("TimeoutChecker", "📦 Updated rows 2: $updatedOrder")
+                    if (updatedRows > 0) {
+                        val updatedMachine = machine.copy(
+                            inUse = false,
+                            order = null,
+                            timeOn = null
+                        )
+                        updateMachine(updatedMachine)
+                        Log.d("TimeoutChecker", "✅ Reset machine ${machine.numberMachine} done.")
+                    } else {
+                        Log.w("TimeoutChecker", "⚠️ Order ${relatedOrder.id} failed to update. Machine not updated.")
                     }
-                } catch (e: Exception) {
-                    Log.e("TimeoutChecker", "Error parsing timeOn: ${machine.timeOn}", e)
                 }
+            } catch (e: Exception) {
+                Log.e("TimeoutChecker", "❌ Error parsing timeOn: ${machine.timeOn}", e)
             }
         }
 
-        // setelah semua selesai, sync
         if (_isLoggedIn.value) {
-            val currentOrders = repo.orders.first() // get latest snapshot
-            syncPendingOrders(currentOrders)
+            syncPendingOrders(orders)
         }
     }
 
@@ -173,12 +171,12 @@ class OrderLocalViewModel(
         for (order in pendingOrders) {
             try {
                 orderRemoteRepository.createOrder(order.toRemoteModel())
-                repo.updateOrder(order.copy(syncStatus = SyncStatus.SYNCED))
+                repo.updateOrderWithResult(order.copy(syncStatus = SyncStatus.SYNCED))
                 Log.d("SyncChecker", "✅ Synced order ${order.id}")
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                repo.updateOrder(order.copy(syncStatus = SyncStatus.FAILED))
+                repo.updateOrderWithResult(order.copy(syncStatus = SyncStatus.FAILED))
                 Log.e("SyncChecker", "❌ Failed to sync order ${order.id}", e)
             }
         }

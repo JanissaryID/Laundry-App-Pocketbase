@@ -22,7 +22,7 @@ interface OrderDAO {
     suspend fun delete(orderLocal: OrderLocal)
 
     @Update
-    suspend fun update(orderLocal: OrderLocal)
+    suspend fun update(orderLocal: OrderLocal): Int
 
     @Query("SELECT * FROM orders WHERE id = :id LIMIT 1")
     suspend fun getOrderById(id: String): OrderLocal?
