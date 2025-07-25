@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import com.aluma.laundry.data.datastore.StorePreferences
 import com.aluma.laundry.data.order.model.OrderRemote
-import com.aluma.laundry.di.App.Companion.enqueueSyncNow
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
 import io.github.agrevster.pocketbaseKotlin.dsl.login
@@ -34,9 +33,9 @@ class OrderRemoteViewModel(
         }
     }
 
-    fun syncNow() {
-        enqueueSyncNow(appContext)
-    }
+//    fun syncNow() {
+//        enqueueSyncNow(appContext)
+//    }
 
     fun createOrder(order: OrderRemote) {
         viewModelScope.launch {
