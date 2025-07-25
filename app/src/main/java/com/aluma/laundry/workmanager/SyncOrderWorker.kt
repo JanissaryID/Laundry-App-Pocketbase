@@ -36,9 +36,7 @@ class SyncOrderWorker(
 
                     remoteRepository.createOrder(remote)
 
-                    localRepository.updateOrderWithResult(
-                        order.copy(syncStatus = SyncStatus.SYNCED)
-                    )
+                    localRepository.updateSyncStatusOnly(order.id, SyncStatus.SYNCED)
 
                     Log.d("SyncOrderWorker", "✅ Synced order ${order.id}")
                 } catch (e: CancellationException) {
@@ -46,10 +44,7 @@ class SyncOrderWorker(
                 } catch (e: Exception) {
                     allSuccess = false
 
-                    localRepository.updateOrderWithResult(
-                        order.copy(syncStatus = SyncStatus.FAILED)
-                    )
-
+                    localRepository.updateSyncStatusOnly(order.id, SyncStatus.FAILED)
                     Log.e("SyncOrderWorker", "❌ Failed to sync order ${order.id}", e)
                 }
             }

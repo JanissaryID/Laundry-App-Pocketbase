@@ -24,6 +24,9 @@ interface OrderDAO {
     @Update
     suspend fun update(orderLocal: OrderLocal): Int
 
+    @Query("UPDATE orders SET syncStatus = :status WHERE id = :id")
+    suspend fun updateSyncStatusOnly(id: String, status: SyncStatus): Int
+
     @Query("SELECT * FROM orders WHERE id = :id LIMIT 1")
     suspend fun getOrderById(id: String): OrderLocal?
 

@@ -130,7 +130,10 @@ class OrderLocalViewModel(
                         numberMachine = 0
                     )
 
+                    Log.d("TimeoutChecker", "📌 About to update order ${updatedOrder.id} to step=${updatedOrder.stepMachine}")
                     val updatedRows = repo.updateOrderWithResult(updatedOrder)
+                    val reloaded = repo.getOrderById(relatedOrder.id)
+                    Log.d("Checker", "🔁 Reloaded stepMachine: ${reloaded?.stepMachine}")
                     Log.d("TimeoutChecker", "📦 Updated rows: $updatedRows")
                     Log.d("TimeoutChecker", "📦 Updated rows 2: $updatedOrder")
                     if (updatedRows > 0) {
@@ -171,12 +174,12 @@ class OrderLocalViewModel(
         for (order in pendingOrders) {
             try {
                 orderRemoteRepository.createOrder(order.toRemoteModel())
-                repo.updateOrderWithResult(order.copy(syncStatus = SyncStatus.SYNCED))
+                repo.updateSyncStatusOnly(order.id,SyncStatus.SYNCED)
                 Log.d("SyncChecker", "✅ Synced order ${order.id}")
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                repo.updateOrderWithResult(order.copy(syncStatus = SyncStatus.FAILED))
+                repo.updateSyncStatusOnly(order.id,SyncStatus.FAILED)
                 Log.e("SyncChecker", "❌ Failed to sync order ${order.id}", e)
             }
         }
