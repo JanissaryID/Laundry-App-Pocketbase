@@ -8,7 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -46,7 +50,8 @@ fun ScreenHome(
     serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
     machineLocalViewModel: MachineLocalViewModel = koinInject(),
     orderLocalViewModel: OrderLocalViewModel = koinInject(),
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit,
+    onNavigateSettings: () -> Unit
 ) {
     val nameStore by storeRemoteViewModel.nameStore.collectAsState()
     val orders by orderLocalViewModel.ordersFilter.collectAsState()
@@ -65,7 +70,12 @@ fun ScreenHome(
                 title = { nameStore?.let { Text(it) } },
                 colors = TopAppBarDefaults.topAppBarColors(
                     titleContentColor = MaterialTheme.colorScheme.primary
-                )
+                ),
+                actions = {
+                    IconButton(onClick = { onNavigateSettings() }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Pengaturan")
+                    }
+                }
             )
         },
         floatingActionButton = {

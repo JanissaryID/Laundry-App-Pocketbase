@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.LocalLaundryService
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -61,7 +62,10 @@ fun FabWithSubmenu(
                     .align(Alignment.BottomEnd)
                     .padding(bottom = 72.dp)
             ) {
-                FabWithLabel("Daftar Mesin", Icons.AutoMirrored.Filled.List) {
+                FabWithLabel("Daftar Order", Icons.AutoMirrored.Filled.List) {
+//                    listMachine()
+                }
+                FabWithLabel("Daftar Mesin", Icons.Default.LocalLaundryService) {
                     listMachine()
                 }
                 FabWithLabel("Tambah Order", Icons.Default.Add) {

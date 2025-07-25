@@ -19,6 +19,7 @@ import com.aluma.laundry.ui.view.screens.ScreenChoseStore
 import com.aluma.laundry.ui.view.screens.ScreenHome
 import com.aluma.laundry.ui.view.screens.ScreenLoading
 import com.aluma.laundry.ui.view.screens.ScreenLogin
+import com.aluma.laundry.ui.view.screens.ScreenSettings
 import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
 
@@ -64,6 +65,9 @@ fun AppNavHost(
             ScreenHome(
                 onNavigate = {
 
+                },
+                onNavigateSettings = {
+                    navController.navigate(Screens.Settings.route)
                 }
             )
         }
@@ -86,6 +90,13 @@ fun AppNavHost(
                         launchSingleTop = true // Hindari multiple instance jika sudah di stack
                     }
                 }
+            )
+        }
+        composable(Screens.Settings.route) {
+            ScreenSettings(
+                onBack = { /* navController.popBackStack() */ },
+                onChangeStore = { /* navigasi ke pilih toko */ },
+                onLogout = { /* tampilkan dialog logout */ }
             )
         }
     }
