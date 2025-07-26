@@ -24,6 +24,15 @@ interface OrderDAO {
     @Query("DELETE FROM orders")
     suspend fun deleteAll()
 
+    @Query("""
+    DELETE FROM orders 
+    WHERE stepMachine = 4 
+      AND syncStatus = :status 
+      AND date IS NOT NULL 
+      AND DATE(date) < DATE(:today)
+    """)
+    suspend fun deleteOldSyncedOrders(today: String, status: SyncStatus = SyncStatus.SYNCED)
+
     @Update
     suspend fun update(orderLocal: OrderLocal): Int
 

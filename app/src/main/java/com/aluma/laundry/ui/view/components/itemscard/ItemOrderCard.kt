@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.DryCleaning
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.LocalLaundryService
@@ -73,15 +73,15 @@ fun ItemOrderCard(
         )
         3 -> Quad(
             "Sedang mengeringkan di mesin nomor $machineNumber",
-            Color(0xFFE8F5E9),
+            Color(0xFFFFE0B2),
             Icons.Default.DryCleaning,
-            Color(0xFF4CAF50)
+            Color(0xFFEF6C00)
         )
         else -> Quad(
-            "Status tidak diketahui",
-            Color.LightGray.copy(alpha = 0.1f),
-            Icons.AutoMirrored.Filled.HelpOutline,
-            Color.Gray
+            "Selesai",
+            Color(0xFFE8F5E9),
+            Icons.Default.CheckCircleOutline,
+            Color(0xFF4CAF50)
         )
     }
 

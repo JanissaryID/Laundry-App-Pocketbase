@@ -75,7 +75,12 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
                 }.awaitAll()
             }
             // Jika ada kegagalan, coba lagi nanti
-            if (hasFailures) Result.retry() else Result.success()
+            if (hasFailures) {
+                Result.retry()
+            } else {
+                orderRepository.deleteOldSyncedOrders()
+                Result.success()
+            }
         } catch (e: Exception) {
             Log.e("SyncWorker", "Unexpected error syncing orders: ${e.message}")
             Result.retry()

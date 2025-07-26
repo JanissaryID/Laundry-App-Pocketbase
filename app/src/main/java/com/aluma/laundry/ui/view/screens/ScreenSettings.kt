@@ -47,6 +47,7 @@ import com.aluma.laundry.bluetooth.BluetoothPrinter
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.data.store.StoreRemoteViewModel
 import com.aluma.laundry.data.user.remote.UserRemoteViewModel
+import com.aluma.laundry.ui.view.components.ConfirmDialog
 import com.aluma.laundry.ui.view.components.PrinterListDialog
 import com.aluma.laundry.ui.view.components.itemscard.ItemSettingCard
 import com.aluma.laundry.utils.getAppInfo
@@ -72,6 +73,11 @@ fun ScreenSettings(
     val bluetoothAddress by storePreferenceViewModel.bluetoothAddress.collectAsState()
 
     var showBluetoothDevice by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+
+    var titleDialog by remember { mutableStateOf("") }
+    var messageDialog by remember { mutableStateOf("") }
+    var typeDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
 
@@ -143,7 +149,13 @@ fun ScreenSettings(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.height(12.dp))
-                TextButton(onClick = onChangeStore) {
+                TextButton(onClick = {
+                    typeDialog = false
+                    showDialog = true
+
+                    titleDialog = "Ganti Toko?"
+                    messageDialog = "Apakah anda yakin ingin Mengganti toko?\n\nData di toko ini akan hilang!"
+                }) {
                     Icon(Icons.Default.Edit, contentDescription = null)
                     Spacer(Modifier.width(4.dp))
                     Text("Ganti Toko")
@@ -178,7 +190,13 @@ fun ScreenSettings(
                         icon = Icons.AutoMirrored.Filled.ExitToApp,
                         iconTint = MaterialTheme.colorScheme.error,
                         textColor = MaterialTheme.colorScheme.error,
-                        onClick = { onLogout() }
+                        onClick = {
+                            typeDialog = true
+                            showDialog = true
+
+                            titleDialog = "Keluar?"
+                            messageDialog = "Apakah anda yakin ingin Keluar?\n\nData di akun ini akan hilang!"
+                        }
                     )
                 }
             }
@@ -202,6 +220,18 @@ fun ScreenSettings(
             },
             onDismiss = {
                 showBluetoothDevice = false
+            }
+        )
+    }
+
+    if (showDialog) {
+        ConfirmDialog(
+            title = titleDialog,
+            message = messageDialog,
+            onDismiss = { showDialog = false },
+            onConfirm = {
+                showDialog = false
+                if(typeDialog) onLogout() else onChangeStore()
             }
         )
     }

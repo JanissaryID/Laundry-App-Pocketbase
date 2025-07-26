@@ -47,6 +47,9 @@ import com.aluma.laundry.data.service.remote.ServiceRemoteViewModel
 import com.aluma.laundry.ui.view.components.dropdown.ServiceDropdown
 import com.aluma.laundry.utils.formatRupiah
 import org.koin.compose.koinInject
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -206,6 +209,12 @@ fun OrderBottomSheet(
                                 service.typeMachine
                             }
 
+                            val nowDate = Instant.now()
+                            val formatted = DateTimeFormatter
+                                .ofPattern("yyyy-MM-dd HH:mm:ss.SSSX")
+                                .withZone(ZoneOffset.UTC)
+                                .format(nowDate)
+
                             val order = OrderLocal(
                                 customerName = customerName,
                                 serviceName = service.nameService,
@@ -217,6 +226,7 @@ fun OrderBottomSheet(
                                 store = idStore,
                                 typeMachineService = service.typeMachine,
                                 numberMachine = 0,
+                                date = formatted,
                                 syncStatus = SyncStatus.PENDING
                             )
 

@@ -18,6 +18,7 @@ import com.aluma.laundry.bluetooth.BluetoothHelper
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.ui.view.screens.ScreenChoseStore
 import com.aluma.laundry.ui.view.screens.ScreenHome
+import com.aluma.laundry.ui.view.screens.ScreenListOrders
 import com.aluma.laundry.ui.view.screens.ScreenLoading
 import com.aluma.laundry.ui.view.screens.ScreenLogin
 import com.aluma.laundry.ui.view.screens.ScreenMachine
@@ -67,6 +68,9 @@ fun AppNavHost(
     NavHost(navController = navController, startDestination = startDestination!!) {
         composable(Screens.Home.route) {
             ScreenHome(
+                onNavigateOrder = {
+                    navController.navigate(Screens.Orders.route)
+                },
                 onNavigateMachine = {
                     navController.navigate(Screens.Machines.route)
                 },
@@ -145,6 +149,11 @@ fun AppNavHost(
         }
         composable(Screens.Machines.route) {
             ScreenMachine(
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable(Screens.Orders.route) {
+            ScreenListOrders(
                 onBack = { navController.popBackStack() },
             )
         }

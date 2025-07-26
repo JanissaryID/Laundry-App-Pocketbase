@@ -19,6 +19,7 @@ data class OrderLocal(
     val typePayment: String? = null,
     val user: String? = null,
     val store: String? = null,
+    val date: String? = null,
     @ColumnInfo(defaultValue = "PENDING")
     val syncStatus: SyncStatus = SyncStatus.PENDING
 )

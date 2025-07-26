@@ -51,8 +51,8 @@ fun ScreenHome(
     orderLocalViewModel: OrderLocalViewModel = koinInject(),
     machineRemoteViewModel: MachineRemoteViewModel = koinInject(),
     serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
-//    storePreferenceViewModel: StorePreferenceViewModel = koinInject(),
     onNavigateMachine: () -> Unit,
+    onNavigateOrder: () -> Unit,
     onNavigateSettings: () -> Unit
 ) {
     val nameStore by storeRemoteViewModel.nameStore.collectAsState()
@@ -60,22 +60,11 @@ fun ScreenHome(
     val machines by machineLocalViewModel.machines.collectAsState()
     val selectedOrder by orderLocalViewModel.selectedOrder.collectAsState()
 
-//    val storeId by storePreferenceViewModel.idStore.collectAsState()
-//    val token by storePreferenceViewModel.token.collectAsState()
-//    val userId by storePreferenceViewModel.idUser.collectAsState()
-
     var isFabExpanded by remember { mutableStateOf(false) }
 
     var showOrderSheet by remember { mutableStateOf(false) }
     var showOrderSheetMachine by remember { mutableStateOf(false) }
     var showOrderSheetMachineRunning by remember { mutableStateOf(false) }
-
-//    LaunchedEffect(storeId, token, userId) {
-//        if (!storeId.isNullOrEmpty() && !token.isNullOrEmpty() && !userId.isNullOrEmpty()) {
-//            machineRemoteViewModel.fetchMachine()
-//            serviceRemoteViewModel.fetchServices()
-//        }
-//    }
 
     Scaffold(
         topBar = {
@@ -101,6 +90,7 @@ fun ScreenHome(
                 },
                 onDismissRequest = { isFabExpanded = false },
                 listMachine = onNavigateMachine,
+                listOrder = onNavigateOrder,
                 addOrder = { showOrderSheet = true }
             )
         }
