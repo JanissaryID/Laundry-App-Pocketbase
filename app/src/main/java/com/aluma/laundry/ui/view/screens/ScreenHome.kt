@@ -44,6 +44,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("UNUSED_VARIABLE")
 @Composable
 fun ScreenHome(
     storeRemoteViewModel: StoreRemoteViewModel = koinInject(),
@@ -52,7 +53,7 @@ fun ScreenHome(
     machineLocalViewModel: MachineLocalViewModel = koinInject(),
     orderLocalViewModel: OrderLocalViewModel = koinInject(),
     storePreferenceViewModel: StorePreferenceViewModel = koinInject(),
-    onNavigate: (String) -> Unit,
+    onNavigateMachine: () -> Unit,
     onNavigateSettings: () -> Unit
 ) {
     val nameStore by storeRemoteViewModel.nameStore.collectAsState()
@@ -85,7 +86,7 @@ fun ScreenHome(
                 isFabExpanded = isFabExpanded,
                 onFabToggle = { isFabExpanded = !isFabExpanded },
                 onDismissRequest = { isFabExpanded = false },
-                listMachine = { /* opsional */ },
+                listMachine = onNavigateMachine,
                 addOrder = { showOrderSheet = true }
             )
         }

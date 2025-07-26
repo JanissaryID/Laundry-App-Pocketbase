@@ -17,6 +17,10 @@ class MachineLocalViewModel(private val repo: MachineLocalRepository) : ViewMode
     private val _selectedMachine = MutableStateFlow<MachineLocal?>(null)
     val selectedMachine: StateFlow<MachineLocal?> = _selectedMachine
 
+    fun setSelectMachine(machine: MachineLocal){
+        _selectedMachine.value = machine
+    }
+
     val machines: StateFlow<List<MachineLocal>> = repo.machineLocal
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
@@ -48,21 +52,21 @@ class MachineLocalViewModel(private val repo: MachineLocalRepository) : ViewMode
         }
     }
 
-    fun addMachine(machineLocal: MachineLocal) = viewModelScope.launch {
-        repo.addMachine(machineLocal)
-    }
-
-    fun deleteMachine(machineLocal: MachineLocal) = viewModelScope.launch {
-        repo.deleteMachine(machineLocal)
-    }
+//    fun addMachine(machineLocal: MachineLocal) = viewModelScope.launch {
+//        repo.addMachine(machineLocal)
+//    }
+//
+//    fun deleteMachine(machineLocal: MachineLocal) = viewModelScope.launch {
+//        repo.deleteMachine(machineLocal)
+//    }
 
     fun updateMachine(machineLocal: MachineLocal) = viewModelScope.launch {
         repo.updateMachine(machineLocal)
     }
 
-    suspend fun getMachineById(id: String): MachineLocal? {
-        return repo.getMachineById(id)
-    }
+//    suspend fun getMachineById(id: String): MachineLocal? {
+//        return repo.getMachineById(id)
+//    }
 
     fun deleteAllMachines() {
         viewModelScope.launch {

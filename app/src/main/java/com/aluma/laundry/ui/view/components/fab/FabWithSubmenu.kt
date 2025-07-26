@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocalLaundryService
@@ -25,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -37,8 +35,6 @@ fun FabWithSubmenu(
     listMachine: () -> Unit,
     addOrder: () -> Unit,
 ) {
-    val context = LocalContext.current
-
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
         if (isFabExpanded) {
             Box(
@@ -62,9 +58,6 @@ fun FabWithSubmenu(
                     .align(Alignment.BottomEnd)
                     .padding(bottom = 72.dp)
             ) {
-                FabWithLabel("Daftar Order", Icons.AutoMirrored.Filled.List) {
-//                    listMachine()
-                }
                 FabWithLabel("Daftar Mesin", Icons.Default.LocalLaundryService) {
                     listMachine()
                 }

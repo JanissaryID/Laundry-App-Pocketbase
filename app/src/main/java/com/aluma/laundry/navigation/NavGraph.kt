@@ -20,6 +20,7 @@ import com.aluma.laundry.ui.view.screens.ScreenChoseStore
 import com.aluma.laundry.ui.view.screens.ScreenHome
 import com.aluma.laundry.ui.view.screens.ScreenLoading
 import com.aluma.laundry.ui.view.screens.ScreenLogin
+import com.aluma.laundry.ui.view.screens.ScreenMachine
 import com.aluma.laundry.ui.view.screens.ScreenSettings
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -38,7 +39,6 @@ fun AppNavHost(
     val token by storePreferenceViewModel.token.collectAsState()
     val idUser by storePreferenceViewModel.idUser.collectAsState()
     val idStore by storePreferenceViewModel.idStore.collectAsState()
-    val nameStore by storePreferenceViewModel.nameStore.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
 
@@ -67,8 +67,8 @@ fun AppNavHost(
     NavHost(navController = navController, startDestination = startDestination!!) {
         composable(Screens.Home.route) {
             ScreenHome(
-                onNavigate = {
-
+                onNavigateMachine = {
+                    navController.navigate(Screens.Machines.route)
                 },
                 onNavigateSettings = {
                     navController.navigate(Screens.Settings.route)
@@ -141,6 +141,11 @@ fun AppNavHost(
                     }
                 },
                 bluetoothHelper = bluetoothHelper
+            )
+        }
+        composable(Screens.Machines.route) {
+            ScreenMachine(
+                onBack = { navController.popBackStack() },
             )
         }
     }

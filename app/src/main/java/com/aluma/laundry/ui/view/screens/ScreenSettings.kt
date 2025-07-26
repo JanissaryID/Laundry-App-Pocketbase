@@ -49,6 +49,7 @@ import com.aluma.laundry.data.store.StoreRemoteViewModel
 import com.aluma.laundry.data.user.remote.UserRemoteViewModel
 import com.aluma.laundry.ui.view.components.PrinterListDialog
 import com.aluma.laundry.ui.view.components.itemscard.ItemSettingCard
+import com.aluma.laundry.utils.getAppInfo
 import org.koin.compose.koinInject
 
 @SuppressLint("MissingPermission")
@@ -59,7 +60,6 @@ fun ScreenSettings(
     userRemoteViewModel: UserRemoteViewModel = koinInject(),
     storePreferenceViewModel: StorePreferenceViewModel = koinInject(),
     bluetoothHelper: BluetoothHelper,
-    appVersion: String = "v1.0.0",
     onBack: () -> Unit,
     onChangeStore: () -> Unit,
     onLogout: () -> Unit,
@@ -87,6 +87,8 @@ fun ScreenSettings(
             )
         },
         bottomBar = {
+            val (appName, appVersion) = remember { context.getAppInfo() }
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,8 +98,8 @@ fun ScreenSettings(
             ) {
                 HorizontalDivider()
                 Spacer(Modifier.height(8.dp))
-                Text("Nama Aplikasi", style = MaterialTheme.typography.labelSmall)
-                Text(appVersion, style = MaterialTheme.typography.bodySmall)
+                Text(appName, style = MaterialTheme.typography.labelSmall)
+                Text("Versi $appVersion", style = MaterialTheme.typography.bodySmall)
             }
         }
     ) { innerPadding ->
