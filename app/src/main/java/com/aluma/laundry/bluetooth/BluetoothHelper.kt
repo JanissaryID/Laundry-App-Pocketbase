@@ -93,5 +93,28 @@ class BluetoothHelper(private val activity: ComponentActivity) {
             emptySet()
         }
     }
+
+    fun getPairedPrinterDevices(): Set<BluetoothDevice> {
+        val printerKeywords = listOf("printer", "bt", "pos", "zebra", "xprinter", "bixolon", "inner", "rp", "rpp", "RPP02N")
+
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                ContextCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_CONNECT)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                emptySet()
+            } else {
+                bluetoothAdapter?.bondedDevices
+                    ?.filter { device ->
+                        val name = device.name?.lowercase() ?: ""
+                        printerKeywords.any { keyword -> name.contains(keyword) }
+                    }
+                    ?.toSet() ?: emptySet()
+            }
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+            emptySet()
+        }
+    }
 }
 

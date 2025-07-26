@@ -50,13 +50,12 @@ class ServiceRemoteViewModel(
                 _isLoggedIn.value = loggedIn
                 if (loggedIn) {
                     client.login(token)
-                    fetchServices()
                 }
             }
         }
     }
 
-    private fun fetchServices() {
+    fun fetchServices() {
         viewModelScope.launch {
             try {
                 val fetched = serviceRepository.fetchServices(storeID = _storeID.value.orEmpty())

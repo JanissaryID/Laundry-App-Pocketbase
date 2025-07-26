@@ -27,7 +27,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
+import com.aluma.laundry.data.machine.remote.MachineRemoteViewModel
 import com.aluma.laundry.data.order.local.OrderLocalViewModel
+import com.aluma.laundry.data.service.remote.ServiceRemoteViewModel
 import com.aluma.laundry.data.store.StoreRemoteViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheet
@@ -47,6 +49,9 @@ fun ScreenHome(
     storeRemoteViewModel: StoreRemoteViewModel = koinInject(),
     machineLocalViewModel: MachineLocalViewModel = koinInject(),
     orderLocalViewModel: OrderLocalViewModel = koinInject(),
+    machineRemoteViewModel: MachineRemoteViewModel = koinInject(),
+    serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
+//    storePreferenceViewModel: StorePreferenceViewModel = koinInject(),
     onNavigateMachine: () -> Unit,
     onNavigateSettings: () -> Unit
 ) {
@@ -55,11 +60,22 @@ fun ScreenHome(
     val machines by machineLocalViewModel.machines.collectAsState()
     val selectedOrder by orderLocalViewModel.selectedOrder.collectAsState()
 
+//    val storeId by storePreferenceViewModel.idStore.collectAsState()
+//    val token by storePreferenceViewModel.token.collectAsState()
+//    val userId by storePreferenceViewModel.idUser.collectAsState()
+
     var isFabExpanded by remember { mutableStateOf(false) }
 
     var showOrderSheet by remember { mutableStateOf(false) }
     var showOrderSheetMachine by remember { mutableStateOf(false) }
     var showOrderSheetMachineRunning by remember { mutableStateOf(false) }
+
+//    LaunchedEffect(storeId, token, userId) {
+//        if (!storeId.isNullOrEmpty() && !token.isNullOrEmpty() && !userId.isNullOrEmpty()) {
+//            machineRemoteViewModel.fetchMachine()
+//            serviceRemoteViewModel.fetchServices()
+//        }
+//    }
 
     Scaffold(
         topBar = {
@@ -78,7 +94,11 @@ fun ScreenHome(
         floatingActionButton = {
             FabWithSubmenu(
                 isFabExpanded = isFabExpanded,
-                onFabToggle = { isFabExpanded = !isFabExpanded },
+                onFabToggle = {
+                    machineRemoteViewModel.fetchMachine()
+                    serviceRemoteViewModel.fetchServices()
+                    isFabExpanded = !isFabExpanded
+                },
                 onDismissRequest = { isFabExpanded = false },
                 listMachine = onNavigateMachine,
                 addOrder = { showOrderSheet = true }

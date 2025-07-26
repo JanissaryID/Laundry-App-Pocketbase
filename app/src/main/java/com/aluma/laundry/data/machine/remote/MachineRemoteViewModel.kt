@@ -46,13 +46,12 @@ class MachineRemoteViewModel(
                 if (!token.isNullOrEmpty()) {
                     client.login(token)
                     _isLoggedIn.value = true
-                    fetchMachine()
                 }
             }
         }
     }
 
-    private fun fetchMachine() {
+    fun fetchMachine() {
         viewModelScope.launch {
             try {
                 val fetched = machineRepository.fetchRemoteMachines(storeID = _storeID.value.orEmpty())

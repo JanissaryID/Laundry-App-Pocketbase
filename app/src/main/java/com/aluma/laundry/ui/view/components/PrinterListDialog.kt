@@ -26,7 +26,7 @@ fun PrinterListDialog(
     onPrinterSelected: (BluetoothDevice) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val devices = remember { bluetoothHelper.getPairedDevices().toList() }
+    val devices = remember { bluetoothHelper.getPairedPrinterDevices().toList() }
 
     AlertDialog(
         onDismissRequest = onDismiss,

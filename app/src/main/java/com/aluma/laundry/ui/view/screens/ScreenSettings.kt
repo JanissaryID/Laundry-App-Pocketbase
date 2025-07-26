@@ -195,8 +195,10 @@ fun ScreenSettings(
                 )
                 showBluetoothDevice = false
 
-                val printer = BluetoothPrinter()
-                printer.testPrinter(context = context, address = bluetoothAddress)
+                if (!bluetoothAddress.isNullOrEmpty()){
+                    val printer = BluetoothPrinter()
+                    printer.testPrinter(context = context, address = bluetoothAddress)
+                }
             },
             onDismiss = {
                 showBluetoothDevice = false
