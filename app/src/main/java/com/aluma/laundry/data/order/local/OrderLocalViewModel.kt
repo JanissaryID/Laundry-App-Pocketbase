@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -47,6 +48,7 @@ class OrderLocalViewModel(
         .stateIn(viewModelScope, sharingStarted, emptyList())
 
     val orders: StateFlow<List<OrderLocal>> = repo.orders
+        .map { it.reversed() }
         .stateIn(viewModelScope, sharingStarted, emptyList())
 
     private val _selectedOrder = MutableStateFlow<OrderLocal?>(null)
