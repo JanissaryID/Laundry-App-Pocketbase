@@ -64,4 +64,10 @@ class MachineLocalViewModel(private val repo: MachineLocalRepository) : ViewMode
         return repo.getMachineById(id)
     }
 
+    fun deleteAllMachines() {
+        viewModelScope.launch {
+            repo.deleteAllMachines()
+        }
+    }
+
 }

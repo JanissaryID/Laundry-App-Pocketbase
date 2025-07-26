@@ -20,6 +20,9 @@ interface ServiceDAO {
     @Delete
     suspend fun delete(serviceLocal: ServiceLocal)
 
+    @Query("DELETE FROM services")
+    suspend fun deleteAll()
+
     @Update
     suspend fun update(serviceLocal: ServiceLocal)
 

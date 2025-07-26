@@ -28,11 +28,15 @@ class ServiceRemoteViewModel(
     val idStore: StateFlow<String?> = _idStore
 
     private val _isLoggedIn = MutableStateFlow(false)
+    private val _storeID = MutableStateFlow<String?>(null)
 
     private val _serviceRemote = MutableStateFlow<List<ServiceRemote>>(emptyList())
     val serviceRemote: StateFlow<List<ServiceRemote>> = _serviceRemote
 
     init {
+        viewModelScope.launch {
+            storePreferences.userIdStore.collectLatest { _storeID.value = it.orEmpty() }
+        }
         viewModelScope.launch {
             storePreferences.userIdUser.collectLatest { _idUser.value = it.orEmpty() }
         }
@@ -55,7 +59,7 @@ class ServiceRemoteViewModel(
     private fun fetchServices() {
         viewModelScope.launch {
             try {
-                val fetched = serviceRepository.fetchServices()
+                val fetched = serviceRepository.fetchServices(storeID = _storeID.value.orEmpty())
                 _serviceRemote.value = fetched
 
                 fetched.forEach { service ->

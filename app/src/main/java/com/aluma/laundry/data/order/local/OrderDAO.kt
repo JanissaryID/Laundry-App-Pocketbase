@@ -21,6 +21,9 @@ interface OrderDAO {
     @Delete
     suspend fun delete(orderLocal: OrderLocal)
 
+    @Query("DELETE FROM orders")
+    suspend fun deleteAll()
+
     @Update
     suspend fun update(orderLocal: OrderLocal): Int
 

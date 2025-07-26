@@ -1,6 +1,7 @@
 package com.aluma.laundry.di
 
 import android.app.Application
+import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
@@ -28,10 +29,14 @@ class App : Application(){
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
             )
+            .setBackoffCriteria(
+                BackoffPolicy.EXPONENTIAL,
+                10, TimeUnit.SECONDS
+            )
             .build()
 
         workManager.enqueueUniquePeriodicWork(
-            "PeriodicTask", // Nama unik untuk pekerjaan
+            "PeriodicTaskSyncToServer", // Nama unik untuk pekerjaan
             ExistingPeriodicWorkPolicy.KEEP, // Kebijakan untuk menangani pekerjaan yang sudah ada
             workRequest // Request yang akan dijalankan
         )

@@ -20,6 +20,9 @@ interface MachineDAO {
     @Delete
     suspend fun delete(machineLocal: MachineLocal)
 
+    @Query("DELETE FROM machines")
+    suspend fun deleteAll()
+
     @Update
     suspend fun update(machineLocal: MachineLocal)
 

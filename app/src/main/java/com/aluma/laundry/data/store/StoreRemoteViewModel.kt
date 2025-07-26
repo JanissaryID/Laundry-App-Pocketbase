@@ -26,6 +26,12 @@ class StoreRemoteViewModel(
     private val _nameStore = MutableStateFlow<String?>(null)
     val nameStore: StateFlow<String?> = _nameStore
 
+    private val _cityStore = MutableStateFlow<String?>(null)
+    val cityStore: StateFlow<String?> = _cityStore
+
+    private val _streetStore = MutableStateFlow<String?>(null)
+    val streetStore: StateFlow<String?> = _streetStore
+
     private val _isLoggedIn = MutableStateFlow(false)
 
     fun selectStore(storeRemote: StoreRemote?) {
@@ -36,7 +42,16 @@ class StoreRemoteViewModel(
         viewModelScope.launch {
             _selectedStoreRemote.value?.storeName?.let { name ->
                 _selectedStoreRemote.value!!.id?.let { idStore ->
-                    storePreferences.saveStore(idStore = idStore, nameStore = name)
+                    _selectedStoreRemote.value!!.city?.let { city ->
+                        _selectedStoreRemote.value!!.address?.let { street ->
+                            storePreferences.saveStore(
+                                idStore = idStore,
+                                nameStore = name,
+                                cityStore = city,
+                                streetStore = street
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -45,6 +60,12 @@ class StoreRemoteViewModel(
     init {
         viewModelScope.launch {
             storePreferences.userNameStore.collectLatest { _nameStore.value = it.orEmpty() }
+        }
+        viewModelScope.launch {
+            storePreferences.userCityStore.collectLatest { _cityStore.value = it.orEmpty() }
+        }
+        viewModelScope.launch {
+            storePreferences.userStreetStore.collectLatest { _streetStore.value = it.orEmpty() }
         }
 
         viewModelScope.launch {

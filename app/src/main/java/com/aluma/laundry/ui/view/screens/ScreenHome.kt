@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
 import com.aluma.laundry.data.machine.remote.MachineRemoteViewModel
 import com.aluma.laundry.data.order.local.OrderLocalViewModel
@@ -50,6 +51,7 @@ fun ScreenHome(
     serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
     machineLocalViewModel: MachineLocalViewModel = koinInject(),
     orderLocalViewModel: OrderLocalViewModel = koinInject(),
+    storePreferenceViewModel: StorePreferenceViewModel = koinInject(),
     onNavigate: (String) -> Unit,
     onNavigateSettings: () -> Unit
 ) {

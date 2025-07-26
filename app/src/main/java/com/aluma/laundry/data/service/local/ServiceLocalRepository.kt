@@ -8,6 +8,7 @@ class ServiceLocalRepository(private val dao: ServiceDAO) {
 
     suspend fun addService(serviceLocal: ServiceLocal) = dao.insert(serviceLocal)
     suspend fun deleteService(serviceLocal: ServiceLocal) = dao.delete(serviceLocal)
+    suspend fun deleteAllServices() = dao.deleteAll()
     suspend fun updateService(serviceLocal: ServiceLocal) = dao.update(serviceLocal)
     suspend fun getServiceById(id: String): ServiceLocal? = dao.getServiceById(id)
 }

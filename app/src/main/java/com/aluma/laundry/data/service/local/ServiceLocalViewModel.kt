@@ -24,6 +24,12 @@ class ServiceLocalViewModel(private val repo: ServiceLocalRepository) : ViewMode
         repo.deleteService(serviceLocal)
     }
 
+    fun deleteAllServices() {
+        viewModelScope.launch {
+            repo.deleteAllServices()
+        }
+    }
+
     fun updateService(serviceLocal: ServiceLocal) = viewModelScope.launch {
         repo.updateService(serviceLocal)
     }

@@ -31,11 +31,16 @@ class MachineRemoteViewModel(
 
     private val _isLoggedIn = MutableStateFlow(false)
 
+    private val _storeID = MutableStateFlow<String?>(null)
+
     fun setSelectedMachine(machineRemote: MachineRemote?) {
         _selectedMachineRemote.value = machineRemote
     }
 
     init {
+        viewModelScope.launch {
+            storePreferences.userIdStore.collectLatest { _storeID.value = it.orEmpty() }
+        }
         viewModelScope.launch {
             storePreferences.userToken.collectLatest { token ->
                 if (!token.isNullOrEmpty()) {
@@ -50,7 +55,7 @@ class MachineRemoteViewModel(
     private fun fetchMachine() {
         viewModelScope.launch {
             try {
-                val fetched = machineRepository.fetchRemoteMachines()
+                val fetched = machineRepository.fetchRemoteMachines(storeID = _storeID.value.orEmpty())
                 _machineRemote.value = fetched
 
                 fetched.forEach { machine ->

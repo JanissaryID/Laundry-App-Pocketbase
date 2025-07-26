@@ -1,5 +1,7 @@
 package com.aluma.laundry.ui.view.components.bottomsheet
 
+import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,8 +35,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.bluetooth.BluetoothPrinter
+import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
 import com.aluma.laundry.data.machine.model.MachineLocal
 import com.aluma.laundry.data.order.model.OrderLocal
@@ -43,10 +48,12 @@ import com.aluma.laundry.ui.view.components.dropdown.MachineDropdown
 import com.aluma.laundry.utils.formatRupiah
 import org.koin.compose.koinInject
 
+@SuppressLint("MissingPermission")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderBottomSheetInformation(
     machineLocalViewModel: MachineLocalViewModel = koinInject(),
+    storePreferenceViewModel: StorePreferenceViewModel = koinInject(),
     order: OrderLocal,
     onDismissRequest: () -> Unit,
     onSubmit: (MachineLocal?, onDone: () -> Unit) -> Unit
@@ -57,7 +64,14 @@ fun OrderBottomSheetInformation(
 
     val availableMachines = machines.filter { !it.inUse }
 
+    val nameStore by storePreferenceViewModel.nameStore.collectAsState()
+    val addressStore by storePreferenceViewModel.addressStore.collectAsState()
+    val cityStore by storePreferenceViewModel.cityStore.collectAsState()
+
     var isSubmitting by remember { mutableStateOf(false) }
+
+    val bluetoothAddress by storePreferenceViewModel.bluetoothAddress.collectAsState()
+    val context = LocalContext.current
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -122,8 +136,20 @@ fun OrderBottomSheetInformation(
             ) {
                 OutlinedButton(
                     onClick = {
-                        // TODO: Handle Print
-                        println("Print clicked")
+                        val printer = BluetoothPrinter()
+                        val stat = printer.printLaundryReceipt(
+                            context = context,
+                            address = bluetoothAddress,
+                            storeName = nameStore.orEmpty(),
+                            storeAddress = addressStore.orEmpty(),
+                            storeCity = cityStore.orEmpty(),
+                            services = Pair(order.serviceName.orEmpty(), order.price.orEmpty()),
+                            customerName = order.customerName.orEmpty(),
+                            paymentMethod = order.typePayment.orEmpty()
+                        )
+                        if (!stat){
+                            Toast.makeText(context, "Gagal Mencetak", Toast.LENGTH_SHORT).show()
+                        }
                     },
                     modifier = Modifier
                         .weight(1f)
@@ -140,7 +166,7 @@ fun OrderBottomSheetInformation(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text("Print")
+                    Text("Nota")
                 }
 
                 Button(

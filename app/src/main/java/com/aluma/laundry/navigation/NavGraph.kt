@@ -8,19 +8,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.aluma.laundry.bluetooth.BluetoothHelper
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
-import com.aluma.laundry.data.order.local.OrderLocalViewModel
 import com.aluma.laundry.ui.view.screens.ScreenChoseStore
 import com.aluma.laundry.ui.view.screens.ScreenHome
 import com.aluma.laundry.ui.view.screens.ScreenLoading
 import com.aluma.laundry.ui.view.screens.ScreenLogin
 import com.aluma.laundry.ui.view.screens.ScreenSettings
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -28,7 +30,7 @@ import org.koin.compose.koinInject
 fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     storePreferenceViewModel: StorePreferenceViewModel = koinInject(),
-    orderLocalViewModel: OrderLocalViewModel = koinInject(),
+    bluetoothHelper: BluetoothHelper
 ) {
     var startDestination by remember { mutableStateOf<String?>(null) }
     var showLoading by remember { mutableStateOf(true) }
@@ -37,6 +39,8 @@ fun AppNavHost(
     val idUser by storePreferenceViewModel.idUser.collectAsState()
     val idStore by storePreferenceViewModel.idStore.collectAsState()
     val nameStore by storePreferenceViewModel.nameStore.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
 
     // Delay loading screen untuk UX (500ms)
     LaunchedEffect(Unit) {
@@ -81,22 +85,62 @@ fun AppNavHost(
             )
         }
         composable(Screens.ChoseStore.route) {
+            val canGoBack = navController.previousBackStackEntry != null
+
             ScreenChoseStore(
+                canGoBack = canGoBack,
+                onBack = { navController.popBackStack() },
                 nextScreen = {
-                    navController.navigate(Screens.Home.route) {
-                        popUpTo(Screens.Home.route) {
-                            inclusive = true // Hapus Login dari backstack
+                    if (canGoBack){
+                        showLoading = true
+
+                        // Tunda navigasi untuk tampilkan loading dulu
+                        coroutineScope.launch {
+                            delay(500)
+                            showLoading = false
+
+                            navController.navigate(Screens.Home.route) {
+                                popUpTo(Screens.ChoseStore.route) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
                         }
-                        launchSingleTop = true // Hindari multiple instance jika sudah di stack
+                    }else{
+                        navController.navigate(Screens.Home.route) {
+                            popUpTo(Screens.ChoseStore.route) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
                     }
                 }
             )
         }
         composable(Screens.Settings.route) {
             ScreenSettings(
-                onBack = { /* navController.popBackStack() */ },
-                onChangeStore = { /* navigasi ke pilih toko */ },
-                onLogout = { /* tampilkan dialog logout */ }
+                onBack = { navController.popBackStack() },
+                onChangeStore = {
+                    navController.navigate(Screens.ChoseStore.route) {
+                        launchSingleTop = true
+                    }
+                },
+                onLogout = {
+                    showLoading = true
+                    storePreferenceViewModel.clearData()
+
+                    // Tunda navigasi untuk tampilkan loading dulu
+                    coroutineScope.launch {
+                        delay(500)
+                        showLoading = false
+
+                        navController.navigate(Screens.Login.route) {
+                            popUpTo(0)
+                            launchSingleTop = true // Hindari multiple instance jika sudah di stack
+                        }
+                    }
+                },
+                bluetoothHelper = bluetoothHelper
             )
         }
     }

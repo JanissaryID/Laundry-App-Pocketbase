@@ -64,6 +64,12 @@ class OrderLocalViewModel(
         repo.deleteOrder(orderLocal)
     }
 
+    fun deleteAllOrders() {
+        viewModelScope.launch {
+            repo.deleteAllOrders()
+        }
+    }
+
     fun updateOrder(orderLocal: OrderLocal) = viewModelScope.launch {
         repo.updateOrderWithResult(orderLocal)
     }

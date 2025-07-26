@@ -11,6 +11,10 @@ import com.aluma.laundry.data.order.remote.OrderRemoteRepository
 import com.aluma.laundry.data.order.utils.SyncStatus
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
 import io.github.agrevster.pocketbaseKotlin.dsl.login
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -49,23 +53,27 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
             var hasFailures = false
 
             // Kirim setiap order ke server
-            for (order in pendingOrders) {
-                try {
-                    Log.d("SyncWorker", "Attempting to sync order ${order.id}: ${order.toRemoteModel()}")
-                    orderRemoteRepository.createOrder(order.toRemoteModel())
-                    orderRepository.updateSyncStatusOnly(order.id, SyncStatus.SYNCED)
-                    Log.d("SyncWorker", "✅ Synced order ${order.id}")
-                } catch (e: io.github.agrevster.pocketbaseKotlin.PocketbaseException) {
-                    orderRepository.updateSyncStatusOnly(order.id, SyncStatus.FAILED)
-                    Log.e("SyncWorker", "❌ Failed to sync order ${order.id}: ${e.message}, Data: ${e.reason}")
-                    hasFailures = true
-                } catch (e: Exception) {
-                    orderRepository.updateSyncStatusOnly(order.id, SyncStatus.FAILED)
-                    Log.e("SyncWorker", "❌ Unexpected error for order ${order.id}: ${e.message}")
-                    hasFailures = true
-                }
+            coroutineScope {
+                pendingOrders.map { order ->
+                    async {
+                        try {
+                            delay(200L)
+                            Log.d("SyncWorker", "🔄 Syncing order ${order.id}")
+                            orderRemoteRepository.createOrder(order.toRemoteModel())
+                            orderRepository.updateSyncStatusOnly(order.id, SyncStatus.SYNCED)
+                            Log.d("SyncWorker", "✅ Synced order ${order.id}")
+                        } catch (e: io.github.agrevster.pocketbaseKotlin.PocketbaseException) {
+                            orderRepository.updateSyncStatusOnly(order.id, SyncStatus.FAILED)
+                            Log.e("SyncWorker", "❌ Failed to sync order ${order.id}: ${e.message}, Data: ${e.reason}")
+                            hasFailures = true
+                        } catch (e: Exception) {
+                            orderRepository.updateSyncStatusOnly(order.id, SyncStatus.FAILED)
+                            Log.e("SyncWorker", "❌ Unexpected error for order ${order.id}: ${e.message}")
+                            hasFailures = true
+                        }
+                    }
+                }.awaitAll()
             }
-
             // Jika ada kegagalan, coba lagi nanti
             if (hasFailures) Result.retry() else Result.success()
         } catch (e: Exception) {

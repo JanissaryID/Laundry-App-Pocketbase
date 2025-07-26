@@ -1,7 +1,9 @@
 package com.aluma.laundry.di
 
+import androidx.activity.ComponentActivity
 import androidx.room.Room
 import androidx.work.WorkManager
+import com.aluma.laundry.bluetooth.BluetoothHelper
 import com.aluma.laundry.data.AppDatabase
 import com.aluma.laundry.data.PocketbaseClientProvider
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
@@ -36,6 +38,8 @@ val workManagerModule = module {
 }
 
 val appModule = module {
+    // Bluetooth
+    factory { (activity: ComponentActivity) -> BluetoothHelper(activity) }
     // Data Store
     single { StorePreferences(androidContext()) }
     single { StorePreferenceViewModel(storePreferences = get()) }

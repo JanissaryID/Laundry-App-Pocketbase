@@ -27,6 +27,16 @@ class StorePreferenceViewModel(
     val idStore: StateFlow<String?> = _idStore
     private val _nameStore = MutableStateFlow<String?>(null)
     val nameStore: StateFlow<String?> = _nameStore
+    private val _addressStore = MutableStateFlow<String?>(null)
+    val addressStore: StateFlow<String?> = _addressStore
+    private val _cityStore = MutableStateFlow<String?>(null)
+    val cityStore: StateFlow<String?> = _cityStore
+
+    private val _bluetoothName = MutableStateFlow<String?>(null)
+    val bluetoothName: StateFlow<String?> = _bluetoothName
+
+    private val _bluetoothAddress = MutableStateFlow<String?>(null)
+    val bluetoothAddress: StateFlow<String?> = _bluetoothAddress
 
     private val _loading = MutableStateFlow<Boolean?>(true)
     val loading: StateFlow<Boolean?> = _loading
@@ -39,6 +49,12 @@ class StorePreferenceViewModel(
 
     init {
         viewModelScope.launch {
+            storePreferences.bluetoothName.collectLatest { _bluetoothName.value = it.orEmpty() }
+        }
+        viewModelScope.launch {
+            storePreferences.bluetoothAddress.collectLatest { _bluetoothAddress.value = it.orEmpty() }
+        }
+        viewModelScope.launch {
             storePreferences.userIdUser.collectLatest { _idUser.value = it.orEmpty() }
         }
         viewModelScope.launch {
@@ -46,6 +62,12 @@ class StorePreferenceViewModel(
         }
         viewModelScope.launch {
             storePreferences.userNameStore.collectLatest { _nameStore.value = it.orEmpty() }
+        }
+        viewModelScope.launch {
+            storePreferences.userCityStore.collectLatest { _cityStore.value = it.orEmpty() }
+        }
+        viewModelScope.launch {
+            storePreferences.userStreetStore.collectLatest { _addressStore.value = it.orEmpty() }
         }
         viewModelScope.launch {
             storePreferences.userToken.collectLatest {
@@ -56,6 +78,21 @@ class StorePreferenceViewModel(
                     client.login(it)
                 }
             }
+        }
+    }
+
+    fun clearData(){
+        viewModelScope.launch {
+            storePreferences.clearLogin()
+        }
+    }
+
+    fun saveBluetooth(
+        bluetoothName: String,
+        bluetoothAddress: String
+    ){
+        viewModelScope.launch {
+            storePreferences.saveBluetooth(bluetoothName = bluetoothName, bluetoothAddress = bluetoothAddress)
         }
     }
 }
