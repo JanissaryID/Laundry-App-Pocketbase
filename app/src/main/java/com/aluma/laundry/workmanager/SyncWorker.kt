@@ -73,12 +73,19 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
                         }
                     }
                 }.awaitAll()
+
+                if (!hasFailures) {
+                    val cleanupJob = async {
+                        orderRepository.deleteOldSyncedOrders()
+                        Log.d("SyncWorker", "✅ Deleted old synced orders")
+                    }
+                    cleanupJob.await()
+                }
             }
             // Jika ada kegagalan, coba lagi nanti
             if (hasFailures) {
                 Result.retry()
             } else {
-                orderRepository.deleteOldSyncedOrders()
                 Result.success()
             }
         } catch (e: Exception) {

@@ -163,6 +163,7 @@ class OrderLocalViewModel(
 
         if (_isLoggedIn.value) {
             syncPendingOrders(orders)
+            repo.deleteOldSyncedOrders()
         }
     }
 
