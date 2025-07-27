@@ -26,9 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.data.logmachine.local.LogMachineLocalViewModel
+import com.aluma.laundry.data.logmachine.model.LogMachineLocal
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
 import com.aluma.laundry.data.machine.remote.MachineRemoteViewModel
 import com.aluma.laundry.data.order.local.OrderLocalViewModel
+import com.aluma.laundry.data.order.utils.SyncStatus
 import com.aluma.laundry.data.service.remote.ServiceRemoteViewModel
 import com.aluma.laundry.data.store.StoreRemoteViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
@@ -51,6 +54,7 @@ fun ScreenHome(
     orderLocalViewModel: OrderLocalViewModel = koinInject(),
     machineRemoteViewModel: MachineRemoteViewModel = koinInject(),
     serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
+    logMachineLocalViewModel: LogMachineLocalViewModel = koinInject(),
     onNavigateMachine: () -> Unit,
     onNavigateOrder: () -> Unit,
     onNavigateSettings: () -> Unit
@@ -171,8 +175,19 @@ fun ScreenHome(
                         order = selectedOrder!!.id,
                         timeOn = formatted
                     )
-
                     machineLocalViewModel.updateMachine(machineLocal = updatedMachine)
+
+                    val logMaachine = LogMachineLocal(
+                        numberMachine = machine.numberMachine,
+                        sizeMachine = machine.sizeMachine,
+                        typeMachine = machine.typeMachine,
+                        user = machine.user,
+                        store = machine.store,
+                        date = formatted,
+                        syncStatus = SyncStatus.PENDING
+                    )
+                    logMachineLocalViewModel.addLogMachine(logMaachine)
+
                     onDone()
                 }
             },

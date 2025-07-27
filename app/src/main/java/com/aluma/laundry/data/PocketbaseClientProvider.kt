@@ -8,7 +8,7 @@ object PocketbaseClientProvider {
         PocketbaseClient(
             baseUrl = {
                 protocol = URLProtocol.HTTPS
-                host = "0f9489584773.ngrok-free.app"
+                host = "011a1fd1ccb6.ngrok-free.app"
             }
         )
     }

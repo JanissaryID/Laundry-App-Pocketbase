@@ -8,6 +8,10 @@ import com.aluma.laundry.data.AppDatabase
 import com.aluma.laundry.data.PocketbaseClientProvider
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.data.datastore.StorePreferences
+import com.aluma.laundry.data.logmachine.local.LogMachineLocalRepository
+import com.aluma.laundry.data.logmachine.local.LogMachineLocalViewModel
+import com.aluma.laundry.data.logmachine.remote.LogMachineRemoteRepository
+import com.aluma.laundry.data.logmachine.remote.LogMachineRemoteRepositoryImpl
 import com.aluma.laundry.data.machine.local.MachineLocalRepository
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
 import com.aluma.laundry.data.machine.remote.MachineRemoteRepository
@@ -53,6 +57,7 @@ val appModule = module {
     single<StoreRemoteRepository> { StoreRemoteRepositoryImpl(get()) }
     single<MachineRemoteRepository> { MachineRemoteRepositoryImpl(get()) }
     single<ServiceRemoteRepository> { ServiceRemoteRepositoryImpl(get()) }
+    single<LogMachineRemoteRepository> { LogMachineRemoteRepositoryImpl(get()) }
 
     // ViewModel
     viewModel {
@@ -108,20 +113,25 @@ val appModule = module {
     single { get<AppDatabase>().machineDao() }
     single { get<AppDatabase>().orderDao() }
     single { get<AppDatabase>().serviceDao() }
+    single { get<AppDatabase>().logMachineDao() }
 
     // Repositories
     single { MachineLocalRepository(get()) }
     single { OrderLocalRepository(get()) }
     single { ServiceLocalRepository(get()) }
+    single { LogMachineLocalRepository(get()) }
 
     // Local ViewModels
     single { MachineLocalViewModel(get()) }
     single { ServiceLocalViewModel(get()) }
+    single { LogMachineLocalViewModel(get()) }
     single { OrderLocalViewModel(
         repo =get(),
         machineRepo = get(),
         client = get(),
         storePreferences = get(),
+        logMachineLocalRepository = get(),
+        logMachineRemoteRepository = get(),
         orderRemoteRepository = get())
     }
 }

@@ -2,6 +2,10 @@ package com.aluma.laundry.data.order.local
 
 import android.util.Log
 import com.aluma.laundry.data.datastore.StorePreferences
+import com.aluma.laundry.data.logmachine.local.LogMachineLocalRepository
+import com.aluma.laundry.data.logmachine.model.LogMachineLocal
+import com.aluma.laundry.data.logmachine.model.LogMachineRemote
+import com.aluma.laundry.data.logmachine.remote.LogMachineRemoteRepository
 import com.aluma.laundry.data.machine.local.MachineLocalRepository
 import com.aluma.laundry.data.machine.model.MachineLocal
 import com.aluma.laundry.data.order.model.OrderLocal
@@ -31,6 +35,8 @@ class OrderLocalViewModel(
     private val repo: OrderLocalRepository,
     private val machineRepo: MachineLocalRepository,
     private val orderRemoteRepository: OrderRemoteRepository,
+    private val logMachineRemoteRepository: LogMachineRemoteRepository,
+    private val logMachineLocalRepository: LogMachineLocalRepository,
     private val client: PocketbaseClient,
     private val storePreferences: StorePreferences
 ) : ViewModel() {
@@ -103,17 +109,19 @@ class OrderLocalViewModel(
             tickerFlow(1_000).collect {
                 val machines = machineRepo.machineLocal.first()
                 val orders = repo.orders.first()
+                val logMachine = logMachineLocalRepository.logMachine.first()
 
                 Log.d("TimeoutChecker", "⏰ Ticker triggered: ${machines.size} machines, ${orders.size} orders")
 
-                checkMachineTimeouts(machines, orders)
+                checkMachineTimeouts(machines, orders, logMachine)
             }
         }
     }
 
     private suspend fun checkMachineTimeouts(
         machines: List<MachineLocal>,
-        orders: List<OrderLocal>
+        orders: List<OrderLocal>,
+        logMachineLocal: List<LogMachineLocal>
     ) {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX")
             .withZone(ZoneOffset.UTC)
@@ -152,6 +160,7 @@ class OrderLocalViewModel(
                         )
                         updateMachine(updatedMachine)
                         Log.d("TimeoutChecker", "✅ Reset machine ${machine.numberMachine} done.")
+
                     } else {
                         Log.w("TimeoutChecker", "⚠️ Order ${relatedOrder.id} failed to update. Machine not updated.")
                     }
@@ -164,6 +173,9 @@ class OrderLocalViewModel(
         if (_isLoggedIn.value) {
             syncPendingOrders(orders)
             repo.deleteOldSyncedOrders()
+
+            syncPendingLogMachine(logMachineLocal)
+            logMachineLocalRepository.deleteOldSyncedLogMachine()
         }
     }
 
@@ -194,9 +206,31 @@ class OrderLocalViewModel(
         }
     }
 
+    private suspend fun syncPendingLogMachine(logMachine: List<LogMachineLocal>) {
+        val pendingLogMachine = logMachine.filter {
+            it.syncStatus == SyncStatus.PENDING || it.syncStatus == SyncStatus.FAILED
+        }
+
+        for (logMachine in pendingLogMachine) {
+            try {
+                logMachineRemoteRepository.createLogMachine(logMachine.toRemoteModel())
+                logMachineLocalRepository.updateSyncStatusOnly(logMachine.id,SyncStatus.SYNCED)
+                Log.d("SyncChecker", "✅ Synced Log Machine ${logMachine.id}")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                logMachineLocalRepository.updateSyncStatusOnly(logMachine.id,SyncStatus.FAILED)
+                Log.e("SyncChecker", "❌ Failed to Log Machine order ${logMachine.id}", e)
+            }
+        }
+    }
+
+
     fun syncNow() = viewModelScope.launch {
         val latest = repo.orders.first()
+        val latestLog = logMachineLocalRepository.logMachine.first()
         syncPendingOrders(latest)
+        syncPendingLogMachine(latestLog)
     }
 }
 
@@ -212,3 +246,14 @@ fun OrderLocal.toRemoteModel(): OrderRemote {
         store = store
     )
 }
+
+fun LogMachineLocal.toRemoteModel(): LogMachineRemote {
+    return LogMachineRemote(
+        numberMachine = numberMachine,
+        typeMachine = typeMachine,
+        sizeMachine = sizeMachine,
+        user = user,
+        store = store
+    )
+}
+
