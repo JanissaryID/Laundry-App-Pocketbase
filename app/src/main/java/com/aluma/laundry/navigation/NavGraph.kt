@@ -17,7 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.aluma.laundry.bluetooth.BluetoothHelper
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.ui.view.screens.ScreenChoseStore
-import com.aluma.laundry.ui.view.screens.ScreenHome
+import com.aluma.laundry.ui.view.screens.ScreenHomeOwner
 import com.aluma.laundry.ui.view.screens.ScreenListOrders
 import com.aluma.laundry.ui.view.screens.ScreenLoading
 import com.aluma.laundry.ui.view.screens.ScreenLogin
@@ -52,8 +52,7 @@ fun AppNavHost(
     // Hitung start destination setelah semua data tersedia
     LaunchedEffect(token, idUser, idStore) {
         startDestination = when {
-            !token.isNullOrEmpty() && !idUser.isNullOrEmpty() && !idStore.isNullOrEmpty() -> Screens.Home.route
-            !token.isNullOrEmpty() && !idUser.isNullOrEmpty() && idStore.isNullOrEmpty() -> Screens.ChoseStore.route
+            !token.isNullOrEmpty() && !idUser.isNullOrEmpty() -> Screens.HomeOwner.route
             else -> Screens.Login.route
         }
     }
@@ -66,18 +65,10 @@ fun AppNavHost(
 
     // Setelah loading selesai dan tujuan siap
     NavHost(navController = navController, startDestination = startDestination!!) {
-        composable(Screens.Home.route) {
-            ScreenHome(
-                onNavigateOrder = {
-                    navController.navigate(Screens.Orders.route)
-                },
-                onNavigateMachine = {
-                    navController.navigate(Screens.Machines.route)
-                },
-                onNavigateSettings = {
-                    navController.navigate(Screens.Settings.route)
-                },
-                bluetoothHelper = bluetoothHelper
+        composable(Screens.HomeOwner.route) {
+            ScreenHomeOwner(
+                onLogout = {},
+                onNavigateToStore = {}
             )
         }
         composable(Screens.Login.route) {
