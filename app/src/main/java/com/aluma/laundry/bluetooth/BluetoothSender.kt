@@ -22,11 +22,15 @@ class BluetoothSender {
         address: String,
         message: String
     ): Boolean {
+        var result = false
+
         Log.d(TAG, "Mulai kirim data ke ESP - Address: $address | Message: $message")
-        return try {
+
+        try {
             val bluetoothManager =
                 context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
             val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
+
             if (!bluetoothAdapter.isEnabled) {
                 Log.e(TAG, "Bluetooth belum aktif")
                 return false
@@ -35,29 +39,52 @@ class BluetoothSender {
             val device: BluetoothDevice = bluetoothAdapter.getRemoteDevice(address)
             Log.d(TAG, "Device ditemukan: ${device.name} (${device.address})")
 
-            // UUID SPP standar (Serial Port Profile)
             val uuid = device.uuids?.firstOrNull()?.uuid
                 ?: UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
             Log.d(TAG, "UUID yang digunakan: $uuid")
 
             val socket = device.createRfcommSocketToServiceRecord(uuid)
-            bluetoothAdapter.cancelDiscovery() // Matikan discovery untuk koneksi yang lebih stabil
+            bluetoothAdapter.cancelDiscovery()
             Log.d(TAG, "Menghubungkan ke socket...")
             socket.connect()
             Log.d(TAG, "Terhubung ke ESP")
 
-            val outputStream: OutputStream = socket.outputStream
+            val outputStream = socket.outputStream
+            val inputStream = socket.inputStream
+
             val finalMessage = "$message\n"
             outputStream.write(finalMessage.toByteArray(Charsets.UTF_8))
             outputStream.flush()
             Log.d(TAG, "Data berhasil dikirim: $finalMessage")
 
+            // Baca response dari ESP32
+            val buffer = ByteArray(1024)
+            val response = StringBuilder()
+            val startTime = System.currentTimeMillis()
+
+            while (System.currentTimeMillis() - startTime < 2000) {
+                if (inputStream.available() > 0) {
+                    val bytesRead = inputStream.read(buffer)
+                    val part = String(buffer, 0, bytesRead)
+                    response.append(part)
+                    if (part.contains("\n")) break
+                }
+            }
+
+            val callback = response.toString().trim()
+            Log.d(TAG, "Callback dari ESP: $callback")
+
+            result = callback.contains("stat:true", ignoreCase = true)
+
             socket.close()
             Log.d(TAG, "Socket ditutup")
-            true
+
         } catch (e: Exception) {
             Log.e(TAG, "Gagal mengirim data ke ESP: ${e.message}", e)
-            false
         }
+
+        return result
     }
 }
+
+

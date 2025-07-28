@@ -46,6 +46,10 @@ import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheetInformat
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheetInformationTime
 import com.aluma.laundry.ui.view.components.fab.FabWithSubmenu
 import com.aluma.laundry.ui.view.components.itemscard.ItemOrderCard
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import java.time.Instant
 import java.time.ZoneOffset
@@ -168,58 +172,63 @@ fun ScreenHome(
             onDismissRequest = { showOrderSheetMachine = false },
             onSubmit = { machine, onDone ->
                 if (machine != null) {
-
                     bluetoothHelper.requestBluetooth {
                         val sender = BluetoothSender()
-                        val success = sender.sendToESP(
-                            context = context,
-                            address = machine.bluetoothAddress.orEmpty(), // Ganti dengan MAC ESP32
-                            message = "m: ${machine.numberMachine},t:${machine.timer},s:true"
-                        )
 
-                        if (success) {
-                            Log.w("BluetoothSender", "Ok Kirim ke ${machine.numberMachine}")
-
-                            val updatedOrder = selectedOrder!!.copy(
-                                stepMachine = selectedOrder!!.stepMachine + 2,
-                                numberMachine = machine.numberMachine,
+                        // Jalankan di coroutine
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val success = sender.sendToESP(
+                                context = context,
+                                address = machine.bluetoothAddress.orEmpty(),
+                                message = "m:${machine.numberMachine},t:${machine.timer},s:true"
                             )
-                            orderLocalViewModel.updateOrder(orderLocal = updatedOrder)
 
-                            val later = Instant.now()
-                            val formatted = DateTimeFormatter
-                                .ofPattern("yyyy-MM-dd HH:mm:ss.SSSX")
-                                .withZone(ZoneOffset.UTC)
-                                .format(later)
+                            withContext(Dispatchers.Main) {
+                                if (success) {
+                                    Log.w("BluetoothSender", "Ok Kirim ke ${machine.numberMachine}")
 
-                            val updatedMachine = machine.copy(
-                                inUse = true,
-                                order = selectedOrder!!.id,
-                                timeOn = formatted
-                            )
-                            machineLocalViewModel.updateMachine(machineLocal = updatedMachine)
+                                    val updatedOrder = selectedOrder!!.copy(
+                                        stepMachine = selectedOrder!!.stepMachine + 2,
+                                        numberMachine = machine.numberMachine,
+                                    )
+                                    orderLocalViewModel.updateOrder(orderLocal = updatedOrder)
 
-                            val logMaachine = LogMachineLocal(
-                                numberMachine = machine.numberMachine,
-                                sizeMachine = machine.sizeMachine,
-                                typeMachine = machine.typeMachine,
-                                user = machine.user,
-                                store = machine.store,
-                                date = formatted,
-                                syncStatus = SyncStatus.PENDING
-                            )
-                            logMachineLocalViewModel.addLogMachine(logMaachine)
+                                    val later = Instant.now()
+                                    val formatted = DateTimeFormatter
+                                        .ofPattern("yyyy-MM-dd HH:mm:ss.SSSX")
+                                        .withZone(ZoneOffset.UTC)
+                                        .format(later)
 
-                            Toast.makeText(context, "Terkirim ke ESP", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Log.w("BluetoothSender", "Gagal Kirim")
-                            Toast.makeText(context, "Gagal kirim", Toast.LENGTH_SHORT).show()
+                                    val updatedMachine = machine.copy(
+                                        inUse = true,
+                                        order = selectedOrder!!.id,
+                                        timeOn = formatted
+                                    )
+                                    machineLocalViewModel.updateMachine(updatedMachine)
+
+                                    val logMachine = LogMachineLocal(
+                                        numberMachine = machine.numberMachine,
+                                        sizeMachine = machine.sizeMachine,
+                                        typeMachine = machine.typeMachine,
+                                        user = machine.user,
+                                        store = machine.store,
+                                        date = formatted,
+                                        syncStatus = SyncStatus.PENDING
+                                    )
+                                    logMachineLocalViewModel.addLogMachine(logMachine)
+
+                                    Toast.makeText(context, "Terkirim ke ESP", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Log.w("BluetoothSender", "Gagal Kirim")
+                                    Toast.makeText(context, "Gagal kirim", Toast.LENGTH_SHORT).show()
+                                }
+
+                                onDone()
+                            }
                         }
                     }
-
-                    onDone()
                 }
-            },
+            }
         )
     }
 

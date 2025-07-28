@@ -171,16 +171,18 @@ fun OrderBottomSheetInformation(
 
                 Button(
                     onClick = {
-                        isSubmitting = true
-                        onSubmit(selectedMachine) {
-                            isSubmitting = false
-                            onDismissRequest() // ⬅️ Tutup setelah semua selesai
+                        if (!isSubmitting) {
+                            isSubmitting = true
+                            onSubmit(selectedMachine) {
+                                isSubmitting = false
+                                onDismissRequest()
+                            }
                         }
                     },
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp),
-                    enabled = selectedMachine != null && !isSubmitting
+                    enabled = !isSubmitting && selectedMachine != null, // ⬅️ Perubahan di sini
                 ) {
                     if (isSubmitting) {
                         Row(
