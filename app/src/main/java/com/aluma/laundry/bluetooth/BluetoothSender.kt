@@ -8,7 +8,6 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.util.Log
 import androidx.annotation.RequiresPermission
-import java.io.OutputStream
 import java.util.UUID
 
 class BluetoothSender {
