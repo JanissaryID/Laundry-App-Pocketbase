@@ -76,7 +76,8 @@ fun AppNavHost(
                 },
                 onNavigateSettings = {
                     navController.navigate(Screens.Settings.route)
-                }
+                },
+                bluetoothHelper = bluetoothHelper
             )
         }
         composable(Screens.Login.route) {

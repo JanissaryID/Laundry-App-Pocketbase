@@ -9,6 +9,8 @@ class MachineLocalRepository(private val dao: MachineDAO) {
     suspend fun addMachine(machineLocal: MachineLocal) = dao.insert(machineLocal)
     suspend fun deleteMachine(machineLocal: MachineLocal) = dao.delete(machineLocal)
     suspend fun deleteAllMachines() = dao.deleteAll()
-    suspend fun updateMachine(machineLocal: MachineLocal) = dao.update(machineLocal)
+    suspend fun updateMachine(machineLocal: MachineLocal): Int{
+        return dao.update(machineLocal)
+    }
     suspend fun getMachineById(id: String): MachineLocal? = dao.getMachineById(id)
 }

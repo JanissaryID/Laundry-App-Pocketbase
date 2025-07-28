@@ -1,5 +1,8 @@
 package com.aluma.laundry.ui.view.screens
 
+import android.annotation.SuppressLint
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,7 +28,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.bluetooth.BluetoothHelper
+import com.aluma.laundry.bluetooth.BluetoothSender
 import com.aluma.laundry.data.logmachine.local.LogMachineLocalViewModel
 import com.aluma.laundry.data.logmachine.model.LogMachineLocal
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
@@ -45,6 +51,7 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
+@SuppressLint("MissingPermission")
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("UNUSED_VARIABLE")
 @Composable
@@ -55,6 +62,7 @@ fun ScreenHome(
     machineRemoteViewModel: MachineRemoteViewModel = koinInject(),
     serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
     logMachineLocalViewModel: LogMachineLocalViewModel = koinInject(),
+    bluetoothHelper: BluetoothHelper,
     onNavigateMachine: () -> Unit,
     onNavigateOrder: () -> Unit,
     onNavigateSettings: () -> Unit
@@ -69,6 +77,8 @@ fun ScreenHome(
     var showOrderSheet by remember { mutableStateOf(false) }
     var showOrderSheetMachine by remember { mutableStateOf(false) }
     var showOrderSheetMachineRunning by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -158,35 +168,54 @@ fun ScreenHome(
             onDismissRequest = { showOrderSheetMachine = false },
             onSubmit = { machine, onDone ->
                 if (machine != null) {
-                    val updatedOrder = selectedOrder!!.copy(
-                        stepMachine = selectedOrder!!.stepMachine + 2,
-                        numberMachine = machine.numberMachine,
-                    )
-                    orderLocalViewModel.updateOrder(orderLocal = updatedOrder)
 
-                    val later = Instant.now()
-                    val formatted = DateTimeFormatter
-                        .ofPattern("yyyy-MM-dd HH:mm:ss.SSSX")
-                        .withZone(ZoneOffset.UTC)
-                        .format(later)
+                    bluetoothHelper.requestBluetooth {
+                        val sender = BluetoothSender()
+                        val success = sender.sendToESP(
+                            context = context,
+                            address = machine.bluetoothAddress.orEmpty(), // Ganti dengan MAC ESP32
+                            message = "m: ${machine.numberMachine},t:${machine.timer},s:true"
+                        )
 
-                    val updatedMachine = machine.copy(
-                        inUse = true,
-                        order = selectedOrder!!.id,
-                        timeOn = formatted
-                    )
-                    machineLocalViewModel.updateMachine(machineLocal = updatedMachine)
+                        if (success) {
+                            Log.w("BluetoothSender", "Ok Kirim ke ${machine.numberMachine}")
 
-                    val logMaachine = LogMachineLocal(
-                        numberMachine = machine.numberMachine,
-                        sizeMachine = machine.sizeMachine,
-                        typeMachine = machine.typeMachine,
-                        user = machine.user,
-                        store = machine.store,
-                        date = formatted,
-                        syncStatus = SyncStatus.PENDING
-                    )
-                    logMachineLocalViewModel.addLogMachine(logMaachine)
+                            val updatedOrder = selectedOrder!!.copy(
+                                stepMachine = selectedOrder!!.stepMachine + 2,
+                                numberMachine = machine.numberMachine,
+                            )
+                            orderLocalViewModel.updateOrder(orderLocal = updatedOrder)
+
+                            val later = Instant.now()
+                            val formatted = DateTimeFormatter
+                                .ofPattern("yyyy-MM-dd HH:mm:ss.SSSX")
+                                .withZone(ZoneOffset.UTC)
+                                .format(later)
+
+                            val updatedMachine = machine.copy(
+                                inUse = true,
+                                order = selectedOrder!!.id,
+                                timeOn = formatted
+                            )
+                            machineLocalViewModel.updateMachine(machineLocal = updatedMachine)
+
+                            val logMaachine = LogMachineLocal(
+                                numberMachine = machine.numberMachine,
+                                sizeMachine = machine.sizeMachine,
+                                typeMachine = machine.typeMachine,
+                                user = machine.user,
+                                store = machine.store,
+                                date = formatted,
+                                syncStatus = SyncStatus.PENDING
+                            )
+                            logMachineLocalViewModel.addLogMachine(logMaachine)
+
+                            Toast.makeText(context, "Terkirim ke ESP", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Log.w("BluetoothSender", "Gagal Kirim")
+                            Toast.makeText(context, "Gagal kirim", Toast.LENGTH_SHORT).show()
+                        }
+                    }
 
                     onDone()
                 }

@@ -24,7 +24,7 @@ interface MachineDAO {
     suspend fun deleteAll()
 
     @Update
-    suspend fun update(machineLocal: MachineLocal)
+    suspend fun update(machineLocal: MachineLocal): Int
 
     @Query("SELECT * FROM machines WHERE id = :id LIMIT 1")
     suspend fun getMachineById(id: String): MachineLocal?
