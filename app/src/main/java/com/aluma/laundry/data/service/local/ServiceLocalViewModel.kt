@@ -37,5 +37,4 @@ class ServiceLocalViewModel(private val repo: ServiceLocalRepository) : ViewMode
     suspend fun getServiceById(id: String): ServiceLocal? {
         return repo.getServiceById(id)
     }
-
 }

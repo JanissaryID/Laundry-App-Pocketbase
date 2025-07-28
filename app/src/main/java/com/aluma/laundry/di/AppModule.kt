@@ -27,9 +27,11 @@ import com.aluma.laundry.data.service.local.ServiceLocalViewModel
 import com.aluma.laundry.data.service.remote.ServiceRemoteRepository
 import com.aluma.laundry.data.service.remote.ServiceRemoteRepositoryImpl
 import com.aluma.laundry.data.service.remote.ServiceRemoteViewModel
-import com.aluma.laundry.data.store.StoreRemoteRepository
-import com.aluma.laundry.data.store.StoreRemoteRepositoryImpl
-import com.aluma.laundry.data.store.StoreRemoteViewModel
+import com.aluma.laundry.data.store.local.StoreLocalRepository
+import com.aluma.laundry.data.store.local.StoreLocalViewModel
+import com.aluma.laundry.data.store.remote.StoreRemoteRepository
+import com.aluma.laundry.data.store.remote.StoreRemoteRepositoryImpl
+import com.aluma.laundry.data.store.remote.StoreRemoteViewModel
 import com.aluma.laundry.data.user.remote.UserRemoteRepository
 import com.aluma.laundry.data.user.remote.UserRemoteRepositoryImpl
 import com.aluma.laundry.data.user.remote.UserRemoteViewModel
@@ -80,7 +82,8 @@ val appModule = module {
         StoreRemoteViewModel(
             storePreferences = get(),
             storeRepository = get(),
-            client = get()
+            client = get(),
+            storeLocalRepository = get()
         )
     }
 
@@ -114,17 +117,20 @@ val appModule = module {
     single { get<AppDatabase>().orderDao() }
     single { get<AppDatabase>().serviceDao() }
     single { get<AppDatabase>().logMachineDao() }
+    single { get<AppDatabase>().storeDao() }
 
     // Repositories
     single { MachineLocalRepository(get()) }
     single { OrderLocalRepository(get()) }
     single { ServiceLocalRepository(get()) }
     single { LogMachineLocalRepository(get()) }
+    single { StoreLocalRepository(get()) }
 
     // Local ViewModels
     single { MachineLocalViewModel(get()) }
     single { ServiceLocalViewModel(get()) }
     single { LogMachineLocalViewModel(get()) }
+    single { StoreLocalViewModel(get()) }
     single { OrderLocalViewModel(
         repo =get(),
         machineRepo = get(),

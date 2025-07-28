@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ItemInfoCard(title: String, count: Int, icon: ImageVector) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Row(

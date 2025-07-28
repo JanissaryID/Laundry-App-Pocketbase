@@ -1,7 +1,9 @@
-package com.aluma.laundry.data.store
+package com.aluma.laundry.data.store.remote
 
 import android.util.Log
 import com.aluma.laundry.data.datastore.StorePreferences
+import com.aluma.laundry.data.store.local.StoreLocalRepository
+import com.aluma.laundry.data.store.model.StoreLocal
 import com.aluma.laundry.data.store.model.StoreRemote
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
@@ -14,6 +16,7 @@ import kotlinx.coroutines.launch
 class StoreRemoteViewModel(
     private val storePreferences: StorePreferences,
     private val storeRepository: StoreRemoteRepository,
+    private val storeLocalRepository: StoreLocalRepository,
     private val client: PocketbaseClient
 ) : ViewModel() {
 
@@ -83,6 +86,26 @@ class StoreRemoteViewModel(
         viewModelScope.launch {
             try {
                 _storeRemote.value = storeRepository.fetchStores()
+                _storeRemote.value.forEach { store ->
+                    val existing = storeLocalRepository.getStoreById(store.id!!)
+
+                    if (existing == null) {
+                        val newStore = StoreLocal(
+                            id = store.id!!,
+                            storeName = store.storeName,
+                            city = store.city,
+                            address = store.address
+                        )
+                        storeLocalRepository.addStore(newStore)
+                    } else {
+                        val updated = existing.copy(
+                            storeName = store.storeName,
+                            city = store.city,
+                            address = store.address
+                        )
+                        storeLocalRepository.updateStore(updated)
+                    }
+                }
             } catch (e: Exception) {
                 Log.e("StoreViewModel", "❌ Fetch store failed", e)
             }

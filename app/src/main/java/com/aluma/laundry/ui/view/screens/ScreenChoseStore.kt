@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
 import com.aluma.laundry.data.order.local.OrderLocalViewModel
 import com.aluma.laundry.data.service.local.ServiceLocalViewModel
-import com.aluma.laundry.data.store.StoreRemoteViewModel
+import com.aluma.laundry.data.store.remote.StoreRemoteViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
 import com.aluma.laundry.ui.view.components.bottombar.StoreBottomBar
 import com.aluma.laundry.ui.view.components.itemscard.ItemStoreCard

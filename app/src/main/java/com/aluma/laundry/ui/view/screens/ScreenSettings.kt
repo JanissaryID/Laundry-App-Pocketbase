@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import com.aluma.laundry.bluetooth.BluetoothHelper
 import com.aluma.laundry.bluetooth.BluetoothPrinter
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
-import com.aluma.laundry.data.store.StoreRemoteViewModel
+import com.aluma.laundry.data.store.remote.StoreRemoteViewModel
 import com.aluma.laundry.data.user.remote.UserRemoteViewModel
 import com.aluma.laundry.ui.view.components.ConfirmDialog
 import com.aluma.laundry.ui.view.components.PrinterListDialog

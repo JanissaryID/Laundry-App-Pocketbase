@@ -11,13 +11,21 @@ import com.aluma.laundry.data.order.local.OrderDAO
 import com.aluma.laundry.data.order.model.OrderLocal
 import com.aluma.laundry.data.service.local.ServiceDAO
 import com.aluma.laundry.data.service.model.ServiceLocal
+import com.aluma.laundry.data.store.local.StoreDAO
+import com.aluma.laundry.data.store.model.StoreLocal
 import com.aluma.laundry.utils.SyncStatusConverter
 
-@Database(entities = [OrderLocal::class, MachineLocal::class, ServiceLocal::class, LogMachineLocal::class], version = 2, exportSchema = false)
+@Database(entities = [
+    OrderLocal::class,
+    MachineLocal::class,
+    ServiceLocal::class,
+    LogMachineLocal::class,
+    StoreLocal::class], version = 2, exportSchema = false)
 @TypeConverters(SyncStatusConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun machineDao(): MachineDAO
     abstract fun orderDao(): OrderDAO
     abstract fun serviceDao(): ServiceDAO
     abstract fun logMachineDao(): LogMachineDAO
+    abstract fun storeDao(): StoreDAO
 }

@@ -98,5 +98,5 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.koin.androidx.workmanager)
 
-//    implementation(libs.composecharts)
+    implementation (libs.compose.charts)
 }

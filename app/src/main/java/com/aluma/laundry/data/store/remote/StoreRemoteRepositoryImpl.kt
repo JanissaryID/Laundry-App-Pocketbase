@@ -1,4 +1,4 @@
-package com.aluma.laundry.data.store
+package com.aluma.laundry.data.store.remote
 
 import com.aluma.laundry.data.store.model.StoreRemote
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient

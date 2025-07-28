@@ -39,7 +39,7 @@ import com.aluma.laundry.data.machine.remote.MachineRemoteViewModel
 import com.aluma.laundry.data.order.local.OrderLocalViewModel
 import com.aluma.laundry.data.order.utils.SyncStatus
 import com.aluma.laundry.data.service.remote.ServiceRemoteViewModel
-import com.aluma.laundry.data.store.StoreRemoteViewModel
+import com.aluma.laundry.data.store.remote.StoreRemoteViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheet
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheetInformation

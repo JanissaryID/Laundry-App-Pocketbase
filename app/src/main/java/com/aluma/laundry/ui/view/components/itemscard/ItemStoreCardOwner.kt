@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -29,12 +29,12 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.store.model.StoreRemote
+import com.aluma.laundry.data.store.model.StoreLocal
 
 @Composable
 fun ItemStoreCardOwner(
-    store: StoreRemote,
-    todayIncome: String, // contoh: "Rp 1.200.000"
+    store: StoreLocal,
+    todayIncome: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
@@ -44,24 +44,24 @@ fun ItemStoreCardOwner(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         modifier = modifier
             .width(280.dp)
-            .height(140.dp),
+            .height(150.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
 
-            // Store name + icon
+            // 🔷 Store Name + Icon
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(28.dp)
+                        .size(30.dp)
                         .background(
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                             shape = CircleShape
@@ -87,10 +87,10 @@ fun ItemStoreCardOwner(
                 )
             }
 
-            // Address + City
+            // 🟢 Address + City
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
@@ -101,43 +101,51 @@ fun ItemStoreCardOwner(
                 Text(
                     text = "${store.address.orEmpty()}, ${store.city.orEmpty()}",
                     style = MaterialTheme.typography.bodySmall.copy(
-                        color = Color.Gray
+                        color = Color.Gray,
+                        fontWeight = FontWeight.Normal
                     ),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
 
-            // Pendapatan hari ini
+            // 🟡 Pendapatan Hari Ini
             Text(
-                text = "Pendapatan hari ini: $todayIncome",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Medium,
+                text = "Pendapatan hari ini:",
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = Color.DarkGray,
+                    fontWeight = FontWeight.Normal
+                )
+            )
+
+            Text(
+                text = todayIncome,
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
             )
 
-            // UX hint
+            // 🔸 UX Hint
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Info, // Bisa diganti Icons.Default.TouchApp jika mau gesture
-                    contentDescription = "Info Icon",
+                    imageVector = Icons.Default.TouchApp,
+                    contentDescription = "Touch Icon",
                     tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.size(14.dp)
                 )
-
                 Text(
-                    text = "Klik untuk informasi lengkap",
+                    text = "Klik untuk info lengkap",
                     style = MaterialTheme.typography.labelSmall.copy(
-                        color = MaterialTheme.colorScheme.secondary,
-                        fontWeight = FontWeight.Medium,
-                        fontStyle = FontStyle.Italic
+                        fontStyle = FontStyle.Italic,
+                        color = MaterialTheme.colorScheme.secondary
                     )
                 )
             }
         }
     }
 }
+

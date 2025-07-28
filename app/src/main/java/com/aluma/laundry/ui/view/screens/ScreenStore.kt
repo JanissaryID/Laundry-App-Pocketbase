@@ -25,24 +25,24 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.store.model.StoreRemote
+import com.aluma.laundry.data.store.local.StoreLocalViewModel
 import com.aluma.laundry.ui.view.components.itemscard.ItemInfoCard
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenStore(
-    store: StoreRemote,
-    incomeToday: String,
-    incomeChart: List<Float>,
-    orderCount: Int,
-    serviceCount: Int,
-    machineCount: Int,
+    storeLocalViewModel: StoreLocalViewModel = koinInject(),
     onBack: () -> Unit
 ) {
+    val selectedStore by storeLocalViewModel.selectedStore.collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -66,11 +66,13 @@ fun ScreenStore(
 
             // Nama toko
             item {
-                Text(
-                    text = store.storeName.orEmpty(),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
+                selectedStore?.let {
+                    Text(
+                        text = it.storeName.orEmpty(),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             // Alamat + kota
@@ -82,10 +84,12 @@ fun ScreenStore(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "${store.address.orEmpty()}, ${store.city.orEmpty()}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    selectedStore?.let {
+                        Text(
+                            text = "${it.address.orEmpty()}, ${it.city.orEmpty()}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
 
@@ -98,7 +102,7 @@ fun ScreenStore(
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("Pendapatan Hari Ini", fontWeight = FontWeight.Medium)
                         Text(
-                            text = incomeToday,
+                            text = "Rp. 1.250.000",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
@@ -108,24 +112,43 @@ fun ScreenStore(
             }
 
             // Grafik pendapatan
-            item {
-                Text("Grafik Pendapatan", style = MaterialTheme.typography.titleMedium)
-//                LineChartView(data = incomeChart)
-            }
+//            item {
+//                Text("Grafik Pendapatan", style = MaterialTheme.typography.titleMedium)
+//                LineChart(
+//                    modifier = Modifier.fillMaxSize().padding(horizontal = 22.dp),
+//                    data = remember {
+//                        listOf(
+//                            Line(
+//                                label = "Total Pendapatan",
+//                                values = listOf(28.0, 41.0, 5.0, 10.0, 35.0),
+//                                color = SolidColor(Color(0xFF23af92)),
+//                                firstGradientFillColor = Color(0xFF2BC0A1).copy(alpha = .5f),
+//                                secondGradientFillColor = Color.Transparent,
+//                                strokeAnimationSpec = tween(2000, easing = EaseInOutCubic),
+//                                gradientAnimationDelay = 1000,
+//                                drawStyle = DrawStyle.Stroke(width = 2.dp),
+//                            )
+//                        )
+//                    },
+//                    animationMode = AnimationMode.Together(delayBuilder = {
+//                        it * 500L
+//                    }),
+//                )
+//            }
 
             // Informasi Orders
             item {
-                ItemInfoCard(title = "Orders Hari Ini", count = orderCount, icon = Icons.Default.ShoppingCart)
+                ItemInfoCard(title = "Orders Hari Ini", count = 45, icon = Icons.Default.ShoppingCart)
             }
 
             // Informasi Service
             item {
-                ItemInfoCard(title = "Service", count = serviceCount, icon = Icons.Default.Build)
+                ItemInfoCard(title = "Service", count = 12, icon = Icons.Default.Build)
             }
 
             // Informasi Mesin
             item {
-                ItemInfoCard(title = "Mesin", count = machineCount, icon = Icons.Default.Memory)
+                ItemInfoCard(title = "Mesin", count = 6, icon = Icons.Default.Memory)
             }
         }
     }

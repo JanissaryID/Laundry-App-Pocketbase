@@ -1,8 +1,7 @@
 [versions]
 agp = "8.11.1"
 #koinAndroidxWorkmanager = "3.5.3"
-#composecharts = "1.0.2"
-composeM3 = "2.1.3"
+composeCharts = "0.1.7"
 kotlin = "2.2.0"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -32,10 +31,7 @@ workRuntimeKtx = "2.10.2"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
-#compose-vico = { module = "com.patrykandpatrick.vico:compose", version.ref = "composeM3" }
-#compose-vico-m3 = { module = "com.patrykandpatrick.vico:compose-m3", version.ref = "composeM3" }
-#composecharts = { module = "com.github.ehsannarmani:ComposeCharts", version.ref = "composecharts" }
-core = { module = "com.patrykandpatrick.vico:core", version.ref = "composeM3" }
+compose-charts = { module = "io.github.ehsannarmani:compose-charts", version.ref = "composeCharts" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

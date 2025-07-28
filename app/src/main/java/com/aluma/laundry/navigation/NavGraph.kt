@@ -23,6 +23,7 @@ import com.aluma.laundry.ui.view.screens.ScreenLoading
 import com.aluma.laundry.ui.view.screens.ScreenLogin
 import com.aluma.laundry.ui.view.screens.ScreenMachine
 import com.aluma.laundry.ui.view.screens.ScreenSettings
+import com.aluma.laundry.ui.view.screens.ScreenStore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -67,8 +68,12 @@ fun AppNavHost(
     NavHost(navController = navController, startDestination = startDestination!!) {
         composable(Screens.HomeOwner.route) {
             ScreenHomeOwner(
-                onLogout = {},
-                onNavigateToStore = {}
+                onLogout = {
+
+                },
+                onNavigateToStore = {
+                    navController.navigate(Screens.Store.route)
+                }
             )
         }
         composable(Screens.Login.route) {
@@ -147,6 +152,11 @@ fun AppNavHost(
         composable(Screens.Orders.route) {
             ScreenListOrders(
                 onBack = { navController.popBackStack() },
+            )
+        }
+        composable(Screens.Store.route) {
+            ScreenStore(
+                onBack = { navController.popBackStack() }
             )
         }
     }
