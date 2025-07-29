@@ -6,6 +6,7 @@ import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -14,6 +15,9 @@ class MachineLocalViewModel(private val repo: MachineLocalRepository) : ViewMode
     private val _machineFilter = MutableStateFlow<List<MachineLocal>>(emptyList())
     val machineFilter: StateFlow<List<MachineLocal>> = _machineFilter
 
+    private val _machineFilterByStore = MutableStateFlow<List<MachineLocal>>(emptyList())
+    val machineFilterByStore: StateFlow<List<MachineLocal>> = _machineFilterByStore
+
     private val _selectedMachine = MutableStateFlow<MachineLocal?>(null)
     val selectedMachine: StateFlow<MachineLocal?> = _selectedMachine
 
@@ -21,57 +25,48 @@ class MachineLocalViewModel(private val repo: MachineLocalRepository) : ViewMode
         _selectedMachine.value = machine
     }
 
+    private var pendingStoreId: String? = null
+
     val machines: StateFlow<List<MachineLocal>> = repo.machineLocal
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    fun filterMachine(type: Int, size: Boolean, stepMachine: Int) {
+    init {
+        observeMachines()
+    }
+
+    private fun observeMachines() {
         viewModelScope.launch {
-            Log.d("SseClient", "Filtered machines: ${machines}")
-            val filtered = machines.value.filter { machine ->
-                val typeMachine = machine.typeMachine
-                val sizeMachine = machine.sizeMachine
-
-                val matchType = when (type) {
-                    0 -> !typeMachine
-                    1 -> typeMachine
-                    2 -> when (stepMachine) {
-                        0 -> !typeMachine
-                        1 -> typeMachine
-                        else -> true
-                    }
-                    else -> false
+            machines.collectLatest { list ->
+                Log.d("SseClient", "Observed machine list: $list")
+                pendingStoreId?.let { storeID ->
+                    val filtered = list.filter { it.store == storeID }
+                    _machineFilterByStore.value = filtered
+                    Log.d("SseClient", "Auto-filtered machines by store '$storeID': $filtered")
                 }
-
-                val matchSize = sizeMachine == size
-
-                matchType && matchSize
             }
-
-            _machineFilter.value = filtered
-            Log.d("SseClient", "Filtered machines: ${_machineFilter.value}")
         }
     }
 
-//    fun addMachine(machineLocal: MachineLocal) = viewModelScope.launch {
-//        repo.addMachine(machineLocal)
-//    }
-//
-//    fun deleteMachine(machineLocal: MachineLocal) = viewModelScope.launch {
-//        repo.deleteMachine(machineLocal)
-//    }
+    fun filterMachineByStore(storeID: String) {
+        pendingStoreId = storeID
+
+        val currentMachines = machines.value.orEmpty()
+        if (currentMachines.isNotEmpty()) {
+            val filtered = currentMachines.filter { it.store == storeID }
+            _machineFilterByStore.value = filtered
+            Log.d("SseClient", "Filtered machines by store '$storeID': $filtered")
+        } else {
+            Log.d("SseClient", "Machine list is empty, waiting for observer to filter.")
+        }
+    }
 
     fun updateMachine(machineLocal: MachineLocal) = viewModelScope.launch {
         repo.updateMachine(machineLocal)
     }
-
-//    suspend fun getMachineById(id: String): MachineLocal? {
-//        return repo.getMachineById(id)
-//    }
 
     fun deleteAllMachines() {
         viewModelScope.launch {
             repo.deleteAllMachines()
         }
     }
-
 }

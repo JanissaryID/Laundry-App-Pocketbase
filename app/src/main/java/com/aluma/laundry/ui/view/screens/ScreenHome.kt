@@ -102,8 +102,8 @@ fun ScreenHome(
             FabWithSubmenu(
                 isFabExpanded = isFabExpanded,
                 onFabToggle = {
-                    machineRemoteViewModel.fetchMachine()
-                    serviceRemoteViewModel.fetchServices()
+//                    machineRemoteViewModel.fetchMachine()
+//                    serviceRemoteViewModel.fetchServices()
                     isFabExpanded = !isFabExpanded
                 },
                 onDismissRequest = { isFabExpanded = false },
@@ -138,11 +138,11 @@ fun ScreenHome(
                             onSelect = {
                                 orderLocalViewModel.setSelectedOrder(order)
                                 if (order.stepMachine < 2) {
-                                    machineLocalViewModel.filterMachine(
-                                        type = order.typeMachineService,
-                                        size = order.sizeMachine,
-                                        stepMachine = order.stepMachine
-                                    )
+//                                    machineLocalViewModel.filterMachine(
+//                                        type = order.typeMachineService,
+//                                        size = order.sizeMachine,
+//                                        stepMachine = order.stepMachine
+//                                    )
                                     showOrderSheetMachine = true
                                 } else {
                                     showOrderSheetMachineRunning = true

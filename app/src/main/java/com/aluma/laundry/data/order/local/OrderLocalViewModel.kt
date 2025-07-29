@@ -194,7 +194,7 @@ class OrderLocalViewModel(
 
         for (order in pendingOrders) {
             try {
-                orderRemoteRepository.createOrder(order.toRemoteModel())
+//                orderRemoteRepository.createOrder(order.toRemoteModel())
                 repo.updateSyncStatusOnly(order.id,SyncStatus.SYNCED)
                 Log.d("SyncChecker", "✅ Synced order ${order.id}")
             } catch (e: CancellationException) {

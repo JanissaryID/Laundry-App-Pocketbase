@@ -17,9 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocalFireDepartment
-import androidx.compose.material.icons.filled.SyncDisabled
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -33,11 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.machine.model.MachineLocal
+import com.aluma.laundry.data.machine.model.MachineRemote
 
 @Composable
 fun ItemMachineCard(
-    machine: MachineLocal,
+    machine: MachineRemote,
     onClick: () -> Unit = {}
 ) {
     val shape = RoundedCornerShape(16.dp)
@@ -51,11 +49,6 @@ fun ItemMachineCard(
 
     val sizeColor = if (machine.sizeMachine) Color(0xFFE1BEE7) else Color(0xFFECEFF1)
     val sizeTextColor = if (machine.sizeMachine) Color(0xFF6A1B9A) else Color(0xFF455A64)
-
-    val inUseStatus = if (machine.inUse) "Digunakan" else "Tersedia"
-    val statusColor = if (machine.inUse) Color(0xFFFFEBEE) else Color(0xFFE8F5E9)
-    val statusTextColor = if (machine.inUse) Color(0xFFD32F2F) else Color(0xFF388E3C)
-    val statusIcon = if (machine.inUse) Icons.Default.SyncDisabled else Icons.Default.CheckCircle
 
     Card(
         modifier = Modifier
@@ -120,32 +113,6 @@ fun ItemMachineCard(
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontWeight = FontWeight.Medium,
                         color = typeTextColor
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Status Penggunaan
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(statusColor, shape = RoundedCornerShape(12.dp))
-                    .padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = statusIcon,
-                    contentDescription = null,
-                    tint = statusTextColor,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = inUseStatus,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontWeight = FontWeight.Medium,
-                        color = statusTextColor
                     )
                 )
             }

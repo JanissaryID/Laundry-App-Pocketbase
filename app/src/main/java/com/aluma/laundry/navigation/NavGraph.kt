@@ -69,10 +69,28 @@ fun AppNavHost(
         composable(Screens.HomeOwner.route) {
             ScreenHomeOwner(
                 onLogout = {
+                    showLoading = true
+                    storePreferenceViewModel.clearData()
 
+                    // Tunda navigasi untuk tampilkan loading dulu
+                    coroutineScope.launch {
+                        delay(500)
+                        showLoading = false
+
+                        navController.navigate(Screens.Login.route) {
+                            popUpTo(0)
+                            launchSingleTop = true // Hindari multiple instance jika sudah di stack
+                        }
+                    }
                 },
-                onNavigateToStore = {
+                onListOrder = {
+                    navController.navigate(Screens.Orders.route)
+                },
+                onListService = {
                     navController.navigate(Screens.Store.route)
+                },
+                onListMachine = {
+                    navController.navigate(Screens.Machines.route)
                 }
             )
         }

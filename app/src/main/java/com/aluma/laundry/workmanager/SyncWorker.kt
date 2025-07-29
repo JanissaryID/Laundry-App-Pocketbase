@@ -6,7 +6,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.aluma.laundry.data.datastore.StorePreferences
 import com.aluma.laundry.data.order.local.OrderLocalRepository
-import com.aluma.laundry.data.order.local.toRemoteModel
 import com.aluma.laundry.data.order.remote.OrderRemoteRepository
 import com.aluma.laundry.data.order.utils.SyncStatus
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
@@ -59,7 +58,7 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
                         try {
                             delay(200L)
                             Log.d("SyncWorker", "🔄 Syncing order ${order.id}")
-                            orderRemoteRepository.createOrder(order.toRemoteModel())
+//                            orderRemoteRepository.createOrder(order.toRemoteModel())
                             orderRepository.updateSyncStatusOnly(order.id, SyncStatus.SYNCED)
                             Log.d("SyncWorker", "✅ Synced order ${order.id}")
                         } catch (e: io.github.agrevster.pocketbaseKotlin.PocketbaseException) {

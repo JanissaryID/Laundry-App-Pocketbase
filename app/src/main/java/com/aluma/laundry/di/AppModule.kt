@@ -62,16 +62,15 @@ val appModule = module {
     single<LogMachineRemoteRepository> { LogMachineRemoteRepositoryImpl(get()) }
 
     // ViewModel
-    viewModel {
+    single {
         OrderRemoteViewModel(
             storePreferences = get(),
             orderRepository = get(),
             client = get(),
-            appContext = androidContext()
         )
     }
 
-    viewModel {
+    single {
         UserRemoteViewModel(
             storePreferences = get(),
             userRepository = get()
@@ -87,16 +86,15 @@ val appModule = module {
         )
     }
 
-    viewModel {
+    single {
         ServiceRemoteViewModel(
             storePreferences = get(),
             serviceRepository = get(),
             client = get(),
-            serviceLocalRepository = get()
         )
     }
 
-    viewModel {
+    single {
         MachineRemoteViewModel(
             storePreferences = get(),
             machineRepository = get(),

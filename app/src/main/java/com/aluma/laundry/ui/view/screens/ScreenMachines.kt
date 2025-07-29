@@ -26,20 +26,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.machine.local.MachineLocalViewModel
+import com.aluma.laundry.data.machine.remote.MachineRemoteViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
-import com.aluma.laundry.ui.view.components.bottomsheet.MachineBottomSheetInformationTime
 import com.aluma.laundry.ui.view.components.itemscard.ItemMachineCard
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenMachine(
-    machineLocalViewModel: MachineLocalViewModel = koinInject(),
+    machineRemoteViewModel: MachineRemoteViewModel = koinInject(),
     onBack: () -> Unit,
 ) {
-    val machines by machineLocalViewModel.machines.collectAsState()
-    val selectedMachines by machineLocalViewModel.selectedMachine.collectAsState()
+    val machines by machineRemoteViewModel.machineRemote.collectAsState()
+    val selectedMachines by machineRemoteViewModel.selectedMachineRemote.collectAsState()
 
     var showSheetMachineRunning by remember { mutableStateOf(false) }
 
@@ -81,10 +80,8 @@ fun ScreenMachine(
                         ItemMachineCard(
                             machine = machine,
                             onClick = {
-                                machineLocalViewModel.setSelectMachine(machine)
-                                if(machine.inUse){
-                                    showSheetMachineRunning = true
-                                }
+                                machineRemoteViewModel.setSelectedMachine(machine)
+                                showSheetMachineRunning = true
                             }
                         )
                     }
@@ -98,13 +95,13 @@ fun ScreenMachine(
     // ====================
 
     if(showSheetMachineRunning){
-        selectedMachines?.let {
-            MachineBottomSheetInformationTime(
-                machine = it,
-                onDismissRequest = {
-                    showSheetMachineRunning = false
-                }
-            )
-        }
+//        selectedMachines?.let {
+//            MachineBottomSheetInformationTime(
+//                machine = it,
+//                onDismissRequest = {
+//                    showSheetMachineRunning = false
+//                }
+//            )
+//        }
     }
 }

@@ -1,29 +1,21 @@
 package com.aluma.laundry.data.order.remote
 
-import android.util.Log
 import com.aluma.laundry.data.order.model.OrderRemote
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
-import kotlinx.coroutines.CancellationException
-import kotlinx.serialization.json.Json
+import io.github.agrevster.pocketbaseKotlin.dsl.query.Filter
 
 class OrderRemoteRepositoryImpl(
     private val client: PocketbaseClient
 ) : OrderRemoteRepository {
 
     private val collection = "Order"
-    private val json = Json { ignoreUnknownKeys = true }
 
-    override suspend fun createOrder(order: OrderRemote) {
-        try {
-            client.records.create<OrderRemote>(
-                collection,
-                json.encodeToString(order)
-            )
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            Log.e("OrderRepository", "❌ Create Order failed", e)
-            throw e
-        }
+    override suspend fun fetchOrder(storeID: String): List<OrderRemote> {
+        return client.records.getList<OrderRemote>(
+            collection,
+            page = 1,
+            perPage = 100,
+            filterBy = Filter("store=\"${storeID}\"")
+        ).items.reversed()
     }
 }

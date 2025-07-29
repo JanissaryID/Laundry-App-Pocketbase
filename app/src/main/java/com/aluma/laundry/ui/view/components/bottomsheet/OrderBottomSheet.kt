@@ -39,7 +39,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.order.model.OrderLocal
-import com.aluma.laundry.data.order.utils.SyncStatus
 import com.aluma.laundry.data.order.utils.TypePayment
 import com.aluma.laundry.data.service.local.ServiceLocalViewModel
 import com.aluma.laundry.data.service.model.ServiceLocal
@@ -65,8 +64,8 @@ fun OrderBottomSheet(
     var selectedMethod by remember { mutableStateOf(TypePayment.TUNAI) }
 
     val services by serviceLocalViewModel.services.collectAsState()
-    val idUser by serviceRemoteViewModel.idUser.collectAsState()
-    val idStore by serviceRemoteViewModel.idStore.collectAsState()
+//    val idUser by serviceRemoteViewModel.idUser.collectAsState()
+//    val idStore by serviceRemoteViewModel.idStore.collectAsState()
 
     var isSubmitting by remember { mutableStateOf(false) }
 
@@ -215,22 +214,22 @@ fun OrderBottomSheet(
                                 .withZone(ZoneOffset.UTC)
                                 .format(nowDate)
 
-                            val order = OrderLocal(
-                                customerName = customerName,
-                                serviceName = service.nameService,
-                                sizeMachine = service.sizeMachine,
-                                stepMachine = step,
-                                price = service.priceService,
-                                typePayment = selectedMethod.name,
-                                user = idUser,
-                                store = idStore,
-                                typeMachineService = service.typeMachine,
-                                numberMachine = 0,
-                                date = formatted,
-                                syncStatus = SyncStatus.PENDING
-                            )
-
-                            onSubmit(order)
+//                            val order = OrderLocal(
+//                                customerName = customerName,
+//                                serviceName = service.nameService,
+//                                sizeMachine = service.sizeMachine,
+//                                stepMachine = step,
+//                                price = service.priceService,
+//                                typePayment = selectedMethod.name,
+//                                user = idUser,
+//                                store = idStore,
+//                                typeMachineService = service.typeMachine,
+//                                numberMachine = 0,
+//                                date = formatted,
+//                                syncStatus = SyncStatus.PENDING
+//                            )
+//
+//                            onSubmit(order)
                             onDismissRequest()
                         }
                     },

@@ -1,6 +1,7 @@
 package com.aluma.laundry.ui.view.components.itemscard
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,15 +37,24 @@ fun ItemStoreCardOwner(
     store: StoreLocal,
     todayIncome: String,
     modifier: Modifier = Modifier,
+    isSelected: Boolean = false,
     onClick: () -> Unit = {}
 ) {
+    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.08f) else Color.White
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+
     Card(
         onClick = onClick,
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         modifier = modifier
             .width(280.dp)
-            .height(150.dp),
+            .height(150.dp)
+            .border(
+                width = 2.dp,
+                color = borderColor,
+                shape = RoundedCornerShape(20.dp)
+            ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(
