@@ -2,7 +2,6 @@ package com.aluma.laundry.data.service.remote
 
 import android.util.Log
 import com.aluma.laundry.data.datastore.StorePreferences
-import com.aluma.laundry.data.machine.model.MachineRemote
 import com.aluma.laundry.data.service.model.ServiceRemote
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient

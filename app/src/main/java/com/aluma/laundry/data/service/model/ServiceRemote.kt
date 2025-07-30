@@ -10,7 +10,7 @@ data class ServiceRemote(
     val nameService: String? = null,
     val priceService: String? = null,
     val sizeMachine: Boolean = false,
-    val wash: Boolean = false,
-    val dry: Boolean = false,
-    val service: Boolean = false,
+    val wash: String? = null,
+    val dry: String? = null,
+    val service: String? = null,
 ) : Record()

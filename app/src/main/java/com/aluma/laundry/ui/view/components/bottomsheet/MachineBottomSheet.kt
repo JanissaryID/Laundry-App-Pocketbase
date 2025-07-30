@@ -25,9 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.machine.model.MachineRemote
 import com.aluma.laundry.data.machine.remote.MachineRemoteViewModel
-import com.aluma.laundry.data.order.model.OrderLocal
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)

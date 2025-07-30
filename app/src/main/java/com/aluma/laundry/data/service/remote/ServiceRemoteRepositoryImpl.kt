@@ -45,6 +45,7 @@ class ServiceRemoteRepositoryImpl(
                 id = serviceId,
                 body = json.encodeToString(service)
             )
+            Log.e("ServiceRepo", "Servis $service")
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

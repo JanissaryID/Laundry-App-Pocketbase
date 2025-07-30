@@ -1,6 +1,5 @@
 package com.aluma.laundry.ui.view.components.bottomsheet
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -67,9 +66,9 @@ fun ServiceBottomSheet(
     LaunchedEffect(service) {
         name = service?.nameService.orEmpty()
         priceRaw = service?.priceService ?: ""
-        selectedCuci = service?.wash ?: false
-        selectedPengering = service?.dry ?: false
-        selectedNonMesin = service?.service ?: false
+        selectedCuci = service?.wash == "yes"
+        selectedPengering = service?.dry == "yes"
+        selectedNonMesin = service?.service == "yes"
         isLarge = service?.sizeMachine ?: false
     }
 
@@ -131,29 +130,17 @@ fun ServiceBottomSheet(
             ) {
                 FilterChip(
                     selected = selectedCuci,
-                    onClick = {
-                        selectedCuci = !selectedCuci
-                        if (selectedCuci) selectedNonMesin = false
-                    },
+                    onClick = { selectedCuci = !selectedCuci },
                     label = { Text("Cuci") }
                 )
                 FilterChip(
                     selected = selectedPengering,
-                    onClick = {
-                        selectedPengering = !selectedPengering
-                        if (selectedPengering) selectedNonMesin = false
-                    },
+                    onClick = { selectedPengering = !selectedPengering },
                     label = { Text("Pengering") }
                 )
                 FilterChip(
                     selected = selectedNonMesin,
-                    onClick = {
-                        selectedNonMesin = !selectedNonMesin
-                        if (selectedNonMesin) {
-                            selectedCuci = false
-                            selectedPengering = false
-                        }
-                    },
+                    onClick = { selectedNonMesin = !selectedNonMesin },
                     label = { Text("Layanan Non Mesin") }
                 )
             }
@@ -192,9 +179,9 @@ fun ServiceBottomSheet(
                             ServiceRemote(
                                 nameService = name,
                                 priceService = priceRaw.filter { it.isDigit() },
-                                wash = selectedCuci,
-                                dry = selectedPengering,
-                                service = selectedNonMesin,
+                                wash = if (selectedCuci) "yes" else "no",
+                                dry = if (selectedPengering) "yes" else "no",
+                                service = if (selectedNonMesin) "yes" else "no",
                                 sizeMachine = isLarge,
                                 store = selectedStore!!.id,
                                 user = userId,
