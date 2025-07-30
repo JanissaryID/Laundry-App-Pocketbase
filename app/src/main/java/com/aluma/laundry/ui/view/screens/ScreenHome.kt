@@ -41,7 +41,6 @@ import com.aluma.laundry.data.order.utils.SyncStatus
 import com.aluma.laundry.data.service.remote.ServiceRemoteViewModel
 import com.aluma.laundry.data.store.remote.StoreRemoteViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
-import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheet
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheetInformation
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheetInformationTime
 import com.aluma.laundry.ui.view.components.fab.FabWithSubmenu
@@ -160,10 +159,10 @@ fun ScreenHome(
     // ====================
 
     if (showOrderSheet) {
-        OrderBottomSheet(
-            onDismissRequest = { showOrderSheet = false },
-            onSubmit = { orderLocalViewModel.addOrder(orderLocal = it) }
-        )
+//        OrderBottomSheet(
+//            onDismissRequest = { showOrderSheet = false },
+//            onSubmit = { orderLocalViewModel.addOrder(orderLocal = it) }
+//        )
     }
 
     if (showOrderSheetMachine && selectedOrder != null) {

@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 
 class MachineRemoteViewModel(
     private val storePreferences: StorePreferences,
-    private val machineLocalRepository: MachineLocalRepository,
     private val machineRepository: MachineRemoteRepository,
     private val client: PocketbaseClient
 ) : ViewModel() {
@@ -47,6 +46,19 @@ class MachineRemoteViewModel(
                 _machineRemote.value = fetched
             } catch (e: Exception) {
                 Log.e("MachineVM", "Fetch failed", e)
+            }
+        }
+    }
+
+    fun updateTimer(machineId: String, newTimer: Int, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            try {
+                machineRepository.updateMachineTimer(machineId, newTimer)
+                fetchMachine(_selectedMachineRemote.value?.store ?: "")
+                onResult(true)
+            } catch (e: Exception) {
+                Log.e("MachineVM", "❌ Update timer failed", e)
+                onResult(false)
             }
         }
     }

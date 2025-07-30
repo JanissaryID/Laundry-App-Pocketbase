@@ -92,6 +92,7 @@ fun ScreenHomeOwner(
         if (selectedStore != null && !storeFetched.value) {
             machineRemoteViewModel.fetchMachine(selectedStore.id)
             serviceRemoteViewModel.fetchServices(selectedStore.id)
+            serviceRemoteViewModel.setStoreId(selectedStore.id)
             orderRemoteViewModel.fetchOrders(selectedStore.id)
 
             storeFetched.value = true
@@ -166,7 +167,7 @@ fun ScreenHomeOwner(
                         .height(200.dp),
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
                     Box(
                         modifier = Modifier
@@ -216,9 +217,7 @@ fun ScreenHomeOwner(
                     title = "Daftar Mesin Laundry",
                     count = machineByStore.size,
                     icon = Icons.Default.LocalLaundryService,
-                    onClick = {
-                        onListMachine()
-                    }
+                    onClick = onListMachine
                 )
             } else {
                 Text(

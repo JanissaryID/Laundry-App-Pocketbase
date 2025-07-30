@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.machine.remote.MachineRemoteViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
+import com.aluma.laundry.ui.view.components.bottomsheet.MachineBottomSheet
 import com.aluma.laundry.ui.view.components.itemscard.ItemMachineCard
 import org.koin.compose.koinInject
 
@@ -38,9 +39,8 @@ fun ScreenMachine(
     onBack: () -> Unit,
 ) {
     val machines by machineRemoteViewModel.machineRemote.collectAsState()
-    val selectedMachines by machineRemoteViewModel.selectedMachineRemote.collectAsState()
 
-    var showSheetMachineRunning by remember { mutableStateOf(false) }
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -81,7 +81,7 @@ fun ScreenMachine(
                             machine = machine,
                             onClick = {
                                 machineRemoteViewModel.setSelectedMachine(machine)
-                                showSheetMachineRunning = true
+                                showBottomSheet = true
                             }
                         )
                     }
@@ -94,14 +94,9 @@ fun ScreenMachine(
     // BOTTOM SHEETS
     // ====================
 
-    if(showSheetMachineRunning){
-//        selectedMachines?.let {
-//            MachineBottomSheetInformationTime(
-//                machine = it,
-//                onDismissRequest = {
-//                    showSheetMachineRunning = false
-//                }
-//            )
-//        }
+    if(showBottomSheet){
+        MachineBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+        )
     }
 }

@@ -9,4 +9,5 @@ sealed class Screens(val route: String) {
     object Machines : Screens("machines")
     object Orders : Screens("orders")
     object Store : Screens("store")
+    object Services : Screens("services")
 }

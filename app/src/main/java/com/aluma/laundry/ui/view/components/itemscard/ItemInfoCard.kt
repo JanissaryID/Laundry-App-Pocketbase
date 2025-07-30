@@ -27,7 +27,7 @@ fun ItemInfoCard(title: String, count: Int, icon: ImageVector, onClick: () -> Un
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         onClick = onClick,
     ) {
         Row(

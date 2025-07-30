@@ -22,6 +22,7 @@ import com.aluma.laundry.ui.view.screens.ScreenListOrders
 import com.aluma.laundry.ui.view.screens.ScreenLoading
 import com.aluma.laundry.ui.view.screens.ScreenLogin
 import com.aluma.laundry.ui.view.screens.ScreenMachine
+import com.aluma.laundry.ui.view.screens.ScreenServices
 import com.aluma.laundry.ui.view.screens.ScreenSettings
 import com.aluma.laundry.ui.view.screens.ScreenStore
 import kotlinx.coroutines.delay
@@ -87,7 +88,7 @@ fun AppNavHost(
                     navController.navigate(Screens.Orders.route)
                 },
                 onListService = {
-                    navController.navigate(Screens.Store.route)
+                    navController.navigate(Screens.Services.route)
                 },
                 onListMachine = {
                     navController.navigate(Screens.Machines.route)
@@ -175,6 +176,11 @@ fun AppNavHost(
         composable(Screens.Store.route) {
             ScreenStore(
                 onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screens.Services.route) {
+            ScreenServices(
+                onBack = { navController.popBackStack() },
             )
         }
     }

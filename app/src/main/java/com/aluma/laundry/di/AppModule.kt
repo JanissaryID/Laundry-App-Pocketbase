@@ -98,7 +98,6 @@ val appModule = module {
         MachineRemoteViewModel(
             storePreferences = get(),
             machineRepository = get(),
-            machineLocalRepository = get(),
             client = get()
         )
     }

@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,22 +42,21 @@ fun ItemStoreCardOwner(
     isSelected: Boolean = false,
     onClick: () -> Unit = {}
 ) {
-    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.08f) else Color.White
     val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
 
     Card(
-        onClick = onClick,
+        modifier = Modifier.width(280.dp)
+                .height(150.dp)
+                .fillMaxWidth()
+                .border(
+            width = 2.dp,
+            color = borderColor,
+            shape = RoundedCornerShape(20.dp)
+        ),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        modifier = modifier
-            .width(280.dp)
-            .height(150.dp)
-            .border(
-                width = 2.dp,
-                color = borderColor,
-                shape = RoundedCornerShape(20.dp)
-            ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        onClick = onClick,
     ) {
         Column(
             modifier = Modifier

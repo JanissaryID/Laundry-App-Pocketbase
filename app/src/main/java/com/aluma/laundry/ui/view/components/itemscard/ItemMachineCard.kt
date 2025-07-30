@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,81 +40,81 @@ fun ItemMachineCard(
     machine: MachineRemote,
     onClick: () -> Unit = {}
 ) {
-    val shape = RoundedCornerShape(16.dp)
-    val interactionSource = remember { MutableInteractionSource() }
-
+    val shape = RoundedCornerShape(12.dp)
     val machineTypeLabel = if (machine.typeMachine) "Pengering" else "Cuci"
     val machineSizeLabel = if (machine.sizeMachine) "BESAR" else "KECIL"
 
-    val typeColor = if (machine.typeMachine) Color(0xFFFFE0B2) else Color(0xFFBBDEFB)
+    val typeColor = if (machine.typeMachine) Color(0xFFFFF3E0) else Color(0xFFE3F2FD)
     val typeTextColor = if (machine.typeMachine) Color(0xFFEF6C00) else Color(0xFF1976D2)
 
-    val sizeColor = if (machine.sizeMachine) Color(0xFFE1BEE7) else Color(0xFFECEFF1)
-    val sizeTextColor = if (machine.sizeMachine) Color(0xFF6A1B9A) else Color(0xFF455A64)
+    val sizeColor = if (machine.sizeMachine) Color(0xFFF3E5F5) else Color(0xFFF5F5F5)
+    val sizeTextColor = if (machine.sizeMachine) Color(0xFF6A1B9A) else Color(0xFF607D8B)
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, Color.LightGray.copy(alpha = 0.3f), shape)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = LocalIndication.current,
-                onClick = onClick
-            ),
-        shape = shape,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        onClick = onClick,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
-            // Top: Title dan Ukuran
+            // Header: Jenis & Ukuran Mesin
             Row(
-                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Mesin #${machine.numberMachine}",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = if (machine.typeMachine) Icons.Default.LocalFireDepartment else Icons.Default.WaterDrop,
+                        contentDescription = null,
+                        tint = typeTextColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Mesin $machineTypeLabel #${machine.numberMachine}",
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            color = typeTextColor
+                        )
+                    )
+                }
 
-                // Badge: Ukuran Mesin
                 Box(
                     modifier = Modifier
-                        .background(color = sizeColor, shape = RoundedCornerShape(8.dp))
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                        .background(sizeColor, shape = RoundedCornerShape(6.dp))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = machineSizeLabel,
                         style = MaterialTheme.typography.labelSmall.copy(
-                            color = sizeTextColor,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Medium,
+                            color = sizeTextColor
                         )
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Badge Tipe Mesin
+            // Timer
             Row(
-                modifier = Modifier
-                    .background(typeColor, RoundedCornerShape(8.dp))
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = if (machine.typeMachine) Icons.Default.LocalFireDepartment else Icons.Default.WaterDrop,
+                    imageVector = Icons.Default.Timer,
                     contentDescription = null,
-                    tint = typeTextColor,
+                    tint = Color.Gray,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "Mesin ${machineTypeLabel}",
+                    text = "${machine.timer} Menit",
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontWeight = FontWeight.Medium,
-                        color = typeTextColor
+                        color = Color.Gray
                     )
                 )
             }
