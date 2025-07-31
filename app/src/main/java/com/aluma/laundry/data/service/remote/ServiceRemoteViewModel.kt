@@ -67,7 +67,9 @@ class ServiceRemoteViewModel(
                     if (existing == null) {
                         val newService = ServiceLocal(
                             id = service.id!!,
-                            typeMachine = service.typeMachine,
+                            wash = service.wash,
+                            dry = service.dry,
+                            service = service.service,
                             sizeMachine = service.sizeMachine,
                             user = service.user,
                             store = service.store,
@@ -78,7 +80,9 @@ class ServiceRemoteViewModel(
                         serviceLocalRepository.addService(newService)
                     } else {
                         val updated = existing.copy(
-                            typeMachine = service.typeMachine,
+                            wash = service.wash,
+                            dry = service.dry,
+                            service = service.service,
                             sizeMachine = service.sizeMachine,
                             nameService = service.nameService,
                             priceService = service.priceService

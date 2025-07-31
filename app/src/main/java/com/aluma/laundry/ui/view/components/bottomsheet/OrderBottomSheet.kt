@@ -199,14 +199,27 @@ fun OrderBottomSheet(
                         val service = selectedServiceLocal
                         if (service != null) {
 
-                            val step = if(service.typeMachine == 2){
+                            val typeMachine = if(service.wash == "yes" && service.dry == "yes"){
+                                2
+                            }
+                            else if(service.wash == "yes" && service.dry == "no"){
                                 0
                             }
-                            else if(service.typeMachine > 2){
+                            else if(service.wash == "no" && service.dry == "yes"){
+                                1
+                            }
+                            else{
+                                3
+                            }
+
+                            val step = if(typeMachine == 2){
+                                0
+                            }
+                            else if(typeMachine > 2){
                                 4
                             }
                             else{
-                                service.typeMachine
+                                typeMachine
                             }
 
                             val nowDate = Instant.now()
@@ -224,7 +237,7 @@ fun OrderBottomSheet(
                                 typePayment = selectedMethod.name,
                                 user = idUser,
                                 store = idStore,
-                                typeMachineService = service.typeMachine,
+                                typeMachineService = typeMachine,
                                 numberMachine = 0,
                                 date = formatted,
                                 syncStatus = SyncStatus.PENDING

@@ -10,6 +10,8 @@ data class ServiceLocal(
     val user: String? = null,
     val nameService: String? = null,
     val priceService: String? = null,
-    val typeMachine: Int = 0,
+    val wash: String? = null,
+    val dry: String? = null,
+    val service: String? = null,
     val sizeMachine: Boolean = false,
 )

@@ -9,6 +9,8 @@ data class ServiceRemote(
     val user: String? = null,
     val nameService: String? = null,
     val priceService: String? = null,
-    val typeMachine: Int = 0,
     val sizeMachine: Boolean = false,
+    val wash: String? = null,
+    val dry: String? = null,
+    val service: String? = null,
 ) : Record()
