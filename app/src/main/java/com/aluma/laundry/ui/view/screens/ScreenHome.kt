@@ -217,10 +217,10 @@ fun ScreenHome(
                                     )
                                     logMachineLocalViewModel.addLogMachine(logMachine)
 
-                                    Toast.makeText(context, "Terkirim ke ESP", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Mesin On", Toast.LENGTH_SHORT).show()
                                 } else {
                                     Log.w("BluetoothSender", "Gagal Kirim")
-                                    Toast.makeText(context, "Gagal kirim", Toast.LENGTH_SHORT).show()
+//                                    Toast.makeText(context, "Gagal kirim", Toast.LENGTH_SHORT).show()
                                 }
 
                                 onDone()

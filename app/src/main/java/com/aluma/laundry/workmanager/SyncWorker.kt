@@ -5,6 +5,8 @@ import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.aluma.laundry.data.datastore.StorePreferences
+import com.aluma.laundry.data.income.model.IncomeRemote
+import com.aluma.laundry.data.income.remote.IncomeRemoteRepository
 import com.aluma.laundry.data.order.local.OrderLocalRepository
 import com.aluma.laundry.data.order.local.toRemoteModel
 import com.aluma.laundry.data.order.remote.OrderRemoteRepository
@@ -18,16 +20,20 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.time.LocalDate
 
 class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params), KoinComponent {
     private val orderRepository: OrderLocalRepository by inject()
     private val orderRemoteRepository: OrderRemoteRepository by inject()
     private val pocketbaseClient: PocketbaseClient by inject()
     private val storePreferences: StorePreferences by inject()
+    private val incomeRemoteRepository: IncomeRemoteRepository by inject()
 
     override suspend fun doWork(): Result {
         // Periksa token dari StorePreferences
         val token = storePreferences.userToken.firstOrNull()
+        val storeID = storePreferences.userIdStore.firstOrNull().orEmpty()
+        val userID = storePreferences.userIdUser.firstOrNull().orEmpty()
         if (token.isNullOrEmpty()) {
             Log.e("SyncWorker", "🔒 No valid token available, cannot sync")
             return Result.retry()
@@ -54,6 +60,8 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
 
             // Kirim setiap order ke server
             coroutineScope {
+                var total = 0
+
                 pendingOrders.map { order ->
                     async {
                         try {
@@ -61,6 +69,7 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
                             Log.d("SyncWorker", "🔄 Syncing order ${order.id}")
                             orderRemoteRepository.createOrder(order.toRemoteModel())
                             orderRepository.updateSyncStatusOnly(order.id, SyncStatus.SYNCED)
+                            total += order.price?.toIntOrNull() ?: 0
                             Log.d("SyncWorker", "✅ Synced order ${order.id}")
                         } catch (e: io.github.agrevster.pocketbaseKotlin.PocketbaseException) {
                             orderRepository.updateSyncStatusOnly(order.id, SyncStatus.FAILED)
@@ -80,6 +89,26 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
                         Log.d("SyncWorker", "✅ Deleted old synced orders")
                     }
                     cleanupJob.await()
+                }
+
+                val today = LocalDate.now().toString()
+                val incomes = incomeRemoteRepository.getIncomeByDate(storeId = storeID, date = today)
+
+                if (total > 0) {
+                    val incomeRemote = IncomeRemote(
+                        store = storeID,
+                        user = userID,
+                        date = today,
+                        total = total.toString()
+                    )
+
+                    if (incomes.isEmpty()) {
+                        incomeRemoteRepository.createIncome(incomeRemote)
+                        Log.d("SyncWorker", "➕ Created income for $today: Rp$total")
+                    } else {
+                        incomeRemoteRepository.updateIncome(incomeId = incomes[0].id.orEmpty(), income = total.toString())
+                        Log.d("SyncWorker", "🔄 Updated income for $today: Rp$total")
+                    }
                 }
             }
             // Jika ada kegagalan, coba lagi nanti

@@ -1,9 +1,7 @@
 package com.aluma.laundry.data.order.remote
 
 import android.content.Context
-import android.util.Log
 import com.aluma.laundry.data.datastore.StorePreferences
-import com.aluma.laundry.data.order.model.OrderRemote
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
 import io.github.agrevster.pocketbaseKotlin.dsl.login
@@ -37,13 +35,13 @@ class OrderRemoteViewModel(
 //        enqueueSyncNow(appContext)
 //    }
 
-    fun createOrder(order: OrderRemote) {
-        viewModelScope.launch {
-            if (_isLoggedIn.value) {
-                orderRepository.createOrder(order)
-            } else {
-                Log.w("OrderViewModel", "🔒 Cannot create order, not logged in")
-            }
-        }
-    }
+//    fun createOrder(order: OrderRemote) {
+//        viewModelScope.launch {
+//            if (_isLoggedIn.value) {
+//                orderRepository.createOrder(order)
+//            } else {
+//                Log.w("OrderViewModel", "🔒 Cannot create order, not logged in")
+//            }
+//        }
+//    }
 }

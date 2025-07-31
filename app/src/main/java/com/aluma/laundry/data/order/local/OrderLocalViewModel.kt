@@ -2,6 +2,8 @@ package com.aluma.laundry.data.order.local
 
 import android.util.Log
 import com.aluma.laundry.data.datastore.StorePreferences
+import com.aluma.laundry.data.income.model.IncomeRemote
+import com.aluma.laundry.data.income.remote.IncomeRemoteRepository
 import com.aluma.laundry.data.logmachine.local.LogMachineLocalRepository
 import com.aluma.laundry.data.logmachine.model.LogMachineLocal
 import com.aluma.laundry.data.logmachine.model.LogMachineRemote
@@ -27,6 +29,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.coroutines.cancellation.CancellationException
@@ -37,12 +40,16 @@ class OrderLocalViewModel(
     private val orderRemoteRepository: OrderRemoteRepository,
     private val logMachineRemoteRepository: LogMachineRemoteRepository,
     private val logMachineLocalRepository: LogMachineLocalRepository,
+    private val incomeRemoteRepository: IncomeRemoteRepository,
     private val client: PocketbaseClient,
     private val storePreferences: StorePreferences
 ) : ViewModel() {
 
     private val _maxStep = MutableStateFlow(4)
     private val _isLoggedIn = MutableStateFlow(false)
+
+    private val _storeID = MutableStateFlow<String?>(null)
+    private val _userID = MutableStateFlow<String?>(null)
 
     private val sharingStarted = SharingStarted.WhileSubscribed(5_000)
 
@@ -94,6 +101,12 @@ class OrderLocalViewModel(
     }
 
     init {
+        viewModelScope.launch {
+            storePreferences.userIdStore.collectLatest { _storeID.value = it.orEmpty() }
+        }
+        viewModelScope.launch {
+            storePreferences.userIdUser.collectLatest { _userID.value = it.orEmpty() }
+        }
         viewModelScope.launch {
             storePreferences.userToken.collectLatest { token ->
                 if (!token.isNullOrEmpty()) {
@@ -192,16 +205,39 @@ class OrderLocalViewModel(
             it.syncStatus == SyncStatus.PENDING || it.syncStatus == SyncStatus.FAILED
         }
 
+        var total = 0
         for (order in pendingOrders) {
             try {
                 orderRemoteRepository.createOrder(order.toRemoteModel())
                 repo.updateSyncStatusOnly(order.id,SyncStatus.SYNCED)
+
+                total += order.price!!.toIntOrNull() ?: 0
+
                 Log.d("SyncChecker", "✅ Synced order ${order.id}")
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 repo.updateSyncStatusOnly(order.id,SyncStatus.FAILED)
                 Log.e("SyncChecker", "❌ Failed to sync order ${order.id}", e)
+            }
+        }
+        val today = LocalDate.now().toString()
+        val incomes = incomeRemoteRepository.getIncomeByDate(storeId = _storeID.value.orEmpty(), date = today)
+
+        if (total > 0) {
+            val incomeRemote = IncomeRemote(
+                store = _storeID.value.orEmpty(),
+                user = _userID.value.orEmpty(),
+                date = today,
+                total = total.toString()
+            )
+
+            if (incomes.isEmpty()) {
+                incomeRemoteRepository.createIncome(incomeRemote)
+                Log.d("SyncWorker", "➕ Created income for $today: Rp$total")
+            } else {
+                incomeRemoteRepository.updateIncome(incomeId = incomes[0].id.orEmpty(), income = total.toString())
+                Log.d("SyncWorker", "🔄 Updated income for $today: Rp$total")
             }
         }
     }

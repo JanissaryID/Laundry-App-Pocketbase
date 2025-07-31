@@ -8,6 +8,9 @@ import com.aluma.laundry.data.AppDatabase
 import com.aluma.laundry.data.PocketbaseClientProvider
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.data.datastore.StorePreferences
+import com.aluma.laundry.data.income.remote.IncomeRemoteRepository
+import com.aluma.laundry.data.income.remote.IncomeRemoteRepositoryImpl
+import com.aluma.laundry.data.income.remote.IncomeRemoteViewModel
 import com.aluma.laundry.data.logmachine.local.LogMachineLocalRepository
 import com.aluma.laundry.data.logmachine.local.LogMachineLocalViewModel
 import com.aluma.laundry.data.logmachine.remote.LogMachineRemoteRepository
@@ -58,8 +61,17 @@ val appModule = module {
     single<MachineRemoteRepository> { MachineRemoteRepositoryImpl(get()) }
     single<ServiceRemoteRepository> { ServiceRemoteRepositoryImpl(get()) }
     single<LogMachineRemoteRepository> { LogMachineRemoteRepositoryImpl(get()) }
+    single<IncomeRemoteRepository> { IncomeRemoteRepositoryImpl(get()) }
 
     // ViewModel
+    viewModel {
+        IncomeRemoteViewModel(
+            storePreferences = get(),
+            client = get(),
+            incomeRemoteRepository = get()
+        )
+    }
+
     viewModel {
         OrderRemoteViewModel(
             storePreferences = get(),
@@ -132,6 +144,7 @@ val appModule = module {
         storePreferences = get(),
         logMachineLocalRepository = get(),
         logMachineRemoteRepository = get(),
+        incomeRemoteRepository = get(),
         orderRemoteRepository = get())
     }
 }
