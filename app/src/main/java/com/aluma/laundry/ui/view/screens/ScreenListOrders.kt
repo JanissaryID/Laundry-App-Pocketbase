@@ -55,7 +55,7 @@ fun ScreenListOrders(
     orderRemoteViewModel: OrderRemoteViewModel = koinInject(),
     onBack: () -> Unit,
 ) {
-    val orders by orderRemoteViewModel.orderRemote.collectAsState()
+    val orders by orderRemoteViewModel.orderRemoteStore.collectAsState()
     val storeID by orderRemoteViewModel.storeId.collectAsState()
 
     val datePickerState = rememberDatePickerState()

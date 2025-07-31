@@ -30,7 +30,7 @@ class OrderRemoteRepositoryImpl(
         return client.records.getList<OrderRemote>(
             collection,
             page = 1,
-            perPage = 100,
+            perPage = 200,
             filterBy = Filter(combinedFilter)
         ).items.reversed()
     }

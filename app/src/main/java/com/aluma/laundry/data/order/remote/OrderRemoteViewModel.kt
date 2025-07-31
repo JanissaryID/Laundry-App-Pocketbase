@@ -21,6 +21,9 @@ class OrderRemoteViewModel(
     private val _orderRemote = MutableStateFlow<List<OrderRemote>>(emptyList())
     val orderRemote: StateFlow<List<OrderRemote>> = _orderRemote
 
+    private val _orderRemoteStore = MutableStateFlow<List<OrderRemote>>(emptyList())
+    val orderRemoteStore: StateFlow<List<OrderRemote>> = _orderRemoteStore
+
     private val _storeId = MutableStateFlow<String?>(null)
     val storeId: StateFlow<String?> = _storeId
 
@@ -38,22 +41,22 @@ class OrderRemoteViewModel(
         }
     }
 
-    fun fetchOrders(storeID: String) {
-        viewModelScope.launch {
-            try {
-                val fetched = orderRepository.fetchOrder(storeID = storeID)
-                _orderRemote.value = fetched
-            } catch (e: Exception) {
-                Log.e("ServiceViewModel", "❌ Fetch Services failed", e)
-            }
-        }
-    }
+//    fun fetchOrdersStore(storeID: String) {
+//        viewModelScope.launch {
+//            try {
+//                val fetched = orderRepository.fetchOrder(storeID = storeID)
+//                _orderRemoteStore.value = fetched
+//            } catch (e: Exception) {
+//                Log.e("ServiceViewModel", "❌ Fetch Services failed", e)
+//            }
+//        }
+//    }
 
     fun fetchOrdersByDate(date: LocalDate, storeID: String) {
         viewModelScope.launch {
             try {
                 val fetched = orderRepository.fetchOrder(storeID = storeID, date = date)
-                _orderRemote.value = fetched
+                _orderRemoteStore.value = fetched
             } catch (e: Exception) {
                 Log.e("OrderRemoteViewModel", "❌ Fetch Orders by Date failed", e)
             }

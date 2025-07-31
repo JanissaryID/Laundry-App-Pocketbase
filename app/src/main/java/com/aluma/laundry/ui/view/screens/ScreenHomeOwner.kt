@@ -81,7 +81,7 @@ fun ScreenHomeOwner(
 
     val machineByStore by machineRemoteViewModel.machineRemote.collectAsState()
     val serviceByStore by serviceRemoteViewModel.serviceRemote.collectAsState()
-    val orderByStore by orderRemoteViewModel.orderRemote.collectAsState()
+    val orderByStore by orderRemoteViewModel.orderRemoteStore.collectAsState()
 
     val storeFetched = remember { mutableStateOf(false) }
 
@@ -138,13 +138,15 @@ fun ScreenHomeOwner(
                         store = store,
                         isSelected = selectedStoreIndex == storeList.indexOf(store),
                         onClick = {
+                            val today = LocalDate.now()
+
                             storeLocalViewModel.setSelectedStoreIndex(storeList.indexOf(store))
                             storeLocalViewModel.setSelectedStore(store)
 
                             machineRemoteViewModel.fetchMachine(store.id)
                             machineRemoteViewModel.setStoreId(store.id)
                             serviceRemoteViewModel.fetchServices(store.id)
-                            orderRemoteViewModel.fetchOrders(store.id)
+                            orderRemoteViewModel.fetchOrdersByDate(date = today, storeID = store.id)
                             orderRemoteViewModel.setStoreId(store.id)
                         },
                         todayIncome = "Rp 1.250.000"

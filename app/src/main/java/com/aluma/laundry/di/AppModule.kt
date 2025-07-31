@@ -1,5 +1,7 @@
 package com.aluma.laundry.di
 
+import androidx.room.Room
+import com.aluma.laundry.data.AppDatabase
 import com.aluma.laundry.data.PocketbaseClientProvider
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.data.datastore.StorePreferences
@@ -14,6 +16,8 @@ import com.aluma.laundry.data.order.remote.OrderRemoteViewModel
 import com.aluma.laundry.data.service.remote.ServiceRemoteRepository
 import com.aluma.laundry.data.service.remote.ServiceRemoteRepositoryImpl
 import com.aluma.laundry.data.service.remote.ServiceRemoteViewModel
+import com.aluma.laundry.data.store.local.StoreLocalRepository
+import com.aluma.laundry.data.store.local.StoreLocalViewModel
 import com.aluma.laundry.data.store.remote.StoreRemoteRepository
 import com.aluma.laundry.data.store.remote.StoreRemoteRepositoryImpl
 import com.aluma.laundry.data.store.remote.StoreRemoteViewModel
@@ -79,4 +83,17 @@ val appModule = module {
             client = get()
         )
     }
+
+    single {
+        Room.databaseBuilder(
+            androidContext(),
+            AppDatabase::class.java,
+            "laundry_database"
+        ).fallbackToDestructiveMigration(false).build()
+    }
+
+    single { get<AppDatabase>().storeDao() }
+    single { StoreLocalRepository(get()) }
+    single { StoreLocalViewModel(get()) }
+
 }

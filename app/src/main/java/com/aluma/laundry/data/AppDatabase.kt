@@ -6,7 +6,7 @@ import com.aluma.laundry.data.store.local.StoreDAO
 import com.aluma.laundry.data.store.model.StoreLocal
 
 @Database(entities = [
-    StoreLocal::class], version = 2, exportSchema = false)
+    StoreLocal::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun storeDao(): StoreDAO
 }
