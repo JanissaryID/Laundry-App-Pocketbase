@@ -14,17 +14,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.aluma.laundry.bluetooth.BluetoothHelper
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
-import com.aluma.laundry.ui.view.screens.ScreenChoseStore
 import com.aluma.laundry.ui.view.screens.ScreenHomeOwner
 import com.aluma.laundry.ui.view.screens.ScreenListOrders
 import com.aluma.laundry.ui.view.screens.ScreenLoading
-import com.aluma.laundry.ui.view.screens.ScreenLogin
 import com.aluma.laundry.ui.view.screens.ScreenMachine
 import com.aluma.laundry.ui.view.screens.ScreenServices
-import com.aluma.laundry.ui.view.screens.ScreenSettings
-import com.aluma.laundry.ui.view.screens.ScreenStore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -34,7 +29,6 @@ import org.koin.compose.koinInject
 fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     storePreferenceViewModel: StorePreferenceViewModel = koinInject(),
-    bluetoothHelper: BluetoothHelper
 ) {
     var startDestination by remember { mutableStateOf<String?>(null) }
     var showLoading by remember { mutableStateOf(true) }
@@ -95,74 +89,6 @@ fun AppNavHost(
                 }
             )
         }
-        composable(Screens.Login.route) {
-            ScreenLogin(
-                onSuccess = {
-                    navController.navigate(Screens.ChoseStore.route) {
-                        popUpTo(Screens.Login.route) { inclusive = true }
-                    }
-                }
-            )
-        }
-        composable(Screens.ChoseStore.route) {
-            val canGoBack = navController.previousBackStackEntry != null
-
-            ScreenChoseStore(
-                canGoBack = canGoBack,
-                onBack = { navController.popBackStack() },
-                nextScreen = {
-                    if (canGoBack){
-                        showLoading = true
-
-                        // Tunda navigasi untuk tampilkan loading dulu
-                        coroutineScope.launch {
-                            delay(500)
-                            showLoading = false
-
-                            navController.navigate(Screens.Home.route) {
-                                popUpTo(Screens.ChoseStore.route) {
-                                    inclusive = true
-                                }
-                                launchSingleTop = true
-                            }
-                        }
-                    }else{
-                        navController.navigate(Screens.Home.route) {
-                            popUpTo(Screens.ChoseStore.route) {
-                                inclusive = true
-                            }
-                            launchSingleTop = true
-                        }
-                    }
-                }
-            )
-        }
-        composable(Screens.Settings.route) {
-            ScreenSettings(
-                onBack = { navController.popBackStack() },
-                onChangeStore = {
-                    navController.navigate(Screens.ChoseStore.route) {
-                        launchSingleTop = true
-                    }
-                },
-                onLogout = {
-                    showLoading = true
-                    storePreferenceViewModel.clearData()
-
-                    // Tunda navigasi untuk tampilkan loading dulu
-                    coroutineScope.launch {
-                        delay(500)
-                        showLoading = false
-
-                        navController.navigate(Screens.Login.route) {
-                            popUpTo(0)
-                            launchSingleTop = true // Hindari multiple instance jika sudah di stack
-                        }
-                    }
-                },
-                bluetoothHelper = bluetoothHelper
-            )
-        }
         composable(Screens.Machines.route) {
             ScreenMachine(
                 onBack = { navController.popBackStack() },
@@ -171,11 +97,6 @@ fun AppNavHost(
         composable(Screens.Orders.route) {
             ScreenListOrders(
                 onBack = { navController.popBackStack() },
-            )
-        }
-        composable(Screens.Store.route) {
-            ScreenStore(
-                onBack = { navController.popBackStack() }
             )
         }
         composable(Screens.Services.route) {

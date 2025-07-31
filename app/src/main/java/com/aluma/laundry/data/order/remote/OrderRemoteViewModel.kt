@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 class OrderRemoteViewModel(
     private val storePreferences: StorePreferences,
@@ -19,6 +20,13 @@ class OrderRemoteViewModel(
 
     private val _orderRemote = MutableStateFlow<List<OrderRemote>>(emptyList())
     val orderRemote: StateFlow<List<OrderRemote>> = _orderRemote
+
+    private val _storeId = MutableStateFlow<String?>(null)
+    val storeId: StateFlow<String?> = _storeId
+
+    fun setStoreId(storeId: String?) {
+        _storeId.value = storeId
+    }
 
     init {
         viewModelScope.launch {
@@ -37,6 +45,17 @@ class OrderRemoteViewModel(
                 _orderRemote.value = fetched
             } catch (e: Exception) {
                 Log.e("ServiceViewModel", "❌ Fetch Services failed", e)
+            }
+        }
+    }
+
+    fun fetchOrdersByDate(date: LocalDate, storeID: String) {
+        viewModelScope.launch {
+            try {
+                val fetched = orderRepository.fetchOrder(storeID = storeID, date = date)
+                _orderRemote.value = fetched
+            } catch (e: Exception) {
+                Log.e("OrderRemoteViewModel", "❌ Fetch Orders by Date failed", e)
             }
         }
     }

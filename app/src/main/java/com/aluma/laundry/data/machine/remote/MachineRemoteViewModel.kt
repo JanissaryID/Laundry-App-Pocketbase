@@ -23,6 +23,12 @@ class MachineRemoteViewModel(
     private val _selectedMachineRemote = MutableStateFlow<MachineRemote?>(null)
     val selectedMachineRemote: StateFlow<MachineRemote?> = _selectedMachineRemote
 
+    private val _storeId = MutableStateFlow<String?>(null)
+    val storeId: StateFlow<String?> = _storeId
+
+    fun setStoreId(storeId: String?) {
+        _storeId.value = storeId
+    }
 
     fun setSelectedMachine(machineRemote: MachineRemote?) {
         _selectedMachineRemote.value = machineRemote

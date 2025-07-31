@@ -40,7 +40,6 @@ import org.koin.compose.koinInject
 @Composable
 fun ScreenServices(
     serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
-//    storePreferenceViewModel: StorePreferenceViewModel = koinInject(),
     onBack: () -> Unit,
 ) {
     val services by serviceRemoteViewModel.serviceRemote.collectAsState()
@@ -141,14 +140,14 @@ fun ScreenServices(
                     serviceRemoteViewModel.addService(
                         service = service,
                     ) { success ->
-                        serviceRemoteViewModel.fetchServices(storeID = storeID.orEmpty())
+                        serviceRemoteViewModel.fetchServices(storeID = service.store.orEmpty())
                     }
                 } else {
                     serviceRemoteViewModel.editService(
                         serviceId = servicesSelected!!.id!!,
                         service = service,
                     ) { success ->
-                        serviceRemoteViewModel.fetchServices(storeID = storeID.orEmpty())
+                        serviceRemoteViewModel.fetchServices(storeID = service.store.orEmpty())
                     }
                 }
             },

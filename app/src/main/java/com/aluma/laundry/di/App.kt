@@ -1,16 +1,8 @@
 package com.aluma.laundry.di
 
 import android.app.Application
-import androidx.work.BackoffPolicy
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import com.aluma.laundry.workmanager.SyncWorker
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
-import java.util.concurrent.TimeUnit
 
 class App : Application(){
 
@@ -19,26 +11,7 @@ class App : Application(){
 
         startKoin {
             androidContext(this@App)
-            modules(listOf(appModule, workManagerModule))
+            modules(appModule)
         }
-
-        val workManager = WorkManager.getInstance(this)
-        val workRequest = PeriodicWorkRequestBuilder<SyncWorker>(2, TimeUnit.HOURS)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-            )
-            .setBackoffCriteria(
-                BackoffPolicy.EXPONENTIAL,
-                10, TimeUnit.SECONDS
-            )
-            .build()
-
-        workManager.enqueueUniquePeriodicWork(
-            "PeriodicTaskSyncToServer", // Nama unik untuk pekerjaan
-            ExistingPeriodicWorkPolicy.KEEP, // Kebijakan untuk menangani pekerjaan yang sudah ada
-            workRequest // Request yang akan dijalankan
-        )
     }
 }

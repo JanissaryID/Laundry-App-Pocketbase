@@ -98,5 +98,8 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.koin.androidx.workmanager)
 
-    implementation (libs.compose.charts)
+
+    implementation(libs.core.vico)
+    implementation(libs.compose.vico)
+    implementation(libs.compose.m3.vico)
 }

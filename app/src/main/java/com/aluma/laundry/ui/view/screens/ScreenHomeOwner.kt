@@ -1,7 +1,5 @@
 package com.aluma.laundry.ui.view.screens
 
-import androidx.compose.animation.core.EaseInOutCubic
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,10 +35,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.aluma.laundry.data.logmachine.local.LogMachineLocalViewModel
 import com.aluma.laundry.data.machine.remote.MachineRemoteViewModel
 import com.aluma.laundry.data.order.remote.OrderRemoteViewModel
 import com.aluma.laundry.data.service.remote.ServiceRemoteViewModel
@@ -49,12 +45,14 @@ import com.aluma.laundry.data.store.remote.StoreRemoteViewModel
 import com.aluma.laundry.ui.view.components.ConfirmDialog
 import com.aluma.laundry.ui.view.components.itemscard.ItemInfoCard
 import com.aluma.laundry.ui.view.components.itemscard.ItemStoreCardOwner
-import ir.ehsannarmani.compose_charts.LineChart
-import ir.ehsannarmani.compose_charts.models.AnimationMode
-import ir.ehsannarmani.compose_charts.models.DrawStyle
-import ir.ehsannarmani.compose_charts.models.Line
+import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
+import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
+import com.patrykandpatrick.vico.compose.chart.Chart
+import com.patrykandpatrick.vico.compose.chart.line.lineChart
+import com.patrykandpatrick.vico.core.entry.entryModelOf
 import org.koin.compose.koinInject
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -66,7 +64,6 @@ fun ScreenHomeOwner(
     machineRemoteViewModel: MachineRemoteViewModel = koinInject(),
     serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
     orderRemoteViewModel: OrderRemoteViewModel = koinInject(),
-    logMachineLocalViewModel: LogMachineLocalViewModel = koinInject(),
     onListOrder: () -> Unit,
     onListService: () -> Unit,
     onListMachine: () -> Unit,
@@ -91,9 +88,13 @@ fun ScreenHomeOwner(
     LaunchedEffect(selectedStore) {
         if (selectedStore != null && !storeFetched.value) {
             machineRemoteViewModel.fetchMachine(selectedStore.id)
+
             serviceRemoteViewModel.fetchServices(selectedStore.id)
             serviceRemoteViewModel.setStoreId(selectedStore.id)
-            orderRemoteViewModel.fetchOrders(selectedStore.id)
+
+            val today = LocalDate.now()
+            orderRemoteViewModel.fetchOrdersByDate(date = today, storeID = selectedStore.id)
+            orderRemoteViewModel.setStoreId(selectedStore.id)
 
             storeFetched.value = true
         }
@@ -141,8 +142,10 @@ fun ScreenHomeOwner(
                             storeLocalViewModel.setSelectedStore(store)
 
                             machineRemoteViewModel.fetchMachine(store.id)
+                            machineRemoteViewModel.setStoreId(store.id)
                             serviceRemoteViewModel.fetchServices(store.id)
                             orderRemoteViewModel.fetchOrders(store.id)
+                            orderRemoteViewModel.setStoreId(store.id)
                         },
                         todayIncome = "Rp 1.250.000"
                     )
@@ -174,26 +177,7 @@ fun ScreenHomeOwner(
                             .fillMaxSize()
                             .padding(16.dp)
                     ) {
-                        LineChart(
-                            modifier = Modifier.fillMaxSize().padding(horizontal = 22.dp),
-                            data = remember {
-                                listOf(
-                                    Line(
-                                        label = "Total Pendapatan",
-                                        values = listOf(28.0, 41.0, 5.0, 10.0, 35.0),
-                                        color = SolidColor(Color(0xFF23af92)),
-                                        firstGradientFillColor = Color(0xFF2BC0A1).copy(alpha = .5f),
-                                        secondGradientFillColor = Color.Transparent,
-                                        strokeAnimationSpec = tween(2000, easing = EaseInOutCubic),
-                                        gradientAnimationDelay = 1000,
-                                        drawStyle = DrawStyle.Stroke(width = 2.dp),
-                                    )
-                                )
-                            },
-                            animationMode = AnimationMode.Together(delayBuilder = {
-                                it * 500L
-                            }),
-                        )
+                        ChartPendapatan()
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -241,3 +225,33 @@ fun ScreenHomeOwner(
         )
     }
 }
+
+@Composable
+fun ChartPendapatan() {
+    val dummyData = remember {
+        val daysInMonth = YearMonth.now().lengthOfMonth()
+        List(daysInMonth) { day ->
+            (day + 1) to (1000..500_000).random()
+        }
+    }
+
+    val startAxis = rememberStartAxis(
+        valueFormatter = { value, _ -> "Rp ${value.toInt() / 1000}K" }
+    )
+
+    val bottomAxis = rememberBottomAxis(
+        valueFormatter = { value, _ -> value.toInt().toString() }
+    )
+
+    Chart(
+        chart = lineChart(),
+        model = entryModelOf(*dummyData.toTypedArray()), // ✅ Pakai Pair
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(220.dp)
+            .padding(horizontal = 16.dp),
+        startAxis = startAxis,
+        bottomAxis = bottomAxis
+    )
+}
+

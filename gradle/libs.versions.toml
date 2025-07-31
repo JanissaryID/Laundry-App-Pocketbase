@@ -1,12 +1,12 @@
 [versions]
 agp = "8.11.1"
-#koinAndroidxWorkmanager = "3.5.3"
-composeCharts = "0.1.7"
+#noinspection NewerVersionAvailable
+vico = "1.13.0"
 kotlin = "2.2.0"
 coreKtx = "1.16.0"
 junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
+junitVersion = "1.3.0"
+espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.9.2"
 activityCompose = "1.10.1"
 composeBom = "2025.07.00"
@@ -18,20 +18,22 @@ ktor = "3.2.2"
 koin = "4.1.0"
 materialIconsExtended = "1.7.8"
 moko = "0.16.1"
-nav = "2.9.2"
-navigationRuntimeKtx = "2.9.2"
+nav = "2.9.3"
+navigationRuntimeKtx = "2.9.3"
 datastore = "1.1.7"
 pocketbaseKotlin = "2.7.1"
 serialization = "1.9.0"
 poiOoxml = "5.4.1"
 room = "2.7.2"
 ksp = "2.2.0-2.0.2"
-workRuntimeKtx = "2.10.2"
+workRuntimeKtx = "2.10.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
-compose-charts = { module = "io.github.ehsannarmani:compose-charts", version.ref = "composeCharts" }
+compose-vico = { module = "com.patrykandpatrick.vico:compose", version.ref = "vico" }
+compose-m3-vico = { module = "com.patrykandpatrick.vico:compose-m3", version.ref = "vico" }
+core-vico = { module = "com.patrykandpatrick.vico:core", version.ref = "vico" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
