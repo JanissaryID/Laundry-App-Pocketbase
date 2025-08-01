@@ -40,7 +40,6 @@ import java.time.LocalDate
 fun ItemStoreCardOwner(
     store: StoreLocal,
     todayIncome: List<Triple<String, String, String>>,
-    modifier: Modifier = Modifier,
     isSelected: Boolean = false,
     onClick: () -> Unit = {}
 ) {

@@ -3,6 +3,8 @@ package com.aluma.laundry.utils
 import java.text.NumberFormat
 import java.util.Locale
 
+private val indonesiaLocale: Locale = Locale.forLanguageTag("id-ID")
+
 fun String.toTitleCase(): String {
     return this.lowercase()
         .split(" ")
@@ -12,6 +14,6 @@ fun String.toTitleCase(): String {
 }
 
 fun Long.formatWithSeparator(): String {
-    val format = NumberFormat.getNumberInstance(Locale("in", "ID"))
+    val format = NumberFormat.getNumberInstance(indonesiaLocale)
     return format.format(this)
 }
