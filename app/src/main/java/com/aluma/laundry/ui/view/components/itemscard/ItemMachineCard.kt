@@ -78,10 +78,26 @@ fun ItemMachineCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "Mesin #${machine.numberMachine}",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                )
+                Row(
+                    modifier = Modifier
+                        .padding(vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = if (machine.typeMachine) Icons.Default.LocalFireDepartment else Icons.Default.WaterDrop,
+                        contentDescription = null,
+                        tint = typeTextColor,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Mesin $machineTypeLabel #${machine.numberMachine}",
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Medium,
+                            color = typeTextColor
+                        ),
+                    )
+                }
 
                 // Badge: Ukuran Mesin
                 Box(
@@ -99,30 +115,30 @@ fun ItemMachineCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Badge Tipe Mesin
-            Row(
-                modifier = Modifier
-                    .background(typeColor, RoundedCornerShape(8.dp))
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = if (machine.typeMachine) Icons.Default.LocalFireDepartment else Icons.Default.WaterDrop,
-                    contentDescription = null,
-                    tint = typeTextColor,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "Mesin ${machineTypeLabel}",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontWeight = FontWeight.Medium,
-                        color = typeTextColor
-                    )
-                )
-            }
+//            Spacer(modifier = Modifier.height(8.dp))
+//
+//            // Badge Tipe Mesin
+//            Row(
+//                modifier = Modifier
+//                    .background(typeColor, RoundedCornerShape(8.dp))
+//                    .padding(horizontal = 10.dp, vertical = 6.dp),
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Icon(
+//                    imageVector = if (machine.typeMachine) Icons.Default.LocalFireDepartment else Icons.Default.WaterDrop,
+//                    contentDescription = null,
+//                    tint = typeTextColor,
+//                    modifier = Modifier.size(18.dp)
+//                )
+//                Spacer(modifier = Modifier.width(6.dp))
+//                Text(
+//                    text = "Mesin ${machineTypeLabel}",
+//                    style = MaterialTheme.typography.bodySmall.copy(
+//                        fontWeight = FontWeight.Medium,
+//                        color = typeTextColor
+//                    )
+//                )
+//            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
