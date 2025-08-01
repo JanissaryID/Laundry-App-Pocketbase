@@ -170,7 +170,7 @@ fun ScreenLogin(
                         onSuccess = { showSnackbar = true },
                         onError = { errorMsg ->
                             coroutineScope.launch {
-                                snackbarHostState.showSnackbar(errorMsg)
+                                snackbarHostState.showSnackbar("Login gagal")
                             }
                         }
                     )

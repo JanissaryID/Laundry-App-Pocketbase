@@ -221,24 +221,27 @@ class OrderLocalViewModel(
                 Log.e("SyncChecker", "❌ Failed to sync order ${order.id}", e)
             }
         }
+
         val today = LocalDate.now().toString()
-        val incomes = incomeRemoteRepository.getIncomeByDate(storeId = _storeID.value.orEmpty(), date = today)
+        try {
+            val incomes = incomeRemoteRepository.getIncomeByDate(storeId = _storeID.value.orEmpty(), date = today)
+            if (total > 0) {
+                val incomeRemote = IncomeRemote(
+                    store = _storeID.value.orEmpty(),
+                    user = _userID.value.orEmpty(),
+                    date = today,
+                    total = total.toString()
+                )
 
-        if (total > 0) {
-            val incomeRemote = IncomeRemote(
-                store = _storeID.value.orEmpty(),
-                user = _userID.value.orEmpty(),
-                date = today,
-                total = total.toString()
-            )
-
-            if (incomes.isEmpty()) {
-                incomeRemoteRepository.createIncome(incomeRemote)
-                Log.d("SyncWorker", "➕ Created income for $today: Rp$total")
-            } else {
-                incomeRemoteRepository.updateIncome(incomeId = incomes[0].id.orEmpty(), income = total.toString())
-                Log.d("SyncWorker", "🔄 Updated income for $today: Rp$total")
+                if (incomes.isEmpty()) {
+                    incomeRemoteRepository.createIncome(incomeRemote)
+                } else {
+                    val totalNow = (incomes[0].total?.toIntOrNull() ?: 0) + total
+                    incomeRemoteRepository.updateIncome(incomeId = incomes[0].id.orEmpty(), income = totalNow.toString())
+                }
             }
+        } catch (e: Exception) {
+            Log.e("SyncChecker", "❌ Failed ", e)
         }
     }
 
