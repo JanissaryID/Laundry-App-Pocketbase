@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.order.remote.OrderRemoteViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
 import com.aluma.laundry.ui.view.components.itemscard.ItemOrderCard
-import com.aluma.laundry.utils.formatRupiah
+import com.aluma.laundry.utils.formatToRupiah
 import org.koin.compose.koinInject
 import java.time.Instant
 import java.time.LocalDate
@@ -72,7 +72,7 @@ fun ScreenListOrders(
     val totalOrder = orders.size
     val totalIncome = orders.sumOf { it.price?.toInt() ?: 0 }
     val formattedIncome = remember(totalIncome) {
-        totalIncome.formatRupiah()
+        totalIncome.formatToRupiah()
     }
 
     Scaffold(

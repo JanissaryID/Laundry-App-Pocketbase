@@ -1,5 +1,6 @@
 package com.aluma.laundry.ui.view.components.itemscard
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -32,16 +33,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.store.model.StoreLocal
+import com.aluma.laundry.utils.formatToRupiah
+import java.time.LocalDate
 
 @Composable
 fun ItemStoreCardOwner(
     store: StoreLocal,
-    todayIncome: String,
+    todayIncome: List<Triple<String, String, String>>,
     modifier: Modifier = Modifier,
     isSelected: Boolean = false,
     onClick: () -> Unit = {}
 ) {
     val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+
+    val today = LocalDate.now()
+
+    val incomeToday = todayIncome.firstOrNull {
+        val incomeDate = runCatching {
+            LocalDate.parse(it.second.take(10)) // ambil hanya "yyyy-MM-dd"
+        }.getOrNull()
+
+        it.first == store.id && incomeDate == today
+    }?.third ?: "0"
+
+    Log.d("IncomeRepo", "✅ Total : $todayIncome")
 
     Card(
         modifier = Modifier.width(280.dp)
@@ -129,7 +144,7 @@ fun ItemStoreCardOwner(
             )
 
             Text(
-                text = todayIncome,
+                text = incomeToday.formatToRupiah(),
                 style = MaterialTheme.typography.titleSmall.copy(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary

@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.data.income.remote.IncomeRemoteViewModel
 import com.aluma.laundry.data.machine.remote.MachineRemoteViewModel
 import com.aluma.laundry.data.order.remote.OrderRemoteViewModel
 import com.aluma.laundry.data.service.remote.ServiceRemoteViewModel
@@ -64,6 +65,7 @@ fun ScreenHomeOwner(
     machineRemoteViewModel: MachineRemoteViewModel = koinInject(),
     serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
     orderRemoteViewModel: OrderRemoteViewModel = koinInject(),
+    incomeRemoteViewModel: IncomeRemoteViewModel = koinInject(),
     onListOrder: () -> Unit,
     onListService: () -> Unit,
     onListMachine: () -> Unit,
@@ -82,21 +84,22 @@ fun ScreenHomeOwner(
     val machineByStore by machineRemoteViewModel.machineRemote.collectAsState()
     val serviceByStore by serviceRemoteViewModel.serviceRemote.collectAsState()
     val orderByStore by orderRemoteViewModel.orderRemoteStore.collectAsState()
+    val incomeStore by incomeRemoteViewModel.incomeRemoteStore.collectAsState()
 
-    val storeFetched = remember { mutableStateOf(false) }
+    LaunchedEffect(selectedStore?.id) {
+        selectedStore?.let { store ->
+            machineRemoteViewModel.fetchMachine(store.id)
+            machineRemoteViewModel.setStoreId(store.id)
 
-    LaunchedEffect(selectedStore) {
-        if (selectedStore != null && !storeFetched.value) {
-            machineRemoteViewModel.fetchMachine(selectedStore.id)
-
-            serviceRemoteViewModel.fetchServices(selectedStore.id)
-            serviceRemoteViewModel.setStoreId(selectedStore.id)
+            serviceRemoteViewModel.fetchServices(store.id)
+            serviceRemoteViewModel.setStoreId(store.id)
 
             val today = LocalDate.now()
-            orderRemoteViewModel.fetchOrdersByDate(date = today, storeID = selectedStore.id)
-            orderRemoteViewModel.setStoreId(selectedStore.id)
+            orderRemoteViewModel.fetchOrdersByDate(date = today, storeID = store.id)
+            orderRemoteViewModel.setStoreId(store.id)
 
-            storeFetched.value = true
+            incomeRemoteViewModel.fetchIncome(date = today.toString())
+            incomeRemoteViewModel.incomeStore() // ✅ Ini dipanggil ulang tiap ganti store
         }
     }
 
@@ -149,7 +152,7 @@ fun ScreenHomeOwner(
                             orderRemoteViewModel.fetchOrdersByDate(date = today, storeID = store.id)
                             orderRemoteViewModel.setStoreId(store.id)
                         },
-                        todayIncome = "Rp 1.250.000"
+                        todayIncome = incomeStore
                     )
                 }
             }
@@ -179,7 +182,10 @@ fun ScreenHomeOwner(
                             .fillMaxSize()
                             .padding(16.dp)
                     ) {
-                        ChartPendapatan()
+                        ChartPendapatan(
+                            storeId = selectedStore.id,
+                            incomeList = incomeStore
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -229,12 +235,36 @@ fun ScreenHomeOwner(
 }
 
 @Composable
-fun ChartPendapatan() {
-    val dummyData = remember {
-        val daysInMonth = YearMonth.now().lengthOfMonth()
-        List(daysInMonth) { day ->
-            (day + 1) to (1000..500_000).random()
-        }
+fun ChartPendapatan(
+    storeId: String, // id store yang sedang ditampilkan
+    incomeList: List<Triple<String, String, String>>
+) {
+    val today = LocalDate.now()
+    val currentMonth = today.month
+    val currentYear = today.year
+    val daysInMonth = YearMonth.of(currentYear, currentMonth).lengthOfMonth()
+
+    // 🧠 Map tanggal ke total (default 0)
+    val dailyIncomeMap = remember(storeId, incomeList) {
+        val incomePerDay = MutableList(daysInMonth) { index -> (index + 1) to 0L }
+
+        incomeList
+            .filter { it.first == storeId }
+            .forEach { (_, dateStr, totalStr) ->
+                val parsedDate = try {
+                    LocalDate.parse(dateStr.substring(0, 10)) // YYYY-MM-DD
+                } catch (e: Exception) {
+                    null
+                }
+
+                if (parsedDate != null && parsedDate.month == currentMonth && parsedDate.year == currentYear) {
+                    val dayIndex = parsedDate.dayOfMonth - 1
+                    val total = totalStr.toLongOrNull() ?: 0L
+                    incomePerDay[dayIndex] = parsedDate.dayOfMonth to total
+                }
+            }
+
+        incomePerDay
     }
 
     val startAxis = rememberStartAxis(
@@ -247,7 +277,7 @@ fun ChartPendapatan() {
 
     Chart(
         chart = lineChart(),
-        model = entryModelOf(*dummyData.toTypedArray()), // ✅ Pakai Pair
+        model = entryModelOf(*dailyIncomeMap.toTypedArray()),
         modifier = Modifier
             .fillMaxWidth()
             .height(220.dp)
@@ -256,4 +286,5 @@ fun ChartPendapatan() {
         bottomAxis = bottomAxis
     )
 }
+
 
