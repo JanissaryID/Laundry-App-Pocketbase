@@ -18,6 +18,7 @@ import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.ui.view.screens.ScreenHomeOwner
 import com.aluma.laundry.ui.view.screens.ScreenListOrders
 import com.aluma.laundry.ui.view.screens.ScreenLoading
+import com.aluma.laundry.ui.view.screens.ScreenLogin
 import com.aluma.laundry.ui.view.screens.ScreenMachine
 import com.aluma.laundry.ui.view.screens.ScreenServices
 import kotlinx.coroutines.delay
@@ -102,6 +103,21 @@ fun AppNavHost(
         composable(Screens.Services.route) {
             ScreenServices(
                 onBack = { navController.popBackStack() },
+            )
+        }
+        composable(Screens.Login.route) {
+            ScreenLogin(
+                onSuccess = {
+                    showLoading = true
+                    coroutineScope.launch {
+                        delay(500)
+                        showLoading = false
+                        navController.navigate(Screens.HomeOwner.route) {
+                            popUpTo(0)
+                            launchSingleTop = true
+                        }
+                    }
+                }
             )
         }
     }

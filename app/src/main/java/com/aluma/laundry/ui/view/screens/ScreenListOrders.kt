@@ -1,5 +1,6 @@
 package com.aluma.laundry.ui.view.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,11 +38,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.data.logmachine.remote.LogMachineRemoteViewModel
 import com.aluma.laundry.data.order.remote.OrderRemoteViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
 import com.aluma.laundry.ui.view.components.itemscard.ItemOrderCard
+import com.aluma.laundry.utils.ExcelPOIViewModel
 import com.aluma.laundry.utils.formatToRupiah
 import org.koin.compose.koinInject
 import java.time.Instant
@@ -53,10 +57,17 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ScreenListOrders(
     orderRemoteViewModel: OrderRemoteViewModel = koinInject(),
+    excelPOIViewModel: ExcelPOIViewModel = koinInject(),
+    logMachineRemoteViewModel: LogMachineRemoteViewModel = koinInject(),
     onBack: () -> Unit,
 ) {
+    val context = LocalContext.current
+
     val orders by orderRemoteViewModel.orderRemoteStore.collectAsState()
+    val logMachine by logMachineRemoteViewModel.logMachineRemote.collectAsState()
     val storeID by orderRemoteViewModel.storeId.collectAsState()
+    val storeName by logMachineRemoteViewModel.storeName.collectAsState()
+    val storeAddress by logMachineRemoteViewModel.storeAddress.collectAsState()
 
     val datePickerState = rememberDatePickerState()
     var showDatePicker by remember { mutableStateOf(false) }
@@ -120,7 +131,19 @@ fun ScreenListOrders(
                 Button(
                     enabled = orders.isNotEmpty(),
                     onClick = {
-                        // TODO: Export ke Excel
+                        excelPOIViewModel.createExcelReport(
+                            orderList = orders,
+                            logList = logMachine,
+                            storeAddress = storeAddress.orEmpty(),
+                            storeName = storeName.orEmpty(),
+                            date = formattedDateTitle
+                        ) { success ->
+                            Toast.makeText(
+                                context,
+                                if (success) "Berhasil mengekspor laporan Excel" else "Gagal ekspor laporan",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     },
                     modifier = Modifier
                         .padding(end = 16.dp)
@@ -172,6 +195,7 @@ fun ScreenListOrders(
                             val date = Instant.ofEpochMilli(millis)
                                 .atZone(ZoneId.systemDefault()).toLocalDate()
                             orderRemoteViewModel.fetchOrdersByDate(date, storeID.orEmpty())
+                            logMachineRemoteViewModel.fetchLogMachinesByDate(date, storeID.orEmpty())
                         }
                     }
                 ) {

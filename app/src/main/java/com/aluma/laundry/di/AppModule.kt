@@ -10,6 +10,7 @@ import com.aluma.laundry.data.income.remote.IncomeRemoteRepositoryImpl
 import com.aluma.laundry.data.income.remote.IncomeRemoteViewModel
 import com.aluma.laundry.data.logmachine.remote.LogMachineRemoteRepository
 import com.aluma.laundry.data.logmachine.remote.LogMachineRemoteRepositoryImpl
+import com.aluma.laundry.data.logmachine.remote.LogMachineRemoteViewModel
 import com.aluma.laundry.data.machine.remote.MachineRemoteRepository
 import com.aluma.laundry.data.machine.remote.MachineRemoteRepositoryImpl
 import com.aluma.laundry.data.machine.remote.MachineRemoteViewModel
@@ -27,6 +28,7 @@ import com.aluma.laundry.data.store.remote.StoreRemoteViewModel
 import com.aluma.laundry.data.user.remote.UserRemoteRepository
 import com.aluma.laundry.data.user.remote.UserRemoteRepositoryImpl
 import com.aluma.laundry.data.user.remote.UserRemoteViewModel
+import com.aluma.laundry.utils.ExcelPOIViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -95,6 +97,18 @@ val appModule = module {
             client = get(),
             storeRemoteRepository = get()
         )
+    }
+
+    single {
+        LogMachineRemoteViewModel(
+            logMachineRemoteRepository = get(),
+            client = get(),
+            storePreferences = get()
+        )
+    }
+
+    single {
+        ExcelPOIViewModel()
     }
 
     single {

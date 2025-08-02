@@ -41,17 +41,6 @@ class OrderRemoteViewModel(
         }
     }
 
-//    fun fetchOrdersStore(storeID: String) {
-//        viewModelScope.launch {
-//            try {
-//                val fetched = orderRepository.fetchOrder(storeID = storeID)
-//                _orderRemoteStore.value = fetched
-//            } catch (e: Exception) {
-//                Log.e("ServiceViewModel", "❌ Fetch Services failed", e)
-//            }
-//        }
-//    }
-
     fun fetchOrdersByDate(date: LocalDate, storeID: String) {
         viewModelScope.launch {
             try {

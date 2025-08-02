@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.income.remote.IncomeRemoteViewModel
+import com.aluma.laundry.data.logmachine.remote.LogMachineRemoteViewModel
 import com.aluma.laundry.data.machine.remote.MachineRemoteViewModel
 import com.aluma.laundry.data.order.remote.OrderRemoteViewModel
 import com.aluma.laundry.data.service.remote.ServiceRemoteViewModel
@@ -61,6 +62,7 @@ fun ScreenHomeOwner(
     serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
     orderRemoteViewModel: OrderRemoteViewModel = koinInject(),
     incomeRemoteViewModel: IncomeRemoteViewModel = koinInject(),
+    logMachineRemoteViewModel: LogMachineRemoteViewModel = koinInject(),
     onListOrder: () -> Unit,
     onListService: () -> Unit,
     onListMachine: () -> Unit,
@@ -83,6 +85,9 @@ fun ScreenHomeOwner(
 
     LaunchedEffect(selectedStore?.id) {
         selectedStore?.let { store ->
+            logMachineRemoteViewModel.setStoreName(store.storeName)
+            logMachineRemoteViewModel.setStoreAddress(store.address)
+
             machineRemoteViewModel.fetchMachine(store.id)
             machineRemoteViewModel.setStoreId(store.id)
 
@@ -146,6 +151,8 @@ fun ScreenHomeOwner(
                             serviceRemoteViewModel.fetchServices(store.id)
                             orderRemoteViewModel.fetchOrdersByDate(date = today, storeID = store.id)
                             orderRemoteViewModel.setStoreId(store.id)
+                            logMachineRemoteViewModel.setStoreName(store.storeName)
+                            logMachineRemoteViewModel.setStoreAddress(store.address)
                         },
                         todayIncome = incomeStore
                     )

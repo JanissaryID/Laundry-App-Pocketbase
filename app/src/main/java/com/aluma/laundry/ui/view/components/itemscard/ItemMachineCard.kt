@@ -71,7 +71,6 @@ fun ItemMachineCard(
                         text = "Mesin $machineTypeLabel #${machine.numberMachine}",
                         style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.SemiBold,
-                            color = typeTextColor
                         )
                     )
                 }
