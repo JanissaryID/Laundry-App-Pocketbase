@@ -1,0 +1,12 @@
+package com.aluma.owner.data.income.remote
+
+
+import com.aluma.owner.data.income.model.IncomeRemote
+
+interface IncomeRemoteRepository {
+    suspend fun fetchRemoteIncome(date: String): List<IncomeRemote>
+    suspend fun createIncome(income: IncomeRemote)
+    suspend fun updateIncome(incomeId: String, income: String)
+    suspend fun getIncomeByDate(storeId: String, date: String): List<IncomeRemote>
+    suspend fun getIncomeByStore(storeId: String): List<IncomeRemote>
+}

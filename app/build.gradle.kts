@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.aluma.laundry"
+    namespace = "com.aluma.owner"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.aluma.laundry"
+        applicationId = "com.aluma.owner"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
