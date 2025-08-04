@@ -1,10 +1,6 @@
 package com.aluma.laundry.ui.view.components.itemscard
 
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,13 +35,11 @@ fun ItemMachineCard(
     machine: MachineLocal,
     onClick: () -> Unit = {}
 ) {
-    val shape = RoundedCornerShape(16.dp)
-    val interactionSource = remember { MutableInteractionSource() }
+    val shape = 16
 
     val machineTypeLabel = if (machine.typeMachine) "Pengering" else "Cuci"
     val machineSizeLabel = if (machine.sizeMachine) "BESAR" else "KECIL"
 
-    val typeColor = if (machine.typeMachine) Color(0xFFFFE0B2) else Color(0xFFBBDEFB)
     val typeTextColor = if (machine.typeMachine) Color(0xFFEF6C00) else Color(0xFF1976D2)
 
     val sizeColor = if (machine.sizeMachine) Color(0xFFE1BEE7) else Color(0xFFECEFF1)
@@ -58,17 +51,11 @@ fun ItemMachineCard(
     val statusIcon = if (machine.inUse) Icons.Default.SyncDisabled else Icons.Default.CheckCircle
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, Color.LightGray.copy(alpha = 0.3f), shape)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = LocalIndication.current,
-                onClick = onClick
-            ),
-        shape = shape,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(shape.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        onClick = onClick,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
@@ -94,7 +81,6 @@ fun ItemMachineCard(
                         text = "Mesin $machineTypeLabel #${machine.numberMachine}",
                         style = MaterialTheme.typography.bodyLarge.copy(
                             fontWeight = FontWeight.Medium,
-                            color = typeTextColor
                         ),
                     )
                 }
@@ -102,7 +88,7 @@ fun ItemMachineCard(
                 // Badge: Ukuran Mesin
                 Box(
                     modifier = Modifier
-                        .background(color = sizeColor, shape = RoundedCornerShape(8.dp))
+                        .background(color = sizeColor, shape = RoundedCornerShape((shape/2).dp))
                         .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
                     Text(
@@ -115,38 +101,13 @@ fun ItemMachineCard(
                 }
             }
 
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//            // Badge Tipe Mesin
-//            Row(
-//                modifier = Modifier
-//                    .background(typeColor, RoundedCornerShape(8.dp))
-//                    .padding(horizontal = 10.dp, vertical = 6.dp),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Icon(
-//                    imageVector = if (machine.typeMachine) Icons.Default.LocalFireDepartment else Icons.Default.WaterDrop,
-//                    contentDescription = null,
-//                    tint = typeTextColor,
-//                    modifier = Modifier.size(18.dp)
-//                )
-//                Spacer(modifier = Modifier.width(6.dp))
-//                Text(
-//                    text = "Mesin ${machineTypeLabel}",
-//                    style = MaterialTheme.typography.bodySmall.copy(
-//                        fontWeight = FontWeight.Medium,
-//                        color = typeTextColor
-//                    )
-//                )
-//            }
-
             Spacer(modifier = Modifier.height(12.dp))
 
             // Status Penggunaan
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(statusColor, shape = RoundedCornerShape(12.dp))
+                    .background(statusColor, shape = RoundedCornerShape((shape-4).dp))
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
