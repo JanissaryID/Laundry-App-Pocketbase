@@ -3,6 +3,7 @@ package com.aluma.owner.ui.view.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -11,6 +12,7 @@ import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
+import com.patrykandpatrick.vico.compose.chart.line.lineSpec
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import java.time.LocalDate
 import java.time.YearMonth
@@ -57,7 +59,13 @@ fun ChartIncome(
     )
 
     Chart(
-        chart = lineChart(),
+        chart = lineChart(
+            lines = listOf(
+                lineSpec(
+                    lineColor = MaterialTheme.colorScheme.primary
+                )
+            )
+        ),
         model = entryModelOf(*dailyIncomeMap.toTypedArray()),
         modifier = Modifier
             .fillMaxWidth()
