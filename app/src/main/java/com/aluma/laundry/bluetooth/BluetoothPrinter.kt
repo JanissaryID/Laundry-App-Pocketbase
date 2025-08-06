@@ -53,14 +53,14 @@ class BluetoothPrinter() {
         services: Pair<String, String>, // Pair(serviceName, price)
         paymentMethod: String
     ): Boolean {
-        val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        val bluetoothAdapter = bluetoothManager.adapter
-        val device = bluetoothAdapter.getRemoteDevice(address)
-
-        val uuid = device.uuids?.firstOrNull()?.uuid
-            ?: UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
-
         return try {
+            val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+            val bluetoothAdapter = bluetoothManager.adapter
+            val device = bluetoothAdapter.getRemoteDevice(address)
+
+            val uuid = device.uuids?.firstOrNull()?.uuid
+                ?: UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
+
             val socket = device.createRfcommSocketToServiceRecord(uuid)
             socket.connect()
 

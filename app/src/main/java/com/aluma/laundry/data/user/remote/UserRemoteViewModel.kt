@@ -77,7 +77,7 @@ class UserRemoteViewModel(
                 storePreferences.saveLogin(_email.value, _password.value, result.token, result.userId)
                 onSuccess()
             } catch (e: Exception) {
-                val msg = "Login gagal: ${e.localizedMessage ?: "Terjadi kesalahan"}"
+                val msg = "Login gagal"
                 errorMessage.value = msg
                 onError(msg)
             } finally {
