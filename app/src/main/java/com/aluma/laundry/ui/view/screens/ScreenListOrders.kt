@@ -1,22 +1,31 @@
 package com.aluma.laundry.ui.view.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Notes
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,6 +34,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.order.local.OrderLocalViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
@@ -41,43 +52,95 @@ fun ScreenListOrders(
     val orders by orderLocalViewModel.orders.collectAsState()
     val selectedOrder by orderLocalViewModel.selectedOrder.collectAsState()
 
+    var searchQuery by remember { mutableStateOf("") }
     var showOrderInformation by remember { mutableStateOf(false) }
 
+    // Logic filter sederhana berdasarkan pencarian nama
+    val filteredOrders = remember(orders, searchQuery) {
+        if (searchQuery.isEmpty()) orders
+        else orders.filter { it.customerName!!.contains(searchQuery, ignoreCase = true) }
+    }
+
     Scaffold(
+        containerColor = Color(0xFFF8F9FA),
         topBar = {
-            TopAppBar(
-                title = { Text("Orders") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    titleContentColor = MaterialTheme.colorScheme.primary
-                ),
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
-                    }
-                }
-            )
+            Column(modifier = Modifier.background(Color.White)) {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            "Riwayat Pesanan",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Kembali")
+                        }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color.White
+                    )
+                )
+
+                // Search Bar untuk Admin mencari nama pelanggan
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = { Text("Cari nama pelanggan...", style = MaterialTheme.typography.bodyMedium) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    leadingIcon = { Icon(Icons.Default.Search, null, tint = Color.Gray) },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(Icons.Default.Close, null)
+                            }
+                        }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFF1F3F4),
+                        unfocusedContainerColor = Color(0xFFF1F3F4),
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
         ) {
-            if (orders.isEmpty()) {
+            if (filteredOrders.isEmpty()) {
                 EmptyState(
-                    title = "Belum ada Order",
-                    message = "tambahkan order,\ndi screen Home"
+                    title = if (searchQuery.isEmpty()) "Belum ada Order" else "Tidak ditemukan",
+                    message = if (searchQuery.isEmpty())
+                        "Semua transaksi Anda akan muncul di sini."
+                    else "Coba gunakan kata kunci nama lain.",
+                    icon = Icons.AutoMirrored.Filled.Notes
                 )
             } else {
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(vertical = 16.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(16.dp),
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    items(orders) { order ->
+                    item {
+                        Text(
+                            text = "Total ${filteredOrders.size} Transaksi",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
+                        )
+                    }
+
+                    items(filteredOrders, key = { it.id ?: 0 }) { order ->
                         ItemOrderCard(
                             order = order,
                             onSelect = {
@@ -94,13 +157,10 @@ fun ScreenListOrders(
     // ====================
     // BOTTOM SHEETS
     // ====================
-
-    if(showOrderInformation){
-        selectedOrder?.let {
-            OrderBottomSheetReadOnly(
-                order = selectedOrder!!,
-                onDismissRequest = { showOrderInformation = false },
-            )
-        }
+    if (showOrderInformation && selectedOrder != null) {
+        OrderBottomSheetReadOnly(
+            order = selectedOrder!!,
+            onDismissRequest = { showOrderInformation = false },
+        )
     }
 }

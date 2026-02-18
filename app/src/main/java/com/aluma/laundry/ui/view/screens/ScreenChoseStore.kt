@@ -1,25 +1,32 @@
 package com.aluma.laundry.ui.view.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Storefront
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
 import com.aluma.laundry.data.order.local.OrderLocalViewModel
 import com.aluma.laundry.data.service.local.ServiceLocalViewModel
@@ -36,75 +43,99 @@ fun ScreenChoseStore(
     orderLocalViewModel: OrderLocalViewModel = koinInject(),
     machineLocalViewModel: MachineLocalViewModel = koinInject(),
     serviceLocalViewModel: ServiceLocalViewModel = koinInject(),
-    canGoBack: Boolean = false, // ✅ default false (misal saat awal install)
-    onBack: () -> Unit = {}, // ✅ opsional, dipanggil saat tombol back diklik
+    canGoBack: Boolean = false,
+    onBack: () -> Unit = {},
     nextScreen: () -> Unit
 ) {
     val storeList by storeRemoteViewModel.storeRemote.collectAsState()
     val selectedStore by storeRemoteViewModel.selectedStoreRemote.collectAsState()
 
     Scaffold(
+        containerColor = Color(0xFFF8F9FA),
         topBar = {
-            TopAppBar(
-                title = { Text("Pilih Toko") },
+            CenterAlignedTopAppBar(
+                title = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "Lokasi Tugas",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "Pilih cabang untuk memulai operasional",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.Gray
+                        )
+                    }
+                },
                 navigationIcon = {
                     if (canGoBack) {
                         IconButton(onClick = onBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Kembali"
-                            )
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Kembali")
                         }
-                    } else null
+                    }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    titleContentColor = MaterialTheme.colorScheme.primary
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.White
                 )
             )
         },
         bottomBar = {
+            // Langsung panggil tanpa pembungkus Surface tambahan
             StoreBottomBar(
                 selectedStoreRemote = selectedStore,
                 onSaveAndNext = {
                     storeRemoteViewModel.saveStoreID()
+                    // Membersihkan cache lokal karena berpindah toko
                     orderLocalViewModel.deleteAllOrders()
                     machineLocalViewModel.deleteAllMachines()
                     serviceLocalViewModel.deleteAllServices()
                     nextScreen()
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.navigationBarsPadding()
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            if (storeList.isEmpty()) {
-                EmptyState(
-                    title = "Belum ada Toko",
-                    message = "Hubungi Pengembang untuk menambahkan Toko,\nkemudian akan muncul di sini secara otomatis."
-                )
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    items(storeList) { store ->
-                        ItemStoreCard(
-                            storeRemote = store,
-                            isSelected = store.id == selectedStore?.id,
-                            onClick = {
-                                if (store.id == selectedStore?.id) {
-                                    storeRemoteViewModel.selectStore(null)
-                                } else {
-                                    storeRemoteViewModel.selectStore(store)
-                                }
+        if (storeList.isEmpty()) {
+            EmptyState(
+                title = "Toko Tidak Ditemukan",
+                message = "Akun Anda belum terhubung ke toko manapun.\nHubungi Owner untuk akses cabang.",
+                icon = Icons.Default.Storefront
+            )
+        } else {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(
+                    top = innerPadding.calculateTopPadding() + 16.dp,
+                    bottom = innerPadding.calculateBottomPadding() + 80.dp, // Extra space untuk tombol
+                    start = 16.dp,
+                    end = 16.dp
+                ),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                item {
+                    Text(
+                        text = "Cabang Tersedia (${storeList.size})",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 4.dp, start = 4.dp)
+                    )
+                }
+
+                items(storeList, key = { it.id ?: "" }) { store ->
+                    ItemStoreCard(
+                        storeRemote = store,
+                        isSelected = store.id == selectedStore?.id,
+                        onClick = {
+                            // Logic toggle selection
+                            if (store.id == selectedStore?.id) {
+                                storeRemoteViewModel.selectStore(null)
+                            } else {
+                                storeRemoteViewModel.selectStore(store)
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             }
         }

@@ -1,10 +1,5 @@
 package com.aluma.laundry.ui.view.components.itemscard
 
-import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,66 +11,61 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BluetoothConnected
 import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.DryCleaning
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.LocalLaundryService
+import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.data.order.model.OrderLocal
 import com.aluma.laundry.data.order.utils.Quad
-import com.aluma.laundry.ui.view.components.InfoLabelValue
 
 @Composable
 fun ItemOrderCard(
     order: OrderLocal,
     onSelect: () -> Unit = {}
 ) {
-    val backgroundColor = Color(0xFFFDFDFD)
     val shape = RoundedCornerShape(16.dp)
-    val interactionSource = remember { MutableInteractionSource() }
 
-    val machineType = if (order.sizeMachine) "Besar" else "Kecil"
-    val stepMachine = order.stepMachine
+    // Logika Status (Tetap menggunakan logika stepMachine kamu)
     val machineNumber = order.numberMachine
-
-    val (statusMessage, statusColor, statusIcon, iconTint) = when (stepMachine) {
+    val (statusMessage, statusColor, statusIcon, iconTint) = when (order.stepMachine) {
         0 -> Quad(
-            "Belum memilih dan menyalakan mesin cuci",
-            Color.Red.copy(alpha = 0.1f),
+            "Perlu dinyalakan: Mesin Cuci",
+            Color(0xFFFFEBEE), // Merah sangat muda
             Icons.Default.ErrorOutline,
-            Color.Red
+            Color(0xFFD32F2F)
         )
         1 -> Quad(
-            "Belum memilih dan menyalakan mesin pengering",
-            Color(0xFFFFF3CD),
+            "Perlu dinyalakan: Mesin Pengering",
+            Color(0xFFFFF8E1), // Kuning sangat muda
             Icons.Default.WarningAmber,
             Color(0xFFFFA000)
         )
         2 -> Quad(
-            "Sedang mencuci di mesin nomor $machineNumber",
+            "Mencuci di Nomor $machineNumber",
             Color(0xFFE3F2FD),
             Icons.Default.LocalLaundryService,
             Color(0xFF2196F3)
         )
         3 -> Quad(
-            "Sedang mengeringkan di mesin nomor $machineNumber",
-            Color(0xFFFFE0B2),
+            "Mengeringkan di Nomor $machineNumber",
+            Color(0xFFF3E5F5),
             Icons.Default.DryCleaning,
-            Color(0xFFEF6C00)
+            Color(0xFF9C27B0)
         )
         else -> Quad(
             "Selesai",
@@ -88,63 +78,111 @@ fun ItemOrderCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .border(2.dp, Color.Transparent, shape),
+            .padding(vertical = 4.dp),
         shape = shape,
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        onClick = onSelect // Gunakan onClick bawaan Card agar Ripple Effect rapi mengikuti Shape
     ) {
-        Column(
-            modifier = Modifier
-                .clip(shape)
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = LocalIndication.current,
-                    onClick = onSelect
-                )
-                .padding(16.dp)
-        ) {
-            Text(
-                text = order.customerName ?: "Tanpa Nama",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
+        Column(modifier = Modifier.padding(16.dp)) {
+            // Baris Atas: Nama & Waktu
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                InfoLabelValue(label = "Layanan", value = order.serviceName ?: "-", highlight = true)
-                InfoLabelValue(label = "Tipe Mesin", value = machineType)
+                Text(
+                    text = order.customerName.orEmpty().ifBlank { "Pelanggan Umum" },
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color(0xFF2D3142)
+                )
+
+                // Format tanggal/waktu (Misal diambil dari string order.date)
+                Text(
+                    text = order.date?.take(10) ?: "", // Menampilkan YYYY-MM-DD
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Gray
+                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Baris Tengah: Layanan & Harga
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(color = statusColor, shape = RoundedCornerShape(12.dp))
-                    .padding(12.dp),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = statusIcon,
-                    contentDescription = null,
-                    tint = iconTint,
-                    modifier = Modifier.size(20.dp)
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Text(
-                    text = statusMessage,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Black
+                // Label Layanan
+                Surface(
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = order.serviceName.orEmpty(),
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
-                )
+                }
+
+                // Info Tipe Mesin
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Straighten, // Ikon ukuran
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (order.sizeMachine) "Kapasitas Besar" else "Kapasitas Kecil",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Baris Bawah: Status Progress (Indikator Utama Admin)
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = statusColor,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = statusIcon,
+                        contentDescription = null,
+                        tint = iconTint,
+                        modifier = Modifier.size(20.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Text(
+                        text = statusMessage,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = iconTint
+                    )
+
+                    if (order.stepMachine < 2) {
+                        Spacer(modifier = Modifier.weight(1f))
+                        Icon(
+                            imageVector = Icons.Default.BluetoothConnected,
+                            contentDescription = "Ready to Sync",
+                            tint = iconTint,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
             }
         }
     }

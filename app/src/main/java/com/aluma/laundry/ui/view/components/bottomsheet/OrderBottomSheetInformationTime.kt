@@ -13,28 +13,29 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.HelpOutline
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.DryCleaning
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocalLaundryService
 import androidx.compose.material.icons.filled.Print
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -46,11 +47,11 @@ import com.aluma.laundry.data.machine.model.MachineLocal
 import com.aluma.laundry.data.order.model.OrderLocal
 import com.aluma.laundry.data.order.utils.Quad
 import com.aluma.laundry.ui.view.components.CountdownTimer
-import com.aluma.laundry.ui.view.components.OrderInfo
 import com.aluma.laundry.utils.formatRupiah
 import org.koin.compose.koinInject
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
@@ -66,109 +67,138 @@ fun OrderBottomSheetInformationTime(
     onDismissRequest: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var isSubmitting by remember { mutableStateOf(false) }
 
     val bluetoothAddress by storePreferenceViewModel.bluetoothAddress.collectAsState()
-
     val nameStore by storePreferenceViewModel.nameStore.collectAsState()
     val addressStore by storePreferenceViewModel.addressStore.collectAsState()
     val cityStore by storePreferenceViewModel.cityStore.collectAsState()
 
     val context = LocalContext.current
 
-    val (startTimeMillis, endTimeMillis) = remember(machine.timeOn, machine.timer) {
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX")
-            .withZone(ZoneOffset.UTC)
+    // Kalkulasi Waktu (Mulai & Estimasi Selesai)
+    val (startTimeStr, endTimeStr, startTimeMillis, endTimeMillis) = remember(machine.timeOn, machine.timer) {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX").withZone(ZoneOffset.UTC)
+        val timeDisplayFormatter = DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.systemDefault())
 
         try {
             val startInstant = formatter.parse(machine.timeOn, Instant::from)
             val endInstant = startInstant.plus(Duration.ofMinutes(machine.timer.toLong()))
-            startInstant.toEpochMilli() to endInstant.toEpochMilli()
+
+            Quad(
+                timeDisplayFormatter.format(startInstant),
+                timeDisplayFormatter.format(endInstant),
+                startInstant.toEpochMilli(),
+                endInstant.toEpochMilli()
+            )
         } catch (e: Exception) {
             val now = System.currentTimeMillis()
-            now to now
+            Quad("--:--", "--:--", now, now)
         }
     }
 
-    val currentTimeMillis = System.currentTimeMillis()
-    val isTimeUp = currentTimeMillis >= endTimeMillis
-
-    // 🌟 Header Status Mesin Berdasarkan stepMachine
-    val (statusMessage, statusColor, statusIcon, iconTint) = when (stepMachine) {
-        2 -> Quad(
-            "Sedang mencuci di mesin nomor ${machineNumber ?: "-"}",
-            Color(0xFFE3F2FD),
-            Icons.Default.LocalLaundryService,
-            Color(0xFF2196F3)
-        )
-        3 -> Quad(
-            "Sedang mengeringkan di mesin nomor ${machineNumber ?: "-"}",
-            Color(0xFFE8F5E9),
-            Icons.Default.DryCleaning,
-            Color(0xFF4CAF50)
-        )
-        else -> Quad(
-            "Status tidak diketahui",
-            Color.LightGray.copy(alpha = 0.1f),
-            Icons.AutoMirrored.Filled.HelpOutline,
-            Color.Gray
-        )
+    // Identifikasi Status Berdasarkan Step
+    val (statusTitle, statusColor, statusIcon) = when (stepMachine) {
+        2 -> Triple("Proses Pencucian", Color(0xFF2196F3), Icons.Default.LocalLaundryService)
+        3 -> Triple("Proses Pengeringan", Color(0xFF4CAF50), Icons.Default.DryCleaning)
+        else -> Triple("Status Aktif", Color.Gray, Icons.Default.Info)
     }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        sheetState = sheetState
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+        containerColor = Color.White
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 20.dp)
-                .padding(horizontal = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // 🧾 Header Dinamis
-            Text(
-                text = statusMessage,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
-                color = iconTint
-            )
-
-            // Detail Pesanan
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OrderInfo(label = "Nama Pelanggan", value = order.customerName ?: "-")
-                OrderInfo(
-                    label = "Layanan",
-                    value = "${order.serviceName ?: "-"} (${if (order.sizeMachine) "Mesin Besar" else "Mesin Kecil"})"
-                )
-                OrderInfo(
-                    label = "Harga & Pembayaran",
-                    value = "${formatRupiah(order.price ?: "0")} • ${order.typePayment ?: "-"}"
-                )
+            // --- HEADER STATUS ---
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(
+                    color = statusColor.copy(alpha = 0.1f),
+                    shape = CircleShape,
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = statusIcon,
+                        contentDescription = null,
+                        tint = statusColor,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text(
+                        text = statusTitle,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Unit Mesin Nomor $machineNumber",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
             }
 
-            HorizontalDivider()
+            // --- DETAIL PELANGGAN ---
+            Surface(
+                color = Color(0xFFF8F9FA),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, Color(0xFFEEEEEE))
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    OrderInfoRow(label = "Pelanggan", value = order.customerName ?: "-")
+                    OrderInfoRow(label = "Layanan", value = order.serviceName ?: "-")
+                    OrderInfoRow(label = "Kapasitas", value = if (order.sizeMachine) "Mesin Besar" else "Mesin Kecil")
+                    OrderInfoRow(label = "Total Bayar", value = formatRupiah(order.price ?: "0"), isHighlighted = true)
+                }
+            }
 
-            // ⏳ Countdown Mesin
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            // --- COUNTDOWN & ESTIMASI ---
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
-                    text = "Sisa Waktu Mesin",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "Sisa Waktu",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color.Gray
                 )
 
                 CountdownTimer(
                     startTimeMillis = startTimeMillis,
                     endTimeMillis = endTimeMillis,
-                    onFinish = { println("Waktu mesin habis!") },
-                    modifier = Modifier.padding(16.dp)
+                    onFinish = { /* Notifikasi Selesai */ },
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(Icons.Default.AccessTime, null, modifier = Modifier.size(14.dp), tint = Color.Gray)
+                    Text(
+                        text = "Estimasi selesai pukul $endTimeStr",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
             }
 
+            // --- BUTTONS ---
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                // Cetak Nota Ulang (Jika perlu)
                 OutlinedButton(
                     onClick = {
                         val printer = BluetoothPrinter()
@@ -182,46 +212,25 @@ fun OrderBottomSheetInformationTime(
                             customerName = order.customerName.orEmpty(),
                             paymentMethod = order.typePayment.orEmpty()
                         )
-                        if (!stat){
-                            Toast.makeText(context, "Gagal Mencetak", Toast.LENGTH_SHORT).show()
-                        }
+                        if (!stat) Toast.makeText(context, "Printer Gagal", Toast.LENGTH_SHORT).show()
                     },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp), // penting untuk bentuk bulat proporsional
-                    shape = CircleShape,
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
+                    modifier = Modifier.weight(1f).height(50.dp),
+                    shape = RoundedCornerShape(12.dp),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Print,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
+                    Icon(Icons.Default.Print, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
                     Text("Nota")
                 }
 
+                // Tutup
                 Button(
                     onClick = onDismissRequest,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp),
-                    shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = Color.White
-                    )
+                    modifier = Modifier.weight(1f).height(50.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = statusColor)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text("Tutup")
+                    Text("Kembali", fontWeight = FontWeight.Bold)
                 }
             }
         }

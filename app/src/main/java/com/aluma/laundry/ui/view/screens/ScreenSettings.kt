@@ -1,10 +1,9 @@
 package com.aluma.laundry.ui.view.screens
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,21 +14,23 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Bluetooth
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.filled.SyncAlt
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,8 +39,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.bluetooth.BluetoothHelper
@@ -77,132 +79,141 @@ fun ScreenSettings(
 
     var titleDialog by remember { mutableStateOf("") }
     var messageDialog by remember { mutableStateOf("") }
-    var typeDialog by remember { mutableStateOf(false) }
+    var isLogoutAction by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Pengaturan") },
+                title = { Text("Pengaturan", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         },
         bottomBar = {
             val (appName, appVersion) = remember { context.getAppInfo() }
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
-                    .padding(12.dp),
+                    .padding(bottom = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                HorizontalDivider()
-                Spacer(Modifier.height(8.dp))
-                Text(appName, style = MaterialTheme.typography.labelSmall)
-                Text("Versi $appVersion", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = appName,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.Gray
+                )
+                Text(
+                    text = "Versi $appVersion",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.LightGray
+                )
             }
         }
     ) { innerPadding ->
-
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize()
+                .fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 32.dp)
         ) {
-            // Info toko - DI LUAR LazyColumn
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp, start = 24.dp, end = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Box(
+            // --- SECTION: INFO TOKO ---
+            item {
+                Column(
                     modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
-                    contentAlignment = Alignment.Center
+                        .fillMaxWidth()
+                        .padding(vertical = 32.dp, horizontal = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Store,
-                        contentDescription = "Toko",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(40.dp)
+                    Surface(
+                        modifier = Modifier.size(90.dp),
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.Store,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(45.dp)
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        text = nameStore.orEmpty().ifBlank { "Toko Laundry" },
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.ExtraBold,
+                        textAlign = TextAlign.Center
                     )
-                }
-                Spacer(Modifier.height(12.dp))
-                Text(
-                    text = nameStore.orEmpty(),
-                    style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Center
-                )
-                Text(
-                    text = "${streetStore.orEmpty()}, ${cityStore.orEmpty()}",
-                    style = MaterialTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(Modifier.height(12.dp))
-                TextButton(onClick = {
-                    typeDialog = false
-                    showDialog = true
+                    Text(
+                        text = "${streetStore.orEmpty()}, ${cityStore.orEmpty()}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        color = Color.Gray
+                    )
 
-                    titleDialog = "Ganti Toko?"
-                    messageDialog = "Apakah anda yakin ingin Mengganti toko?\n\nData di toko ini akan hilang!"
-                }) {
-                    Icon(Icons.Default.Edit, contentDescription = null)
-                    Spacer(Modifier.width(4.dp))
-                    Text("Ganti Toko")
+                    Spacer(Modifier.height(16.dp))
+
+                    OutlinedButton(
+                        onClick = {
+                            isLogoutAction = false
+                            titleDialog = "Ganti Toko?"
+                            messageDialog = "Data lokal toko ini akan dihapus dari perangkat. Pastikan semua data sudah tersinkron."
+                            showDialog = true
+                        },
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.SyncAlt, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Ganti Cabang Toko")
+                    }
                 }
             }
 
-            Spacer(Modifier.height(24.dp))
-
-            // LazyColumn untuk isi item setting
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                item {
-                    ItemSettingCard(
-                        title = if (!bluetoothName.isNullOrBlank()) bluetoothName.orEmpty() else "Belum memilih printer",
-                        subtitle = if (!bluetoothAddress.isNullOrBlank()) bluetoothAddress else "Pilih perangkat printer Bluetooth",
-                        icon = Icons.Default.Bluetooth,
-                        onClick = {
-                            bluetoothHelper.requestBluetooth {
-                                showBluetoothDevice = true
-                            }
+            // --- SECTION: PERANGKAT & PRINTER ---
+            item { SettingSectionHeader(title = "Perangkat Digital") }
+            item {
+                ItemSettingCard(
+                    title = if (!bluetoothName.isNullOrBlank()) bluetoothName.orEmpty() else "Printer Belum Dipilih",
+                    subtitle = if (!bluetoothAddress.isNullOrBlank()) bluetoothAddress.orEmpty() else "Klik untuk mencari printer thermal Bluetooth",
+                    icon = Icons.Default.Bluetooth,
+                    onClick = {
+                        bluetoothHelper.requestBluetooth {
+                            showBluetoothDevice = true
                         }
-                    )
-                }
+                    }
+                )
+            }
 
-                item {
-                    ItemSettingCard(
-                        title = "Keluar",
-                        subtitle = email,
-                        icon = Icons.AutoMirrored.Filled.ExitToApp,
-                        iconTint = MaterialTheme.colorScheme.error,
-                        textColor = MaterialTheme.colorScheme.error,
-                        onClick = {
-                            typeDialog = true
-                            showDialog = true
-
-                            titleDialog = "Keluar?"
-                            messageDialog = "Apakah anda yakin ingin Keluar?\n\nData di akun ini akan hilang!"
-                        }
-                    )
-                }
+            // --- SECTION: AKUN ---
+            item { Spacer(Modifier.height(16.dp)) }
+            item { SettingSectionHeader(title = "Akun Admin") }
+            item {
+                ItemSettingCard(
+                    title = "Keluar dari Akun",
+                    subtitle = email.orEmpty().ifBlank { "admin@laundry.com" },
+                    icon = Icons.AutoMirrored.Filled.ExitToApp,
+                    iconTint = MaterialTheme.colorScheme.error,
+                    textColor = MaterialTheme.colorScheme.error,
+                    onClick = {
+                        isLogoutAction = true
+                        titleDialog = "Logout?"
+                        messageDialog = "Anda harus login kembali untuk mengakses data toko ini."
+                        showDialog = true
+                    }
+                )
             }
         }
     }
 
+    // --- DIALOGS ---
     if (showBluetoothDevice) {
         PrinterListDialog(
             bluetoothHelper = bluetoothHelper,
@@ -212,15 +223,10 @@ fun ScreenSettings(
                     bluetoothAddress = device.address
                 )
                 showBluetoothDevice = false
-
-                if (!bluetoothAddress.isNullOrEmpty()){
-                    val printer = BluetoothPrinter()
-                    printer.testPrinter(context = context, address = bluetoothAddress)
-                }
+                // Langsung tes printer untuk feedback Admin
+                BluetoothPrinter().testPrinter(context = context, address = device.address)
             },
-            onDismiss = {
-                showBluetoothDevice = false
-            }
+            onDismiss = { showBluetoothDevice = false }
         )
     }
 
@@ -231,9 +237,19 @@ fun ScreenSettings(
             onDismiss = { showDialog = false },
             onConfirm = {
                 showDialog = false
-                if(typeDialog) onLogout() else onChangeStore()
+                if(isLogoutAction) onLogout() else onChangeStore()
             }
         )
     }
 }
 
+@Composable
+fun SettingSectionHeader(title: String) {
+    Text(
+        text = title,
+        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+        style = MaterialTheme.typography.labelLarge,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.primary
+    )
+}

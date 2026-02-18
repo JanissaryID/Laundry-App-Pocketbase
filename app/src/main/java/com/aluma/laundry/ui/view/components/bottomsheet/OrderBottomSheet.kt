@@ -1,10 +1,11 @@
 package com.aluma.laundry.ui.view.components.bottomsheet
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -12,17 +13,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -72,191 +74,173 @@ fun OrderBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        sheetState = sheetState
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+        containerColor = Color.White
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp), // Beri ruang ekstra di bawah
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Text("Buat Order", style = MaterialTheme.typography.titleMedium)
+            // --- HEADER ---
+            Text(
+                text = "Input Order Baru",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
 
+            // --- INPUT NAMA ---
             OutlinedTextField(
                 value = customerName,
                 onValueChange = { input ->
-                    customerName = input
-                        .split(" ")
-                        .joinToString(" ") { word ->
-                            word.lowercase().replaceFirstChar { it.uppercase() }
-                        }
+                    customerName = input.split(" ").joinToString(" ") { word ->
+                        word.lowercase().replaceFirstChar { it.uppercase() }
+                    }
                 },
                 label = { Text("Nama Pelanggan") },
+                placeholder = { Text("Contoh: Budi Santoso") },
                 modifier = Modifier.fillMaxWidth(),
+                leadingIcon = { Icon(Icons.Default.Person, null) },
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next
                 )
             )
 
-            ServiceDropdown(
-                serviceLocal = services,
-                selectedServiceLocal = selectedServiceLocal,
-                onServiceSelected = {
-                    selectedServiceLocal = it
-                }
-            )
+            // --- PILIH LAYANAN ---
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Layanan Laundry", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                ServiceDropdown(
+                    serviceLocal = services,
+                    selectedServiceLocal = selectedServiceLocal,
+                    onServiceSelected = { selectedServiceLocal = it }
+                )
+            }
 
-            Text("Metode Pembayaran", style = MaterialTheme.typography.titleSmall)
+            // --- METODE PEMBAYARAN ---
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Metode Pembayaran", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    TypePayment.entries.forEach { method ->
+                        val isSelected = selectedMethod == method
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                TypePayment.entries.forEach { method ->
-                    val isSelected = selectedMethod == method
-
-                    Card(
-                        onClick = { selectedMethod = method },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(96.dp)
-                            .border(
-                                width = if (isSelected) 2.dp else 1.dp,
-                                color = if (isSelected)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.outline,
-                                shape = RoundedCornerShape(16.dp)
-                            ),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (isSelected)
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
-                            else
-                                MaterialTheme.colorScheme.surface
-                        )
-                    ) {
-                        Column(
+                        // Card yang lebih interaktif
+                        Surface(
+                            onClick = { selectedMethod = method },
                             modifier = Modifier
-                                .padding(12.dp)
-                                .fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                                .weight(1f)
+                                .height(80.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color(0xFFF5F5F5),
+                            border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null
                         ) {
-                            Icon(
-                                imageVector = when (method) {
-                                    TypePayment.TUNAI -> Icons.Default.AttachMoney
-                                    TypePayment.QRIS -> Icons.Default.QrCode
-                                },
-                                contentDescription = method.label,
-                                tint = if (isSelected)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = method.label,
-                                style = if (isSelected)
-                                    MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
-                                else
-                                    MaterialTheme.typography.bodyMedium,
-                                color = if (isSelected)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.onSurface
-                            )
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    imageVector = when (method) {
+                                        TypePayment.TUNAI -> Icons.Default.Payments
+                                        TypePayment.QRIS -> Icons.Default.QrCodeScanner
+                                    },
+                                    contentDescription = null,
+                                    tint = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Text(
+                                    text = method.label,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray
+                                )
+                            }
                         }
                     }
                 }
             }
 
-            Row(
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // --- FOOTER: RINGKASAN & TOMBOL ---
+            Surface(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                shape = RoundedCornerShape(16.dp)
             ) {
-                Column {
-                    if(selectedServiceLocal != null){
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Total Tagihan", style = MaterialTheme.typography.labelMedium)
                         Text(
-                            text = selectedServiceLocal?.let {
-                                "${it.nameService} - ${formatRupiah(it.priceService)}"
-                            } ?: "",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = selectedMethod.name,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = selectedServiceLocal?.let { formatRupiah(it.priceService) } ?: "Rp 0",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
-                }
-                Button(
-                    onClick = {
-                        isSubmitting = true
-                        val service = selectedServiceLocal
-                        if (service != null) {
 
-                            val typeMachine = if(service.wash == "yes" && service.dry == "yes"){
-                                2
-                            }
-                            else if(service.wash == "yes" && service.dry == "no"){
-                                0
-                            }
-                            else if(service.wash == "no" && service.dry == "yes"){
-                                1
-                            }
-                            else{
-                                3
-                            }
+                    Button(
+                        onClick = {
+                            isSubmitting = true
+                            val service = selectedServiceLocal
+                            if (service != null) {
+                                // Logic step & type (Tetap sama dengan kodemu)
+                                val typeMachine = when {
+                                    service.wash == "yes" && service.dry == "yes" -> 2
+                                    service.wash == "yes" && service.dry == "no" -> 0
+                                    service.wash == "no" && service.dry == "yes" -> 1
+                                    else -> 3
+                                }
 
-                            val step = if(typeMachine == 2){
-                                0
-                            }
-                            else if(typeMachine > 2){
-                                4
-                            }
-                            else{
-                                typeMachine
-                            }
+                                val step = when {
+                                    typeMachine == 2 -> 0
+                                    typeMachine > 2 -> 4
+                                    else -> typeMachine
+                                }
 
-                            val nowDate = Instant.now()
-                            val formatted = DateTimeFormatter
-                                .ofPattern("yyyy-MM-dd HH:mm:ss.SSSX")
-                                .withZone(ZoneOffset.UTC)
-                                .format(nowDate)
+                                val nowDate = Instant.now()
+                                val formatted = DateTimeFormatter
+                                    .ofPattern("yyyy-MM-dd HH:mm:ss.SSSX")
+                                    .withZone(ZoneOffset.UTC)
+                                    .format(nowDate)
 
-                            val order = OrderLocal(
-                                customerName = customerName,
-                                serviceName = service.nameService,
-                                sizeMachine = service.sizeMachine,
-                                stepMachine = step,
-                                price = service.priceService,
-                                typePayment = selectedMethod.name,
-                                user = idUser,
-                                store = idStore,
-                                typeMachineService = typeMachine,
-                                numberMachine = 0,
-                                date = formatted,
-                                syncStatus = SyncStatus.PENDING
-                            )
-
-                            onSubmit(order)
-                            onDismissRequest()
+                                onSubmit(OrderLocal(
+                                    customerName = customerName,
+                                    serviceName = service.nameService,
+                                    sizeMachine = service.sizeMachine,
+                                    stepMachine = step,
+                                    price = service.priceService,
+                                    typePayment = selectedMethod.name,
+                                    user = idUser,
+                                    store = idStore,
+                                    typeMachineService = typeMachine,
+                                    date = formatted,
+                                    syncStatus = SyncStatus.PENDING
+                                ))
+                                onDismissRequest()
+                            }
+                        },
+                        modifier = Modifier.height(52.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        enabled = !isSubmitting && customerName.isNotBlank() && selectedServiceLocal != null,
+                    ) {
+                        if (isSubmitting) {
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
+                        } else {
+                            Text("Buat Pesanan", fontWeight = FontWeight.Bold)
                         }
-                    },
-                    enabled = !isSubmitting && customerName.isNotBlank() && selectedServiceLocal != null,
-                ) {
-                    if (isSubmitting) {
-                        CircularProgressIndicator(
-                            color = Color.White,
-                            strokeWidth = 2.dp,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    } else {
-                        Text("Lanjutkan")
                     }
                 }
             }

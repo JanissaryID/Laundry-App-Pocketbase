@@ -1,6 +1,5 @@
 package com.aluma.laundry.ui.view.components.bottomsheet
 
-import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -11,19 +10,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Print
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -43,12 +43,10 @@ import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
 import com.aluma.laundry.data.machine.model.MachineLocal
 import com.aluma.laundry.data.order.model.OrderLocal
-import com.aluma.laundry.ui.view.components.OrderInfo
 import com.aluma.laundry.ui.view.components.dropdown.MachineDropdown
 import com.aluma.laundry.utils.formatRupiah
 import org.koin.compose.koinInject
 
-@SuppressLint("MissingPermission")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderBottomSheetInformation(
@@ -63,54 +61,77 @@ fun OrderBottomSheetInformation(
     var selectedMachine by remember { mutableStateOf<MachineLocal?>(null) }
 
     val availableMachines = machines.filter { !it.inUse }
-
     val nameStore by storePreferenceViewModel.nameStore.collectAsState()
     val addressStore by storePreferenceViewModel.addressStore.collectAsState()
     val cityStore by storePreferenceViewModel.cityStore.collectAsState()
+    val bluetoothAddress by storePreferenceViewModel.bluetoothAddress.collectAsState()
 
     var isSubmitting by remember { mutableStateOf(false) }
-
-    val bluetoothAddress by storePreferenceViewModel.bluetoothAddress.collectAsState()
     val context = LocalContext.current
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        sheetState = sheetState
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+        containerColor = Color.White
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 20.dp)
-                .padding(horizontal = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // Header
-            Text(
-                text = "Detail Pesanan",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
-            )
-
-            // Informasi Pesanan
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OrderInfo(label = "Nama Pelanggan", value = order.customerName ?: "-")
-                OrderInfo(
-                    label = "Layanan",
-                    value = "${order.serviceName ?: "-"} (${if (order.sizeMachine) "Mesin Besar" else "Mesin Kecil"})"
+            // --- HEADER ---
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
                 )
-                OrderInfo(
-                    label = "Harga & Pembayaran",
-                    value = "${formatRupiah(order.price ?: "0")} • ${order.typePayment ?: "-"}"
+                Text(
+                    text = "Aktivasi Mesin",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
                 )
             }
 
-            HorizontalDivider()
+            // --- RINGKASAN ORDER (Visual Card) ---
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OrderInfoRow(label = "Pelanggan", value = order.customerName ?: "-")
+                    OrderInfoRow(
+                        label = "Layanan",
+                        value = order.serviceName ?: "-",
+                        isHighlighted = true
+                    )
+                    OrderInfoRow(
+                        label = "Kapasitas",
+                        value = if (order.sizeMachine) "Mesin Besar" else "Mesin Kecil"
+                    )
+                    OrderInfoRow(
+                        label = "Total",
+                        value = "${formatRupiah(order.price ?: "0")} (${order.typePayment})"
+                    )
+                }
+            }
 
-            // Dropdown mesin
+            // --- PEMILIHAN MESIN ---
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    text = "Pilih Mesin yang Tersedia",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "Pilih Unit Mesin",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
                 )
 
                 MachineDropdown(
@@ -121,23 +142,32 @@ fun OrderBottomSheetInformation(
                 )
 
                 if (availableMachines.isEmpty()) {
-                    Text(
-                        text = "Semua mesin sedang digunakan.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
+                    Surface(
+                        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = "Maaf, semua mesin kapasitas ini sedang penuh.",
+                            modifier = Modifier.padding(8.dp),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             }
 
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // --- ACTION BUTTONS ---
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                // Tombol Print Nota
                 OutlinedButton(
                     onClick = {
                         val printer = BluetoothPrinter()
-                        val stat = printer.printLaundryReceipt(
+                        val success = printer.printLaundryReceipt(
                             context = context,
                             address = bluetoothAddress,
                             storeName = nameStore.orEmpty(),
@@ -147,28 +177,17 @@ fun OrderBottomSheetInformation(
                             customerName = order.customerName.orEmpty(),
                             paymentMethod = order.typePayment.orEmpty()
                         )
-                        if (!stat){
-                            Toast.makeText(context, "Gagal Mencetak", Toast.LENGTH_SHORT).show()
+                        if (!success) {
+                            Toast.makeText(context, "Gagal Mencetak! Periksa Bluetooth Printer.", Toast.LENGTH_SHORT).show()
                         }
                     },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp), // penting untuk bentuk bulat proporsional
-                    shape = CircleShape,
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                    modifier = Modifier.weight(0.4f).height(52.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Print,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text("Nota")
+                    Icon(Icons.Default.Print, contentDescription = null, modifier = Modifier.size(20.dp))
                 }
 
+                // Tombol Mulai (Bluetooth Command)
                 Button(
                     onClick = {
                         if (!isSubmitting) {
@@ -179,28 +198,36 @@ fun OrderBottomSheetInformation(
                             }
                         }
                     },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp),
-                    enabled = !isSubmitting && selectedMachine != null, // ⬅️ Perubahan di sini
+                    modifier = Modifier.weight(0.6f).height(52.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    enabled = !isSubmitting && selectedMachine != null,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (selectedMachine != null) MaterialTheme.colorScheme.primary else Color.Gray
+                    )
                 ) {
                     if (isSubmitting) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            CircularProgressIndicator(
-                                color = Color.White,
-                                strokeWidth = 2.dp,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Text("Memproses...")
-                        }
+                        CircularProgressIndicator(color = Color.White, strokeWidth = 2.dp, modifier = Modifier.size(20.dp))
                     } else {
-                        Text("Mulai")
+                        Text("Aktifkan Mesin", fontWeight = FontWeight.Bold)
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun OrderInfoRow(label: String, value: String, isHighlighted: Boolean = false) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = label, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = if (isHighlighted) FontWeight.Bold else FontWeight.Medium,
+            color = if (isHighlighted) MaterialTheme.colorScheme.primary else Color.Unspecified
+        )
     }
 }

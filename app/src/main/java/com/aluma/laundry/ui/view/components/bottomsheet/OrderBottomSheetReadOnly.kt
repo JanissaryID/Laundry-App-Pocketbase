@@ -12,34 +12,35 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudDone
+import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.Print
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.bluetooth.BluetoothPrinter
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
-import com.aluma.laundry.data.machine.local.MachineLocalViewModel
-import com.aluma.laundry.data.machine.model.MachineLocal
 import com.aluma.laundry.data.order.model.OrderLocal
-import com.aluma.laundry.ui.view.components.OrderInfo
+import com.aluma.laundry.data.order.utils.SyncStatus
 import com.aluma.laundry.utils.formatRupiah
 import org.koin.compose.koinInject
 
@@ -47,59 +48,117 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderBottomSheetReadOnly(
-    machineLocalViewModel: MachineLocalViewModel = koinInject(),
     storePreferenceViewModel: StorePreferenceViewModel = koinInject(),
     order: OrderLocal,
     onDismissRequest: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val machines by machineLocalViewModel.machineFilter.collectAsState()
-    var selectedMachine by remember { mutableStateOf<MachineLocal?>(null) }
-
-    val availableMachines = machines.filter { !it.inUse }
 
     val nameStore by storePreferenceViewModel.nameStore.collectAsState()
     val addressStore by storePreferenceViewModel.addressStore.collectAsState()
     val cityStore by storePreferenceViewModel.cityStore.collectAsState()
-
-    var isSubmitting by remember { mutableStateOf(false) }
-
     val bluetoothAddress by storePreferenceViewModel.bluetoothAddress.collectAsState()
+
     val context = LocalContext.current
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        sheetState = sheetState
+        sheetState = sheetState,
+        containerColor = Color.White,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 20.dp)
-                .padding(horizontal = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // Header
-            Text(
-                text = "Detail Pesanan",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
-            )
+            // --- HEADER ---
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Detail Transaksi",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
 
-            // Informasi Pesanan
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OrderInfo(label = "Nama Pelanggan", value = order.customerName ?: "-")
-                OrderInfo(
-                    label = "Layanan",
-                    value = "${order.serviceName ?: "-"} (${if (order.sizeMachine) "Mesin Besar" else "Mesin Kecil"})"
-                )
-                OrderInfo(
-                    label = "Harga & Pembayaran",
-                    value = "${formatRupiah(order.price ?: "0")} • ${order.typePayment ?: "-"}"
-                )
+                // Indikator Sinkronisasi (Opsional)
+                val isSynced = order.syncStatus == SyncStatus.SYNCED
+                Surface(
+                    color = (if (isSynced) Color(0xFF4CAF50) else Color(0xFFFFA000)).copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = if (isSynced) Icons.Default.CloudDone else Icons.Default.CloudSync,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = if (isSynced) Color(0xFF4CAF50) else Color(0xFFFFA000)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = if (isSynced) "Terdata" else "Tertunda",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (isSynced) Color(0xFF4CAF50) else Color(0xFFFFA000)
+                        )
+                    }
+                }
             }
 
+            // --- INFO BOX (Gaya Struk) ---
+            Surface(
+                color = Color(0xFFFBFBFB),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, Color(0xFFEEEEEE))
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OrderInfoRow(label = "ID Order", value = "#${order.id ?: "N/A"}")
+                    OrderInfoRow(label = "Tanggal", value = order.date ?: "-")
+
+                    HorizontalDivider(thickness = 1.dp, color = Color(0xFFEEEEEE))
+
+                    OrderInfoRow(label = "Pelanggan", value = order.customerName ?: "-")
+                    OrderInfoRow(
+                        label = "Layanan",
+                        value = "${order.serviceName} (${if (order.sizeMachine) "Besar" else "Kecil"})",
+                        isHighlighted = true
+                    )
+                    OrderInfoRow(label = "Pembayaran", value = order.typePayment ?: "-")
+
+                    HorizontalDivider(thickness = 1.dp, color = Color(0xFFEEEEEE))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "TOTAL",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                        Text(
+                            text = formatRupiah(order.price ?: "0"),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+
+            // --- ACTION BUTTONS ---
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedButton(
@@ -115,38 +174,22 @@ fun OrderBottomSheetReadOnly(
                             customerName = order.customerName.orEmpty(),
                             paymentMethod = order.typePayment.orEmpty()
                         )
-                        if (!stat){
-                            Toast.makeText(context, "Gagal Mencetak", Toast.LENGTH_SHORT).show()
-                        }
+                        if (!stat) Toast.makeText(context, "Printer Gagal", Toast.LENGTH_SHORT).show()
                     },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp), // penting untuk bentuk bulat proporsional
-                    shape = CircleShape,
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                    modifier = Modifier.weight(1f).height(52.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Print,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
+                    Icon(Icons.Default.Print, null, modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Nota")
+                    Text("Cetak Nota")
                 }
 
                 Button(
-                    onClick = {
-                        onDismissRequest()
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp),
-                    enabled = true
+                    onClick = onDismissRequest,
+                    modifier = Modifier.weight(1f).height(52.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Tutup")
+                    Text("Selesai", fontWeight = FontWeight.Bold)
                 }
             }
         }
