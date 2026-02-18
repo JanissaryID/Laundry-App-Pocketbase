@@ -1,12 +1,10 @@
 package com.aluma.owner.ui.view.components.itemscard
 
-import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,12 +21,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -43,133 +41,97 @@ fun ItemStoreCardOwner(
     isSelected: Boolean = false,
     onClick: () -> Unit = {}
 ) {
-    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
-
     val today = LocalDate.now()
-
     val incomeToday = todayIncome.firstOrNull {
-        val incomeDate = runCatching {
-            LocalDate.parse(it.second.take(10)) // ambil hanya "yyyy-MM-dd"
-        }.getOrNull()
-
+        val incomeDate = runCatching { LocalDate.parse(it.second.take(10)) }.getOrNull()
         it.first == store.id && incomeDate == today
     }?.third ?: "0"
 
-    Log.d("IncomeRepo", "✅ Total : $todayIncome")
+    // Animasi warna latar belakang jika dipilih
+    val containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f) else Color.White
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
 
     Card(
-        modifier = Modifier.width(280.dp)
-                .height(150.dp)
-                .fillMaxWidth()
-                .border(
-            width = 2.dp,
-            color = borderColor,
-            shape = RoundedCornerShape(20.dp)
-        ),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        modifier = Modifier
+            .width(260.dp) // Ukuran sedikit lebih ramping agar LazyRow lebih cantik
+            .height(160.dp)
+            .border(width = 2.dp, color = borderColor, shape = RoundedCornerShape(24.dp)),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isSelected) 0.dp else 2.dp),
         onClick = onClick,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-
-            // 🔷 Store Name + Icon
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .background(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                            shape = CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = store.storeName.orEmpty(),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.LocationOn, null, tint = Color.Gray, modifier = Modifier.size(12.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = store.city.orEmpty(),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    }
+                }
+
+                // Badge Status
+                Surface(
+                    shape = CircleShape,
+                    color = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFFF0F0F0),
+                    modifier = Modifier.size(32.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Store,
-                        contentDescription = "Store Icon",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(18.dp)
+                        contentDescription = null,
+                        tint = if (isSelected) Color.White else Color.Gray,
+                        modifier = Modifier.padding(8.dp)
                     )
                 }
+            }
 
+            Column {
                 Text(
-                    text = store.storeName.orEmpty(),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.Black
-                    ),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    text = "Pendapatan Hari Ini",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Gray
+                )
+                Text(
+                    text = incomeToday.formatToRupiah(),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
-            // 🟢 Address + City
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = "Location Icon",
-                    tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(14.dp)
-                )
+            // Indikator kecil di bawah
+            if (isSelected) {
                 Text(
-                    text = "${store.address.orEmpty()}, ${store.city.orEmpty()}",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = Color.Gray,
-                        fontWeight = FontWeight.Normal
-                    ),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    text = "Terpilih",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
                 )
-            }
-
-            // 🟡 Pendapatan Hari Ini
-            Text(
-                text = "Pendapatan hari ini:",
-                style = MaterialTheme.typography.labelMedium.copy(
-                    color = Color.DarkGray,
-                    fontWeight = FontWeight.Normal
-                )
-            )
-
-            Text(
-                text = incomeToday.formatToRupiah(),
-                style = MaterialTheme.typography.titleSmall.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            )
-
-            // 🔸 UX Hint
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.TouchApp,
-                    contentDescription = "Touch Icon",
-                    tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(14.dp)
-                )
-                Text(
-                    text = "Klik untuk info lengkap",
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontStyle = FontStyle.Italic,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                )
+            } else {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.TouchApp, null, tint = Color.LightGray, modifier = Modifier.size(12.dp))
+                    Text(" Tap untuk detail", style = MaterialTheme.typography.labelSmall, color = Color.LightGray)
+                }
             }
         }
     }
 }
-

@@ -1,6 +1,7 @@
 package com.aluma.owner.ui.view.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,9 +9,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.LocalLaundryService
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -25,7 +31,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,6 +52,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.aluma.owner.data.user.remote.UserRemoteViewModel
 import kotlinx.coroutines.launch
@@ -71,46 +80,71 @@ fun ScreenLogin(
 
     LaunchedEffect(showSnackbar) {
         if (showSnackbar) {
-            snackbarHostState.showSnackbar("Login berhasil", duration = SnackbarDuration.Short)
+            snackbarHostState.showSnackbar("Selamat Datang Kembali!", duration = SnackbarDuration.Short)
             showSnackbar = false
             onSuccess()
         }
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Color.White
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 32.dp)
+                .verticalScroll(rememberScrollState()), // Tambahkan scroll agar aman di layar kecil
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.Lock,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp).padding(bottom = 16.dp),
-                tint = MaterialTheme.colorScheme.primary
+            // --- BAGIAN HEADER / LOGO ---
+            Surface(
+                modifier = Modifier.size(100.dp),
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Default.LocalLaundryService, // Ikon lebih relevan
+                        contentDescription = null,
+                        modifier = Modifier.size(48.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Aluma Owner",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color(0xFF2D3142)
             )
 
             Text(
-                text = "Masuk",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 32.dp)
+                text = "Kelola bisnis laundry Anda lebih mudah",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray,
+                textAlign = TextAlign.Center
             )
 
+            Spacer(modifier = Modifier.height(48.dp))
+
+            // --- INPUT EMAIL ---
             OutlinedTextField(
                 value = email,
                 onValueChange = userRemoteViewModel::onEmailChange,
-                label = { Text("Email") },
+                label = { Text("Email Bisnis") },
+                leadingIcon = { Icon(Icons.Default.Email, null, modifier = Modifier.size(20.dp)) },
                 isError = !isEmailValid && email.isNotBlank(),
                 supportingText = {
-                    if (!isEmailValid && email.isNotBlank()) Text("Email tidak valid")
+                    if (!isEmailValid && email.isNotBlank()) Text("Format email salah")
                 },
                 modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Email,
@@ -123,49 +157,43 @@ fun ScreenLogin(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // --- INPUT PASSWORD ---
             OutlinedTextField(
                 value = password,
                 onValueChange = userRemoteViewModel::onPasswordChange,
                 label = { Text("Password") },
+                leadingIcon = { Icon(Icons.Default.Lock, null, modifier = Modifier.size(20.dp)) },
                 isError = !isPasswordValid && password.isNotBlank(),
                 supportingText = {
                     if (!isPasswordValid && password.isNotBlank()) Text("Minimal 6 karakter")
                 },
                 modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
                 singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        if (isFormValid && !isLoading) {
-                            userRemoteViewModel.login(
-                                onSuccess = { showSnackbar = true },
-                                onError = { errorMsg ->
-                                    coroutineScope.launch {
-                                        snackbarHostState.showSnackbar(errorMsg)
-                                    }
-                                }
-                            )
-                        }
-                    }
-                ),
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
                             imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = if (passwordVisible) "Sembunyikan" else "Tampilkan"
+                            contentDescription = null
                         )
                     }
-                }
+                },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = { focusManager.clearFocus() }
+                )
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
+            // --- TOMBOL LOGIN ---
             Button(
                 onClick = {
+                    focusManager.clearFocus()
                     userRemoteViewModel.login(
                         onSuccess = { showSnackbar = true },
                         onError = { errorMsg ->
@@ -177,18 +205,34 @@ fun ScreenLogin(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
+                    .height(56.dp),
+                shape = RoundedCornerShape(16.dp),
                 enabled = isFormValid && !isLoading
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(24.dp),
                         color = Color.White,
                         strokeWidth = 2.dp
                     )
                 } else {
-                    Text("Login")
+                    Text(
+                        "Masuk Sekarang",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Link Tambahan (Lupa Password / Daftar)
+            TextButton(onClick = { /* Navigasi ke Lupa Password */ }) {
+                Text(
+                    "Lupa Password?",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
         }
     }

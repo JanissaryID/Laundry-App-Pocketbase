@@ -1,7 +1,6 @@
 package com.aluma.owner.ui.view.screens
 
-import android.annotation.SuppressLint
-import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -24,74 +23,92 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun ScreenLoading(
-    message: String = "Tunggu Sebentar",
+    message: String = "Memuat data...",
     isFullScreen: Boolean = true,
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
+    modifier: Modifier = Modifier
 ) {
-    val transition = rememberInfiniteTransition(label = "loading-fade")
+    // Animasi Infinite untuk transisi yang halus
+    val transition = rememberInfiniteTransition(label = "loading_anim")
+
+    // Animasi Alpha (Transparansi)
     val alphaAnim by transition.animateFloat(
-        initialValue = 0.4f,
+        initialValue = 0.5f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000, easing = LinearEasing),
+            animation = tween(800, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "alpha"
     )
 
-    val backgroundColor = if (isFullScreen)
-        MaterialTheme.colorScheme.background
-    else
-        Color.Transparent
-
-    val contentModifier = if (isFullScreen)
-        modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-    else modifier
+    // Animasi Skala (Biar detak jantung/pulsing)
+    val scaleAnim by transition.animateFloat(
+        initialValue = 0.95f,
+        targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "scale"
+    )
 
     Box(
-        modifier = contentModifier,
+        modifier = if (isFullScreen) modifier.fillMaxSize().background(MaterialTheme.colorScheme.background) else modifier,
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
-                .padding(24.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(
-                    color = if (!isFullScreen)
-                        MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
-                    else Color.Transparent
+                .graphicsLayer(scaleX = scaleAnim, scaleY = scaleAnim) // Efek pulsing halus
+                .padding(32.dp)
+                .then(
+                    if (!isFullScreen) {
+                        Modifier
+                            .shadow(8.dp, RoundedCornerShape(24.dp))
+                            .background(Color.White, RoundedCornerShape(24.dp))
+                            .padding(32.dp)
+                    } else Modifier
                 )
-                .padding(24.dp)
         ) {
+            // Indikator utama dengan warna brand
             CircularProgressIndicator(
                 color = MaterialTheme.colorScheme.primary.copy(alpha = alphaAnim),
-                strokeWidth = 4.dp,
-                modifier = Modifier.size(48.dp)
+                strokeWidth = 5.dp,
+                modifier = Modifier.size(56.dp),
+                strokeCap = StrokeCap.Round // Membuat ujung loading melengkung (lebih modern)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Text(
                 text = message,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Medium
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.5.sp
                 ),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                 textAlign = TextAlign.Center
+            )
+
+            // Tambahan opsional: Teks kecil di bawahnya
+            Text(
+                text = "Pastikan koneksi internet stabil",
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.LightGray,
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
     }
 }
-

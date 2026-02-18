@@ -1,9 +1,11 @@
 package com.aluma.owner.ui.view.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,7 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -26,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -46,8 +52,9 @@ import com.aluma.owner.data.store.local.StoreLocalViewModel
 import com.aluma.owner.data.store.remote.StoreRemoteViewModel
 import com.aluma.owner.ui.view.components.ChartIncome
 import com.aluma.owner.ui.view.components.ConfirmDialog
-import com.aluma.owner.ui.view.components.itemscard.ItemInfoCard
+import com.aluma.owner.ui.view.components.itemscard.ItemStatBox
 import com.aluma.owner.ui.view.components.itemscard.ItemStoreCardOwner
+import com.aluma.owner.ui.view.components.itemscard.MenuCard
 import org.koin.compose.koinInject
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -71,10 +78,9 @@ fun ScreenHomeOwner(
     val storeList by storeLocalViewModel.stores.collectAsState()
     val selectedStoreIndex by storeLocalViewModel.selectedStoreIndex.collectAsState()
     val selectedStore = storeList.getOrNull(selectedStoreIndex)
+
     val locale = Locale.Builder().setLanguage("id").setRegion("ID").build()
-    val currentMonthName = LocalDate.now()
-        .month
-        .getDisplayName(TextStyle.FULL, locale)
+    val currentMonthName = LocalDate.now().month.getDisplayName(TextStyle.FULL, locale)
 
     var showDialog by remember { mutableStateOf(false) }
 
@@ -83,57 +89,73 @@ fun ScreenHomeOwner(
     val orderByStore by orderRemoteViewModel.orderRemoteStore.collectAsState()
     val incomeStore by incomeRemoteViewModel.incomeRemoteStore.collectAsState()
 
+    // Sync data saat store berubah
     LaunchedEffect(selectedStore?.id) {
         selectedStore?.let { store ->
-            logMachineRemoteViewModel.setStoreName(store.storeName)
-            logMachineRemoteViewModel.setStoreAddress(store.address)
-
-            machineRemoteViewModel.fetchMachine(store.id)
-            machineRemoteViewModel.setStoreId(store.id)
-
-            serviceRemoteViewModel.fetchServices(store.id)
-            serviceRemoteViewModel.setStoreId(store.id)
-
+            logMachineRemoteViewModel.apply {
+                setStoreName(store.storeName)
+                setStoreAddress(store.address)
+            }
+            machineRemoteViewModel.apply {
+                fetchMachine(store.id)
+                setStoreId(store.id)
+            }
+            serviceRemoteViewModel.apply {
+                fetchServices(store.id)
+                setStoreId(store.id)
+            }
             val today = LocalDate.now()
-            orderRemoteViewModel.fetchOrdersByDate(date = today, storeID = store.id)
-            orderRemoteViewModel.setStoreId(store.id)
-
-            incomeRemoteViewModel.fetchIncome(date = today.toString())
-            incomeRemoteViewModel.incomeStore() // ✅ Ini dipanggil ulang tiap ganti store
+            orderRemoteViewModel.apply {
+                fetchOrdersByDate(date = today, storeID = store.id)
+                setStoreId(store.id)
+            }
+            incomeRemoteViewModel.apply {
+                fetchIncome(date = today.toString())
+                incomeStore()
+            }
         }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Dashboard Owner", fontWeight = FontWeight.Bold) },
-                actions = {
-                    IconButton(onClick = {
-                        showDialog = true
-                    }) {
-                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout")
+                title = {
+                    Column {
+                        Text("Ringkasan Bisnis", style = MaterialTheme.typography.labelLarge, color = Color.Gray)
+                        Text("Halo, Owner!", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                     }
-                }
+                },
+                actions = {
+                    IconButton(onClick = { showDialog = true }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = "Logout",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
     ) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(0.dp)
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(rememberScrollState())
         ) {
+            // --- SECTION 1: PEMILIHAN STORE ---
             Text(
-                "Daftar Store Laundry",
+                "Cabang Laundry Anda",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
             )
-            Spacer(modifier = Modifier.height(8.dp))
 
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(storeList) { store ->
@@ -141,18 +163,9 @@ fun ScreenHomeOwner(
                         store = store,
                         isSelected = selectedStoreIndex == storeList.indexOf(store),
                         onClick = {
-                            val today = LocalDate.now()
-
-                            storeLocalViewModel.setSelectedStoreIndex(storeList.indexOf(store))
+                            val idx = storeList.indexOf(store)
+                            storeLocalViewModel.setSelectedStoreIndex(idx)
                             storeLocalViewModel.setSelectedStore(store)
-
-                            machineRemoteViewModel.fetchMachine(store.id)
-                            machineRemoteViewModel.setStoreId(store.id)
-                            serviceRemoteViewModel.fetchServices(store.id)
-                            orderRemoteViewModel.fetchOrdersByDate(date = today, storeID = store.id)
-                            orderRemoteViewModel.setStoreId(store.id)
-                            logMachineRemoteViewModel.setStoreName(store.storeName)
-                            logMachineRemoteViewModel.setStoreAddress(store.address)
                         },
                         todayIncome = incomeStore
                     )
@@ -162,78 +175,109 @@ fun ScreenHomeOwner(
             Spacer(modifier = Modifier.height(24.dp))
 
             if (selectedStore != null) {
+                // --- SECTION 2: STATS RINGKAS ---
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    ItemStatBox(
+                        title = "Order Hari Ini",
+                        value = "${orderByStore.size}",
+                        containerColor = Color(0xFFE8F0FE),
+                        contentColor = Color(0xFF1967D2),
+                        modifier = Modifier.weight(1f)
+                    )
+                    ItemStatBox(
+                        title = "Total Mesin",
+                        value = "${machineByStore.size}",
+                        containerColor = Color(0xFFE6F4EA),
+                        contentColor = Color(0xFF137333),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // --- SECTION 3: GRAFIK ---
                 Text(
-                    "Grafik Pendapatan ${selectedStore.storeName.orEmpty()} Bulan $currentMonthName",
+                    "Grafik Pendapatan $currentMonthName",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
 
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .height(200.dp),
-                    shape = RoundedCornerShape(20.dp),
+                        .padding(16.dp)
+                        .height(220.dp),
+                    shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp)
-                    ) {
+                    Box(modifier = Modifier.padding(16.dp)) {
                         ChartIncome(
                             storeId = selectedStore.id,
                             incomeList = incomeStore
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-                ItemInfoCard(
-                    title = "Daftar Order Hari Ini",
-                    count = orderByStore.size,
-                    icon = Icons.AutoMirrored.Filled.List,
-                    onClick = onListOrder
-                )
 
-                Spacer(modifier = Modifier.height(16.dp))
-                ItemInfoCard(
-                    title = "Daftar Service Laundry",
-                    count = serviceByStore.size,
-                    icon = Icons.Default.DryCleaning,
-                    onClick = onListService
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-                ItemInfoCard(
-                    title = "Daftar Mesin Laundry",
-                    count = machineByStore.size,
-                    icon = Icons.Default.LocalLaundryService,
-                    onClick = onListMachine
-                )
-            } else {
+                // --- SECTION 4: MENU MANAJEMEN ---
                 Text(
-                    "Belum ada store yang tersedia.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray,
-                    modifier = Modifier.padding(16.dp)
+                    "Kelola Operasional",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 )
+
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    MenuCard(
+                        title = "Daftar Antrean Order",
+                        subtitle = "Pantau status cucian pelanggan",
+                        icon = Icons.AutoMirrored.Filled.List,
+                        color = Color(0xFF673AB7),
+                        onClick = onListOrder
+                    )
+                    MenuCard(
+                        title = "Layanan & Harga",
+                        subtitle = "Atur paket laundry anda",
+                        icon = Icons.Default.DryCleaning,
+                        color = Color(0xFFFF9800),
+                        onClick = onListService
+                    )
+                    MenuCard(
+                        title = "Monitoring Mesin",
+                        subtitle = "Cek kondisi mesin aktif",
+                        icon = Icons.Default.LocalLaundryService,
+                        color = Color(0xFF00BCD4),
+                        onClick = onListMachine
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+            } else {
+                // Tampilan jika store kosong
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Belum ada store terpilih", color = Color.Gray)
+                }
             }
         }
     }
 
     if (showDialog) {
         ConfirmDialog(
-            title = "Keluar?",
-            message = "Apakah anda yakin ingin Keluar?\n\nData di akun ini akan hilang!",
+            title = "Keluar Aplikasi",
+            message = "Apakah anda yakin ingin keluar? Anda perlu login kembali untuk mengakses data.",
             onDismiss = { showDialog = false },
-            onConfirm = {
-                onLogout()
-            }
+            onConfirm = { onLogout() }
         )
     }
 }
-
-

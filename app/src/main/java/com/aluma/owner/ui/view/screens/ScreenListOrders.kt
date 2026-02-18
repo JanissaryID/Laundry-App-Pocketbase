@@ -1,32 +1,41 @@
 package com.aluma.owner.ui.view.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.FileDownload
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
@@ -38,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -52,6 +62,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,7 +73,6 @@ fun ScreenListOrders(
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
-
     val orders by orderRemoteViewModel.orderRemoteStore.collectAsState()
     val logMachine by logMachineRemoteViewModel.logMachineRemote.collectAsState()
     val storeID by orderRemoteViewModel.storeId.collectAsState()
@@ -77,59 +87,46 @@ fun ScreenListOrders(
     } ?: LocalDate.now()
 
     val formattedDateTitle = remember(selectedDate) {
-        selectedDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
-    }
-
-    val totalOrder = orders.size
-    val totalIncome = orders.sumOf { it.price?.toInt() ?: 0 }
-    val formattedIncome = remember(totalIncome) {
-        totalIncome.formatToRupiah()
+        selectedDate.format(DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale("id", "ID")))
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Order $formattedDateTitle") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    titleContentColor = MaterialTheme.colorScheme.primary
-                ),
+            CenterAlignedTopAppBar(
+                title = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("Riwayat Order", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(formattedDateTitle, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
                     }
                 },
                 actions = {
-                    IconButton(onClick = { showDatePicker = true }) {
-                        Icon(Icons.Filled.CalendarToday, contentDescription = "Pilih Tanggal")
+                    Surface(
+                        onClick = { showDatePicker = true },
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Filled.CalendarToday, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary)
+                            Spacer(Modifier.width(4.dp))
+                            Text("Pilih", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                        }
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
             )
         },
-        bottomBar = {
-            BottomAppBar(
-                containerColor = MaterialTheme.colorScheme.background,
-                tonalElevation = 4.dp
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                        .weight(1f)
-                ) {
-                    Text(
-                        text = "Total Order: $totalOrder",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(
-                        text = "Pendapatan: $formattedIncome",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF4CAF50)
-                        )
-                    )
-                }
-
-                Button(
-                    enabled = orders.isNotEmpty(),
+        floatingActionButton = {
+            if (orders.isNotEmpty()) {
+                ExtendedFloatingActionButton(
                     onClick = {
                         excelPOIViewModel.createExcelReport(
                             orderList = orders,
@@ -138,21 +135,15 @@ fun ScreenListOrders(
                             storeName = storeName.orEmpty(),
                             date = formattedDateTitle
                         ) { success ->
-                            Toast.makeText(
-                                context,
-                                if (success) "Berhasil mengekspor laporan Excel" else "Gagal ekspor laporan",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(context, if (success) "Laporan Excel berhasil diunduh" else "Gagal ekspor", Toast.LENGTH_SHORT).show()
                         }
                     },
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                        .align(Alignment.CenterVertically)
-                ) {
-                    Icon(Icons.Filled.FileDownload, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Download")
-                }
+                    icon = { Icon(Icons.Filled.FileDownload, null) },
+                    text = { Text("Ekspor Excel") },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(16.dp)
+                )
             }
         }
     ) { innerPadding ->
@@ -160,20 +151,43 @@ fun ScreenListOrders(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
+                .background(Color(0xFFF8F9FA)) // Background soft gray
         ) {
-            if (orders.isEmpty()) {
-                EmptyState(
-                    title = "Belum ada Order",
-                    message = "Tambahkan order,\ndi screen Home"
+            // --- SECTION SUMMARY (Baru) ---
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                SummaryMiniCard(
+                    label = "Total Order",
+                    value = "${orders.size}",
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.AutoMirrored.Filled.List
                 )
+                SummaryMiniCard(
+                    label = "Pendapatan",
+                    value = orders.sumOf { it.price?.toInt() ?: 0 }.formatToRupiah(),
+                    modifier = Modifier.weight(1.3f),
+                    icon = null,
+                    isSuccess = true
+                )
+            }
+
+            // --- SECTION LIST ---
+            if (orders.isEmpty()) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    EmptyState(
+                        title = "Tidak ada order",
+                        message = "Belum ada pesanan pada tanggal ini."
+                    )
+                }
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(vertical = 16.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 100.dp), // Extra padding for FAB
+                    modifier = Modifier.fillMaxSize()
                 ) {
                     items(orders) { order ->
                         ItemOrderCard(order = order)
@@ -183,32 +197,45 @@ fun ScreenListOrders(
         }
     }
 
-    // Date Picker Dialog
     if (showDatePicker) {
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDatePicker = false
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            val date = Instant.ofEpochMilli(millis)
-                                .atZone(ZoneId.systemDefault()).toLocalDate()
-                            orderRemoteViewModel.fetchOrdersByDate(date, storeID.orEmpty())
-                            logMachineRemoteViewModel.fetchLogMachinesByDate(date, storeID.orEmpty())
-                        }
+                TextButton(onClick = {
+                    showDatePicker = false
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        val date = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
+                        orderRemoteViewModel.fetchOrdersByDate(date, storeID.orEmpty())
+                        logMachineRemoteViewModel.fetchLogMachinesByDate(date, storeID.orEmpty())
                     }
-                ) {
-                    Text("OK")
-                }
+                }) { Text("Konfirmasi", fontWeight = FontWeight.Bold) }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text("Batal")
-                }
+                TextButton(onClick = { showDatePicker = false }) { Text("Batal") }
             }
         ) {
             DatePicker(state = datePickerState)
+        }
+    }
+}
+
+@Composable
+fun SummaryMiniCard(label: String, value: String, modifier: Modifier, icon: ImageVector?, isSuccess: Boolean = false) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Column(Modifier.padding(12.dp)) {
+            Text(label, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                value,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = if (isSuccess) Color(0xFF2E7D32) else Color.Black
+            )
         }
     }
 }

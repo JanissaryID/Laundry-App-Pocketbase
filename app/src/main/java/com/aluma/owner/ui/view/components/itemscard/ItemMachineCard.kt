@@ -1,7 +1,6 @@
 package com.aluma.owner.ui.view.components.itemscard
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,8 +10,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.WaterDrop
@@ -34,83 +35,89 @@ fun ItemMachineCard(
     machine: MachineRemote,
     onClick: () -> Unit = {}
 ) {
-    val shape = RoundedCornerShape(12.dp)
-    val machineTypeLabel = if (machine.typeMachine) "Pengering" else "Cuci"
-    val machineSizeLabel = if (machine.sizeMachine) "BESAR" else "KECIL"
+    val machineTypeLabel = if (machine.typeMachine) "Pengering" else "Pencuci"
+    val machineSizeLabel = if (machine.sizeMachine) "Kapasitas Besar" else "Kapasitas Standar"
 
-    val typeColor = if (machine.typeMachine) Color(0xFFFFF3E0) else Color(0xFFE3F2FD)
-    val typeTextColor = if (machine.typeMachine) Color(0xFFEF6C00) else Color(0xFF1976D2)
-
-    val sizeColor = if (machine.sizeMachine) Color(0xFFF3E5F5) else Color(0xFFF5F5F5)
-    val sizeTextColor = if (machine.sizeMachine) Color(0xFF6A1B9A) else Color(0xFF607D8B)
+    // Warna berdasarkan tipe (Pencuci = Biru, Pengering = Oranye/Merah Muda)
+    val typeColor = if (machine.typeMachine) Color(0xFFFF9800) else Color(0xFF2196F3)
+    val typeBg = typeColor.copy(alpha = 0.1f)
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        modifier = Modifier
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp), // Konsisten dengan card lain yang kita buat
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         onClick = onClick,
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-
-            // Header: Jenis & Ukuran Mesin
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = if (machine.typeMachine) Icons.Default.LocalFireDepartment else Icons.Default.WaterDrop,
-                        contentDescription = null,
-                        tint = typeTextColor,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Mesin $machineTypeLabel #${machine.numberMachine}",
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .background(sizeColor, shape = RoundedCornerShape(6.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = machineSizeLabel,
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Medium,
-                            color = sizeTextColor
-                        )
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Timer
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Sisi Kiri: Ikon Mesin dalam Lingkaran
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(typeBg, CircleShape),
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Timer,
+                    imageVector = if (machine.typeMachine) Icons.Default.LocalFireDepartment else Icons.Default.WaterDrop,
                     contentDescription = null,
-                    tint = Color.Gray,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "${machine.timer} Menit",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Gray
-                    )
+                    tint = typeColor,
+                    modifier = Modifier.size(28.dp)
                 )
             }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Tengah: Informasi Mesin
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Mesin $machineTypeLabel",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color.Gray
+                )
+                Text(
+                    text = "Nomor Seri #${machine.numberMachine}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF2D3142)
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Kapasitas & Durasi dalam Row kecil
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.Timer,
+                        null,
+                        modifier = Modifier.size(14.dp),
+                        tint = Color.LightGray
+                    )
+                    Text(
+                        text = " ${machine.timer} mnt",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "•  $machineSizeLabel",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (machine.sizeMachine) Color(0xFF6A1B9A) else Color.Gray,
+                        fontWeight = if (machine.sizeMachine) FontWeight.Bold else FontWeight.Normal
+                    )
+                }
+            }
+
+            // Sisi Kanan: Indikator Panah (UX Hint)
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = Color.LightGray
+            )
         }
     }
 }
