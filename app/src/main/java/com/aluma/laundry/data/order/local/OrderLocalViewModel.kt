@@ -213,7 +213,7 @@ class OrderLocalViewModel(
                 orderRemoteRepository.createOrder(order.toRemoteModel())
                 repo.updateSyncStatusOnly(order.id,SyncStatus.SYNCED)
 
-                total += order.price!!.toIntOrNull() ?: 0
+                total += order.price?.toIntOrNull() ?: 0
 
                 Log.d("SyncChecker", "✅ Synced order ${order.id}")
             } catch (e: CancellationException) {
