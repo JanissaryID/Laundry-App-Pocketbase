@@ -13,4 +13,5 @@ data class OrderRemote(
     val typePayment: String? = null,
     val user: String? = null,
     val store: String? = null,
+    val date: String? = null,
 ) : Record()

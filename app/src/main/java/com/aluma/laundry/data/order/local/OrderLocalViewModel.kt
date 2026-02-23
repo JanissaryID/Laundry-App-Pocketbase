@@ -14,6 +14,7 @@ import com.aluma.laundry.data.order.model.OrderLocal
 import com.aluma.laundry.data.order.model.OrderRemote
 import com.aluma.laundry.data.order.remote.OrderRemoteRepository
 import com.aluma.laundry.data.order.utils.SyncStatus
+import com.aluma.laundry.workmanager.SyncUtils
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
 import io.github.agrevster.pocketbaseKotlin.dsl.login
@@ -73,6 +74,7 @@ class OrderLocalViewModel(
 
     fun addOrder(orderLocal: OrderLocal) = viewModelScope.launch {
         repo.addOrder(orderLocal)
+        SyncUtils.enqueueSync(storePreferences.context)
     }
 
     fun deleteOrder(orderLocal: OrderLocal) = viewModelScope.launch {
@@ -219,29 +221,34 @@ class OrderLocalViewModel(
             } catch (e: Exception) {
                 repo.updateSyncStatusOnly(order.id,SyncStatus.FAILED)
                 Log.e("SyncChecker", "❌ Failed to sync order ${order.id}", e)
+                SyncUtils.enqueueSync(context = storePreferences.context)
             }
         }
 
-        val today = LocalDate.now().toString()
-        try {
-            val incomes = incomeRemoteRepository.getIncomeByDate(storeId = _storeID.value.orEmpty(), date = today)
-            if (total > 0) {
-                val incomeRemote = IncomeRemote(
-                    store = _storeID.value.orEmpty(),
-                    user = _userID.value.orEmpty(),
-                    date = today,
-                    total = total.toString()
-                )
+        val ordersByDate = pendingOrders.groupBy { it.date?.take(10) ?: LocalDate.now().toString() }
 
-                if (incomes.isEmpty()) {
-                    incomeRemoteRepository.createIncome(incomeRemote)
-                } else {
-                    val totalNow = (incomes[0].total?.toIntOrNull() ?: 0) + total
-                    incomeRemoteRepository.updateIncome(incomeId = incomes[0].id.orEmpty(), income = totalNow.toString())
+        ordersByDate.forEach { (date, orders) ->
+            val dailyTotal = orders.sumOf { it.price?.toIntOrNull() ?: 0 }
+            if (dailyTotal > 0) {
+                try {
+                    val incomes = incomeRemoteRepository.getIncomeByDate(storeId = _storeID.value.orEmpty(), date = date)
+                    if (incomes.isEmpty()) {
+                        val incomeRemote = IncomeRemote(
+                            store = _storeID.value.orEmpty(),
+                            user = _userID.value.orEmpty(),
+                            date = date,
+                            total = dailyTotal.toString()
+                        )
+                        incomeRemoteRepository.createIncome(incomeRemote)
+                    } else {
+                        val currentTotal = incomes[0].total?.toIntOrNull() ?: 0
+                        val newTotal = currentTotal + dailyTotal
+                        incomeRemoteRepository.updateIncome(incomeId = incomes[0].id.orEmpty(), income = newTotal.toString())
+                    }
+                } catch (e: Exception) {
+                    Log.e("SyncChecker", "❌ Failed to update income for $date", e)
                 }
             }
-        } catch (e: Exception) {
-            Log.e("SyncChecker", "❌ Failed ", e)
         }
     }
 
@@ -260,6 +267,7 @@ class OrderLocalViewModel(
             } catch (e: Exception) {
                 logMachineLocalRepository.updateSyncStatusOnly(logMachine.id,SyncStatus.FAILED)
                 Log.e("SyncChecker", "❌ Failed to Log Machine order ${logMachine.id}", e)
+                SyncUtils.enqueueSync(context = storePreferences.context)
             }
         }
     }
@@ -282,7 +290,8 @@ fun OrderLocal.toRemoteModel(): OrderRemote {
         price = price,
         typePayment = typePayment,
         user = user,
-        store = store
+        store = store,
+        date = date
     )
 }
 
@@ -292,7 +301,8 @@ fun LogMachineLocal.toRemoteModel(): LogMachineRemote {
         typeMachine = typeMachine,
         sizeMachine = sizeMachine,
         user = user,
-        store = store
+        store = store,
+        date = date
     )
 }
 

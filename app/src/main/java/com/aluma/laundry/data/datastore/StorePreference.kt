@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 
 val Context.dataStore by preferencesDataStore(name = "store_prefs")
 
-class StorePreferences(private val context: Context) {
+class StorePreferences(val context: Context) {
 
     companion object {
         val KEY_EMAIL = stringPreferencesKey("email")

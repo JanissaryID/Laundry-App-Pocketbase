@@ -36,7 +36,7 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
         val userID = storePreferences.userIdUser.firstOrNull().orEmpty()
         if (token.isNullOrEmpty()) {
             Log.e("SyncWorker", "🔒 No valid token available, cannot sync")
-            return Result.retry()
+            return Result.failure()
         }
 
         // Coba login ke Pocketbase
@@ -60,8 +60,6 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
 
             // Kirim setiap order ke server
             coroutineScope {
-                var total = 0
-
                 pendingOrders.map { order ->
                     async {
                         try {
@@ -69,7 +67,6 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
                             Log.d("SyncWorker", "🔄 Syncing order ${order.id}")
                             orderRemoteRepository.createOrder(order.toRemoteModel())
                             orderRepository.updateSyncStatusOnly(order.id, SyncStatus.SYNCED)
-                            total += order.price?.toIntOrNull() ?: 0
                             Log.d("SyncWorker", "✅ Synced order ${order.id}")
                         } catch (e: io.github.agrevster.pocketbaseKotlin.PocketbaseException) {
                             orderRepository.updateSyncStatusOnly(order.id, SyncStatus.FAILED)
@@ -91,23 +88,32 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
                     cleanupJob.await()
                 }
 
-                val today = LocalDate.now().toString()
-                val incomes = incomeRemoteRepository.getIncomeByDate(storeId = storeID, date = today)
+                // Group orders by date for income calculation (yyyy-MM-dd)
+                val ordersByDate = pendingOrders.groupBy { it.date?.take(10) ?: LocalDate.now().toString() }
 
-                if (total > 0) {
-                    val incomeRemote = IncomeRemote(
-                        store = storeID,
-                        user = userID,
-                        date = today,
-                        total = total.toString()
-                    )
-
-                    if (incomes.isEmpty()) {
-                        incomeRemoteRepository.createIncome(incomeRemote)
-                        Log.d("SyncWorker", "➕ Created income for $today: Rp$total")
-                    } else {
-                        incomeRemoteRepository.updateIncome(incomeId = incomes[0].id.orEmpty(), income = total.toString())
-                        Log.d("SyncWorker", "🔄 Updated income for $today: Rp$total")
+                ordersByDate.forEach { (date, orders) ->
+                    val dailyTotal = orders.sumOf { it.price?.toIntOrNull() ?: 0 }
+                    if (dailyTotal > 0) {
+                        try {
+                            val existingIncomes = incomeRemoteRepository.getIncomeByDate(storeId = storeID, date = date)
+                            if (existingIncomes.isEmpty()) {
+                                val incomeRemote = IncomeRemote(
+                                    store = storeID,
+                                    user = userID,
+                                    date = date,
+                                    total = dailyTotal.toString()
+                                )
+                                incomeRemoteRepository.createIncome(incomeRemote)
+                                Log.d("SyncWorker", "➕ Created income for $date: Rp$dailyTotal")
+                            } else {
+                                val currentTotal = existingIncomes[0].total?.toIntOrNull() ?: 0
+                                val newTotal = currentTotal + dailyTotal
+                                incomeRemoteRepository.updateIncome(incomeId = existingIncomes[0].id.orEmpty(), income = newTotal.toString())
+                                Log.d("SyncWorker", "🔄 Updated income for $date: Rp$newTotal (added Rp$dailyTotal)")
+                            }
+                        } catch (e: Exception) {
+                            Log.e("SyncWorker", "❌ Failed to update income for $date", e)
+                        }
                     }
                 }
             }
