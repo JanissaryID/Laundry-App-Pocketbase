@@ -38,6 +38,9 @@
     <string name="store_not_found">Store Not Found</string>
     <string name="store_not_found_message">Your account is not connected to any store.\nContact Owner for branch access.</string>
     <string name="available_branches">Available Branches (%1$d)</string>
+    <string name="select_your_store">Select your store</string>
+    <string name="selected_store">Selected Store</string>
+    <string name="enter">Enter</string>
 
     <!-- ScreenSettings -->
     <string name="app_version">Version %1$s</string>

@@ -38,6 +38,9 @@
     <string name="store_not_found">Toko Tidak Ditemukan</string>
     <string name="store_not_found_message">Akun Anda belum terhubung ke toko manapun.\nHubungi Owner untuk akses cabang.</string>
     <string name="available_branches">Cabang Tersedia (%1$d)</string>
+    <string name="select_your_store">Pilih toko Anda</string>
+    <string name="selected_store">Toko Terpilih</string>
+    <string name="enter">Masuk</string>
 
     <!-- ScreenSettings -->
     <string name="app_version">Versi %1$s</string>

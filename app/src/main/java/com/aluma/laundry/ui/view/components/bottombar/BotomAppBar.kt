@@ -27,9 +27,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.data.store.model.StoreRemote
 
 @Composable
@@ -57,13 +59,13 @@ fun StoreBottomBar(
             Column(modifier = Modifier.weight(1f)) {
                 if (selectedStoreRemote == null) {
                     Text(
-                        text = "Pilih toko Anda",
+                        text = stringResource(id = R.string.select_your_store),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
                     Text(
-                        text = "Toko Terpilih",
+                        text = stringResource(id = R.string.selected_store),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
@@ -91,7 +93,7 @@ fun StoreBottomBar(
                     disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
                 )
             ) {
-                Text("Masuk", fontWeight = FontWeight.Bold)
+                Text(stringResource(id = R.string.enter), fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.width(8.dp))
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
