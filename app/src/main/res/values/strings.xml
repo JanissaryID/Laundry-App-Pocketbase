@@ -1,3 +1,103 @@
 <resources>
     <string name="app_name">Aluma Owner</string>
+    
+    <!-- Login Screen -->
+    <string name="login_welcome_back">Selamat Datang Kembali!</string>
+    <string name="login_title">Aluma Owner</string>
+    <string name="login_subtitle">Kelola bisnis laundry Anda lebih mudah</string>
+    <string name="login_label_email">Email Bisnis</string>
+    <string name="login_error_email_format">Format email salah</string>
+    <string name="login_label_password">Password</string>
+    <string name="login_error_password_min">Minimal 6 karakter</string>
+    <string name="login_button_enter">Masuk Sekarang</string>
+    <string name="login_link_forgot_password">Lupa Password?</string>
+    
+    <!-- Home Screen -->
+    <string name="home_top_bar_subtitle">Ringkasan Bisnis</string>
+    <string name="home_top_bar_title">Halo, Owner!</string>
+    <string name="home_section_stores">Cabang Laundry Anda</string>
+    <string name="home_stat_orders_today">Order Hari Ini</string>
+    <string name="home_stat_total_machines">Total Mesin</string>
+    <string name="home_section_income_chart">Grafik Pendapatan %1$s</string>
+    <string name="home_section_management">Kelola Operasional</string>
+    <string name="home_menu_orders_title">Daftar Antrean Order</string>
+    <string name="home_menu_orders_subtitle">Pantau status cucian pelanggan</string>
+    <string name="home_menu_services_title">Layanan & Harga</string>
+    <string name="home_menu_services_subtitle">Atur paket laundry anda</string>
+    <string name="home_menu_machines_title">Monitoring Mesin</string>
+    <string name="home_menu_machines_subtitle">Cek kondisi mesin aktif</string>
+    <string name="home_empty_store">Belum ada store terpilih</string>
+    <string name="dialog_logout_title">Keluar Aplikasi</string>
+    <string name="dialog_logout_message">Apakah anda yakin ingin keluar? Anda perlu login kembali untuk mengakses data.</string>
+    <string name="dialog_confirm_no">Tidak</string>
+    <string name="dialog_confirm_yes_delete">Ya, Hapus</string>
+    
+    <!-- Order List -->
+    <string name="order_list_title">Riwayat Order</string>
+    <string name="order_list_total_label">Total Order</string>
+    <string name="order_list_income_label">Pendapatan</string>
+    <string name="order_list_empty_title">Tidak ada order</string>
+    <string name="order_list_empty_message">Belum ada pesanan pada tanggal ini.</string>
+    <string name="order_list_date_button">Pilih</string>
+    <string name="order_list_export_button">Ekspor Excel</string>
+    <string name="order_list_confirm">Konfirmasi</string>
+    <string name="order_list_cancel">Batal</string>
+    
+    <!-- Service List -->
+    <string name="service_list_title">Layanan Laundry</string>
+    <string name="service_list_subtitle">Atur daftar harga dan paket</string>
+    <string name="service_list_add_button">Tambah Baru</string>
+    <string name="service_list_empty_title">Layanan Kosong</string>
+    <string name="service_list_empty_message">Anda belum memiliki daftar harga.\nKetuk tombol + untuk menambah.</string>
+    
+    <!-- Machine List -->
+    <string name="machine_list_title">Daftar Mesin</string>
+    <string name="machine_list_count">%1$d Mesin Terdaftar</string>
+    <string name="machine_list_empty_title">Belum Ada Mesin</string>
+    <string name="machine_list_empty_message">Data mesin akan muncul di sini.\nSilahkan hubungi tim pengembang.</string>
+    
+    <!-- Machine Bottom Sheet -->
+    <string name="machine_bs_timer_settings">Pengaturan Timer</string>
+    <string name="machine_bs_machine_title">Mesin %1$s #%2$s</string>
+    <string name="machine_bs_type_dryer">Pengering</string>
+    <string name="machine_bs_type_washer">Cuci</string>
+    <string name="machine_bs_label_duration">Durasi Operasional (Menit)</string>
+    <string name="machine_bs_placeholder_duration">0</string>
+    <string name="machine_bs_suffix_minutes">menit</string>
+    <string name="machine_bs_quick_add">Tambah Waktu Cepat:</string>
+    <string name="machine_bs_quick_add_val">+%1$d mnt</string>
+    <string name="machine_bs_button_update">Update Durasi Mesin</string>
+    
+    <!-- Service Bottom Sheet -->
+    <string name="service_bs_add_title">Tambah Layanan Baru</string>
+    <string name="service_bs_edit_title">Edit Detail Layanan</string>
+    <string name="service_bs_label_name">Nama Layanan (Contoh: Cuci Kering)</string>
+    <string name="service_bs_placeholder_name">Masukkan nama layanan</string>
+    <string name="service_bs_label_price">Harga</string>
+    <string name="service_bs_label_type">Tipe Layanan</string>
+    <string name="service_bs_label_capacity">Kapasitas Mesin</string>
+    <string name="service_bs_type_wash">Cuci</string>
+    <string name="service_bs_type_dry">Pengering</string>
+    <string name="service_bs_type_non_machine">Tanpa Mesin</string>
+    <string name="service_bs_capacity_standard">Standar</string>
+    <string name="service_bs_capacity_large">Besar</string>
+    <string name="service_bs_button_cancel">Batal</string>
+    <string name="service_bs_button_add">Tambah</string>
+    <string name="service_bs_button_save">Simpan</string>
+    
+    <!-- Item Cards -->
+    <string name="item_machine_label">Mesin %1$s</string>
+    <string name="item_machine_serial">Nomor Seri #%1$s</string>
+    <string name="item_machine_duration">%1$s mnt</string>
+    <string name="item_machine_capacity_large">Kapasitas Besar</string>
+    <string name="item_machine_capacity_standard">Kapasitas Standar</string>
+    <string name="item_order_machine_label">Gunakan Mesin</string>
+    <string name="item_order_total_label">Total Bayar</string>
+    <string name="item_store_income_today">Pendapatan Hari Ini</string>
+    <string name="item_store_selected">Terpilih</string>
+    <string name="item_store_tap_detail"> Tap untuk detail</string>
+    
+    <!-- Common -->
+    <string name="common_delete">Hapus</string>
+    <string name="common_back">Kembali</string>
 </resources>

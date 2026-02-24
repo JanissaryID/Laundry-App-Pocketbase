@@ -42,9 +42,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.aluma.owner.R
 import com.aluma.owner.data.service.model.ServiceRemote
 import com.aluma.owner.data.service.remote.ServiceRemoteViewModel
 import com.aluma.owner.data.store.local.StoreLocalViewModel
@@ -104,10 +106,10 @@ fun ServiceBottomSheet(
         ) {
             // Header
             Text(
-                text = if (service == null) "Tambah Layanan Baru" else "Edit Detail Layanan",
+                text = if (service == null) stringResource(R.string.service_bs_add_title) else stringResource(R.string.service_bs_edit_title),
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                fontWeight = FontWeight.ExtraBold,
+                color = Color(0xFF2D3142)
             )
 
             // Input Nama & Harga
@@ -115,8 +117,8 @@ fun ServiceBottomSheet(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it.toTitleCase() },
-                    label = { Text("Nama Layanan (Contoh: Cuci Kering)") },
-                    placeholder = { Text("Masukkan nama layanan") },
+                    label = { Text(stringResource(R.string.service_bs_label_name)) },
+                    placeholder = { Text(stringResource(R.string.service_bs_placeholder_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 )
@@ -124,7 +126,7 @@ fun ServiceBottomSheet(
                 OutlinedTextField(
                     value = priceRaw,
                     onValueChange = { if (it.all { char -> char.isDigit() }) priceRaw = it },
-                    label = { Text("Harga") },
+                    label = { Text(stringResource(R.string.service_bs_label_price)) },
                     prefix = { Text("Rp ", color = Color.Gray) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
@@ -134,29 +136,29 @@ fun ServiceBottomSheet(
 
             // Tipe Mesin
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                SectionTitle(title = "Tipe Layanan", icon = Icons.Default.Settings)
+                SectionTitle(title = stringResource(R.string.service_bs_label_type), icon = Icons.Default.Settings)
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    CustomFilterChip(selected = selectedCuci, label = "Cuci") { selectedCuci = !selectedCuci }
-                    CustomFilterChip(selected = selectedPengering, label = "Pengering") { selectedPengering = !selectedPengering }
-                    CustomFilterChip(selected = selectedNonMesin, label = "Tanpa Mesin") { selectedNonMesin = !selectedNonMesin }
+                    CustomFilterChip(selected = selectedCuci, label = stringResource(R.string.service_bs_type_wash)) { selectedCuci = !selectedCuci }
+                    CustomFilterChip(selected = selectedPengering, label = stringResource(R.string.service_bs_type_dry)) { selectedPengering = !selectedPengering }
+                    CustomFilterChip(selected = selectedNonMesin, label = stringResource(R.string.service_bs_type_non_machine)) { selectedNonMesin = !selectedNonMesin }
                 }
             }
 
             // Ukuran Mesin
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                SectionTitle(title = "Kapasitas Mesin", icon = Icons.Default.Straighten)
+                SectionTitle(title = stringResource(R.string.service_bs_label_capacity), icon = Icons.Default.Straighten)
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     ChoiceCard(
-                        label = "Standar",
+                        label = stringResource(R.string.service_bs_capacity_standard),
                         isSelected = !isLarge,
                         modifier = Modifier.weight(1f),
                         onClick = { isLarge = false }
                     )
                     ChoiceCard(
-                        label = "Besar",
+                        label = stringResource(R.string.service_bs_capacity_large),
                         isSelected = isLarge,
                         modifier = Modifier.weight(1f),
                         onClick = { isLarge = true }
@@ -176,7 +178,7 @@ fun ServiceBottomSheet(
                     modifier = Modifier.weight(1f).height(50.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Batal")
+                    Text(stringResource(R.string.service_bs_cancel_button))
                 }
 
                 Button(

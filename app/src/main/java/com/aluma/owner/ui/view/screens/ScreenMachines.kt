@@ -30,8 +30,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.owner.R
 import com.aluma.owner.data.machine.remote.MachineRemoteViewModel
 import com.aluma.owner.ui.view.components.EmptyState
 import com.aluma.owner.ui.view.components.bottomsheet.MachineBottomSheet
@@ -52,13 +54,13 @@ fun ScreenMachine(
             CenterAlignedTopAppBar(
                 title = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Daftar Mesin", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                        Text("${machines.size} Mesin Terdaftar", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                        Text(stringResource(R.string.machine_list_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.machine_list_count, machines.size), style = MaterialTheme.typography.labelSmall, color = Color.Gray)
                     }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -73,11 +75,11 @@ fun ScreenMachine(
                 .padding(innerPadding)
                 .background(Color(0xFFF8F9FA)) // Background soft gray konsisten
         ) {
-            if (machines.isEmpty()) {
+                if (machines.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     EmptyState(
-                        title = "Belum Ada Mesin",
-                        message = "Data mesin akan muncul di sini.\nSilahkan hubungi tim pengembang."
+                        title = stringResource(R.string.machine_list_empty_title),
+                        message = stringResource(R.string.machine_list_empty_message)
                     )
                 }
             } else {

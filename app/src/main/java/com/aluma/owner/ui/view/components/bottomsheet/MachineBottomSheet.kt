@@ -37,9 +37,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.aluma.owner.R
 import com.aluma.owner.data.machine.remote.MachineRemoteViewModel
 import org.koin.compose.koinInject
 
@@ -85,14 +87,18 @@ fun MachineBottomSheet(
                 Spacer(Modifier.width(16.dp))
                 Column {
                     Text(
-                        text = "Pengaturan Timer",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.Gray
-                    )
-                    Text(
-                        text = "Mesin ${if (machine?.typeMachine == true) "Pengering" else "Cuci"} #${machine?.numberMachine}",
+                        stringResource(R.string.machine_bs_timer_settings),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        stringResource(
+                            R.string.machine_bs_machine_title,
+                            if (machine?.typeMachine == true) stringResource(R.string.machine_bs_type_dryer) else stringResource(R.string.machine_bs_type_washer),
+                            machine?.numberMachine ?: ""
+                        ),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.Gray
                     )
                 }
             }
@@ -106,11 +112,11 @@ fun MachineBottomSheet(
                         timerMachine = input
                     }
                 },
-                label = { Text("Durasi Operasional (Menit)") },
-                placeholder = { Text("0") },
+                label = { Text(stringResource(R.string.machine_bs_label_duration)) },
+                placeholder = { Text(stringResource(R.string.machine_bs_placeholder_duration)) },
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = { Icon(Icons.Default.Timer, null, tint = Color.Gray) },
-                suffix = { Text("menit") },
+                suffix = { Text(stringResource(R.string.machine_bs_suffix_minutes), color = Color.Gray) },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done
@@ -121,7 +127,7 @@ fun MachineBottomSheet(
 
             // --- QUICK ACTION BUTTONS (Fitur Tambahan) ---
             Text(
-                text = "Tambah Waktu Cepat:",
+                stringResource(R.string.machine_bs_quick_add),
                 style = MaterialTheme.typography.labelLarge,
                 color = Color.DarkGray
             )
@@ -135,10 +141,10 @@ fun MachineBottomSheet(
                         onClick = {
                             val current = timerMachine.toIntOrNull() ?: 0
                             timerMachine = (current + min).toString()
-                        },
-                        label = { Text("+$min mnt") },
-                        shape = RoundedCornerShape(8.dp)
-                    )
+                    QuickTimeChip(5) { timerMachine = (timerMachine.toIntOrNull() ?: 0).plus(5).toString() }
+                    QuickTimeChip(10) { timerMachine = (timerMachine.toIntOrNull() ?: 0).plus(10).toString() }
+                    QuickTimeChip(15) { timerMachine = (timerMachine.toIntOrNull() ?: 0).plus(15).toString() }
+                    QuickTimeChip(20) { timerMachine = (timerMachine.toIntOrNull() ?: 0).plus(20).toString() }
                 }
             }
 

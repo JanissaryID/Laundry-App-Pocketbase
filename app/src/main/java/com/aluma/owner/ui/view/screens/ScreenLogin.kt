@@ -53,7 +53,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.aluma.owner.R
 import com.aluma.owner.data.user.remote.UserRemoteViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -78,13 +80,11 @@ fun ScreenLogin(
     val isPasswordValid = password.length >= 6
     val isFormValid = isEmailValid && isPasswordValid
 
-    LaunchedEffect(showSnackbar) {
         if (showSnackbar) {
-            snackbarHostState.showSnackbar("Selamat Datang Kembali!", duration = SnackbarDuration.Short)
+            snackbarHostState.showSnackbar(stringResource(R.string.login_welcome_back), duration = SnackbarDuration.Short)
             showSnackbar = false
             onSuccess()
         }
-    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -118,14 +118,14 @@ fun ScreenLogin(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Aluma Owner",
+                text = stringResource(R.string.login_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color(0xFF2D3142)
             )
 
             Text(
-                text = "Kelola bisnis laundry Anda lebih mudah",
+                text = stringResource(R.string.login_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Gray,
                 textAlign = TextAlign.Center
@@ -137,11 +137,11 @@ fun ScreenLogin(
             OutlinedTextField(
                 value = email,
                 onValueChange = userRemoteViewModel::onEmailChange,
-                label = { Text("Email Bisnis") },
+                label = { Text(stringResource(R.string.login_label_email)) },
                 leadingIcon = { Icon(Icons.Default.Email, null, modifier = Modifier.size(20.dp)) },
                 isError = !isEmailValid && email.isNotBlank(),
                 supportingText = {
-                    if (!isEmailValid && email.isNotBlank()) Text("Format email salah")
+                    if (!isEmailValid && email.isNotBlank()) Text(stringResource(R.string.login_error_email_format))
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -161,11 +161,11 @@ fun ScreenLogin(
             OutlinedTextField(
                 value = password,
                 onValueChange = userRemoteViewModel::onPasswordChange,
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.login_label_password)) },
                 leadingIcon = { Icon(Icons.Default.Lock, null, modifier = Modifier.size(20.dp)) },
                 isError = !isPasswordValid && password.isNotBlank(),
                 supportingText = {
-                    if (!isPasswordValid && password.isNotBlank()) Text("Minimal 6 karakter")
+                    if (!isPasswordValid && password.isNotBlank()) Text(stringResource(R.string.login_error_password_min))
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -217,7 +217,7 @@ fun ScreenLogin(
                     )
                 } else {
                     Text(
-                        "Masuk Sekarang",
+                        stringResource(R.string.login_button_enter),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -229,7 +229,7 @@ fun ScreenLogin(
             // Link Tambahan (Lupa Password / Daftar)
             TextButton(onClick = { /* Navigasi ke Lupa Password */ }) {
                 Text(
-                    "Lupa Password?",
+                    stringResource(R.string.login_link_forgot_password),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary
                 )

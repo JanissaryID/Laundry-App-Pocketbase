@@ -43,10 +43,9 @@ class IncomeRemoteRepositoryImpl(
     override suspend fun updateIncome(incomeId: String, income: String) {
         try {
             val body = json.encodeToString(
-                IncomeRemote.serializer(),
-                IncomeRemote(total = income)
+                mapOf("total" to income)
             )
-            client.records.update<IncomeRemote>(
+            client.records.update<Record>(
                 sub = collection,
                 id = incomeId,
                 body = body

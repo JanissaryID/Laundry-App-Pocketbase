@@ -33,8 +33,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.owner.R
 import com.aluma.owner.data.service.remote.ServiceRemoteViewModel
 import com.aluma.owner.ui.view.components.EmptyState
 import com.aluma.owner.ui.view.components.bottomsheet.ServiceBottomSheet
@@ -59,13 +61,13 @@ fun ScreenServices(
             TopAppBar(
                 title = {
                     Column {
-                        Text("Layanan Laundry", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                        Text("Atur daftar harga dan paket", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                        Text(stringResource(R.string.service_list_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.service_list_subtitle), style = MaterialTheme.typography.labelSmall, color = Color.Gray)
                     }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
@@ -82,7 +84,7 @@ fun ScreenServices(
                 contentColor = Color.White,
                 shape = RoundedCornerShape(16.dp),
                 icon = { Icon(Icons.Default.Add, null) },
-                text = { Text("Tambah Baru") }
+                text = { Text(stringResource(R.string.service_list_add_button)) }
             )
         }
     ) { innerPadding ->
@@ -94,11 +96,11 @@ fun ScreenServices(
         ) {
             // Kita bisa menambahkan Search bar di sini nanti
 
-            if (services.isEmpty()) {
+                if (services.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     EmptyState(
-                        title = "Layanan Kosong",
-                        message = "Anda belum memiliki daftar harga.\nKetuk tombol + untuk menambah."
+                        title = stringResource(R.string.service_list_empty_title),
+                        message = stringResource(R.string.service_list_empty_message)
                     )
                 }
             } else {

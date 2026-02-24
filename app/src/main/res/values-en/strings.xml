@@ -1,0 +1,103 @@
+<resources>
+    <string name="app_name">Aluma Owner</string>
+    
+    <!-- Login Screen -->
+    <string name="login_welcome_back">Welcome Back!</string>
+    <string name="login_title">Aluma Owner</string>
+    <string name="login_subtitle">Manage your laundry business easier</string>
+    <string name="login_label_email">Business Email</string>
+    <string name="login_error_email_format">Invalid email format</string>
+    <string name="login_label_password">Password</string>
+    <string name="login_error_password_min">Minimum 6 characters</string>
+    <string name="login_button_enter">Login Now</string>
+    <string name="login_link_forgot_password">Forgot Password?</string>
+    
+    <!-- Home Screen -->
+    <string name="home_top_bar_subtitle">Business Summary</string>
+    <string name="home_top_bar_title">Hello, Owner!</string>
+    <string name="home_section_stores">Your Laundry Branches</string>
+    <string name="home_stat_orders_today">Today\'s Orders</string>
+    <string name="home_stat_total_machines">Total Machines</string>
+    <string name="home_section_income_chart">%1$s Revenue Chart</string>
+    <string name="home_section_management">Manage Operations</string>
+    <string name="home_menu_orders_title">Order Queue List</string>
+    <string name="home_menu_orders_subtitle">Monitor customer laundry status</string>
+    <string name="home_menu_services_title">Services &amp; Pricing</string>
+    <string name="home_menu_services_subtitle">Set your laundry packages</string>
+    <string name="home_menu_machines_title">Machine Monitoring</string>
+    <string name="home_menu_machines_subtitle">Check active machine status</string>
+    <string name="home_empty_store">No store selected</string>
+    <string name="dialog_logout_title">Logout</string>
+    <string name="dialog_logout_message">Are you sure you want to logout? You will need to login again to access data.</string>
+    <string name="dialog_confirm_no">No</string>
+    <string name="dialog_confirm_yes_delete">Yes, Delete</string>
+    
+    <!-- Order List -->
+    <string name="order_list_title">Order History</string>
+    <string name="order_list_total_label">Total Orders</string>
+    <string name="order_list_income_label">Revenue</string>
+    <string name="order_list_empty_title">No orders</string>
+    <string name="order_list_empty_message">There are no orders on this date.</string>
+    <string name="order_list_date_button">Select</string>
+    <string name="order_list_export_button">Export Excel</string>
+    <string name="order_list_confirm">Confirm</string>
+    <string name="order_list_cancel">Cancel</string>
+    
+    <!-- Service List -->
+    <string name="service_list_title">Laundry Services</string>
+    <string name="service_list_subtitle">Manage price list and packages</string>
+    <string name="service_list_add_button">Add New</string>
+    <string name="service_list_empty_title">Empty Services</string>
+    <string name="service_list_empty_message">You don\'t have a price list yet.\nTap the + button to add one.</string>
+    
+    <!-- Machine List -->
+    <string name="machine_list_title">Machine List</string>
+    <string name="machine_list_count">%1$d Machines Registered</string>
+    <string name="machine_list_empty_title">No Machines Yet</string>
+    <string name="machine_list_empty_message">Machine data will appear here.\nPlease contact the development team.</string>
+    
+    <!-- Machine Bottom Sheet -->
+    <string name="machine_bs_timer_settings">Timer Settings</string>
+    <string name="machine_bs_machine_title">%1$s Machine #%2$s</string>
+    <string name="machine_bs_type_dryer">Dryer</string>
+    <string name="machine_bs_type_washer">Washer</string>
+    <string name="machine_bs_label_duration">Operational Duration (Minutes)</string>
+    <string name="machine_bs_placeholder_duration">0</string>
+    <string name="machine_bs_suffix_minutes">minutes</string>
+    <string name="machine_bs_quick_add">Quick Add Time:</string>
+    <string name="machine_bs_quick_add_val">+%1$d min</string>
+    <string name="machine_bs_button_update">Update Machine Duration</string>
+    
+    <!-- Service Bottom Sheet -->
+    <string name="service_bs_add_title">Add New Service</string>
+    <string name="service_bs_edit_title">Edit Service Details</string>
+    <string name="service_bs_label_name">Service Name (e.g., Wash &amp; Dry)</string>
+    <string name="service_bs_placeholder_name">Enter service name</string>
+    <string name="service_bs_label_price">Price</string>
+    <string name="service_bs_label_type">Service Type</string>
+    <string name="service_bs_label_capacity">Machine Capacity</string>
+    <string name="service_bs_type_wash">Wash</string>
+    <string name="service_bs_type_dry">Dry</string>
+    <string name="service_bs_type_non_machine">No Machine</string>
+    <string name="service_bs_capacity_standard">Standard</string>
+    <string name="service_bs_capacity_large">Large</string>
+    <string name="service_bs_button_cancel">Cancel</string>
+    <string name="service_bs_button_add">Add</string>
+    <string name="service_bs_button_save">Save</string>
+    
+    <!-- Item Cards -->
+    <string name="item_machine_label">%1$s Machine</string>
+    <string name="item_machine_serial">Serial Number #%1$s</string>
+    <string name="item_machine_duration">%1$s min</string>
+    <string name="item_machine_capacity_large">Large Capacity</string>
+    <string name="item_machine_capacity_standard">Standard Capacity</string>
+    <string name="item_order_machine_label">Use Machine</string>
+    <string name="item_order_total_label">Total Payment</string>
+    <string name="item_store_income_today">Today\'s Revenue</string>
+    <string name="item_store_selected">Selected</string>
+    <string name="item_store_tap_detail"> Tap for details</string>
+    
+    <!-- Common -->
+    <string name="common_delete">Delete</string>
+    <string name="common_back">Back</string>
+</resources>

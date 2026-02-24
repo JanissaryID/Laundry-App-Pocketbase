@@ -26,8 +26,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.aluma.owner.R
 import com.aluma.owner.data.order.model.OrderRemote
 import com.aluma.owner.utils.formatToRupiah
 
@@ -35,7 +38,7 @@ import com.aluma.owner.utils.formatToRupiah
 fun ItemOrderCard(
     order: OrderRemote,
 ) {
-    val machineType = if (order.sizeMachine) "Kapasitas Besar" else "Kapasitas Standar"
+    val machineType = if (order.sizeMachine) stringResource(R.string.item_machine_capacity_large) else stringResource(R.string.item_machine_capacity_standard)
     val formattedPrice = remember(order.price) {
         order.price?.formatToRupiah() ?: "Rp -"
     }
@@ -101,7 +104,7 @@ fun ItemOrderCard(
             ) {
                 Column {
                     Text(
-                        text = "Gunakan Mesin",
+                        text = stringResource(R.string.item_order_machine_label),
                         style = MaterialTheme.typography.labelSmall,
                         color = Color.Gray
                     )
@@ -114,7 +117,7 @@ fun ItemOrderCard(
 
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "Total Bayar",
+                        text = stringResource(R.string.item_order_total_label),
                         style = MaterialTheme.typography.labelSmall,
                         color = Color.Gray
                     )

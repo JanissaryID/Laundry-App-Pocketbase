@@ -26,11 +26,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.aluma.owner.R
 
 @Composable
 fun ConfirmDialog(
@@ -110,7 +112,7 @@ fun ConfirmDialog(
                         border = BorderStroke(1.dp, Color.LightGray)
                     ) {
                         Text(
-                            "Tidak",
+                            stringResource(R.string.dialog_confirm_no),
                             style = MaterialTheme.typography.labelLarge,
                             color = Color.Gray
                         )
@@ -128,7 +130,7 @@ fun ConfirmDialog(
                         )
                     ) {
                         Text(
-                            "Ya, Hapus",
+                            stringResource(R.string.dialog_confirm_yes_delete),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
                             color = Color.White

@@ -18,11 +18,8 @@ class OrderRemoteRepositoryImpl(
         val baseFilter = "store=\"$storeID\""
 
         val dateFilter = date?.let {
-            // Awal dan akhir hari dalam UTC
-            val start = it.atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS'Z'"))
-            val end = it.atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS'Z'"))
-
-            "created >= \"$start\" && created <= \"$end\""
+            val dateStr = it.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            "date~\"$dateStr\""
         }
 
         val combinedFilter = listOfNotNull(baseFilter, dateFilter).joinToString(" && ")

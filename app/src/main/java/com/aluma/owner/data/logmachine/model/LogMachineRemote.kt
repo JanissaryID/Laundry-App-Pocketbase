@@ -10,4 +10,5 @@ data class LogMachineRemote(
     val sizeMachine: Boolean = false,
     val user: String? = null,
     val store: String? = null,
+    val date: String? = null,
 ) : Record()

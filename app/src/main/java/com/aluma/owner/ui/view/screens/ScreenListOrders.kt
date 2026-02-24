@@ -49,8 +49,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.owner.R
 import com.aluma.owner.data.logmachine.remote.LogMachineRemoteViewModel
 import com.aluma.owner.data.order.remote.OrderRemoteViewModel
 import com.aluma.owner.ui.view.components.EmptyState
@@ -95,13 +97,13 @@ fun ScreenListOrders(
             CenterAlignedTopAppBar(
                 title = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Riwayat Order", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.order_list_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Text(formattedDateTitle, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
                     }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 },
                 actions = {
@@ -117,7 +119,7 @@ fun ScreenListOrders(
                         ) {
                             Icon(Icons.Filled.CalendarToday, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary)
                             Spacer(Modifier.width(4.dp))
-                            Text("Pilih", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                            Text(stringResource(R.string.order_list_date_button), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                         }
                     }
                 },
@@ -139,7 +141,7 @@ fun ScreenListOrders(
                         }
                     },
                     icon = { Icon(Icons.Filled.FileDownload, null) },
-                    text = { Text("Ekspor Excel") },
+                    text = { Text(stringResource(R.string.order_list_export_button)) },
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = Color.White,
                     shape = RoundedCornerShape(16.dp)
@@ -161,13 +163,13 @@ fun ScreenListOrders(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 SummaryMiniCard(
-                    label = "Total Order",
+                    label = stringResource(R.string.order_list_total_label),
                     value = "${orders.size}",
                     modifier = Modifier.weight(1f),
                     icon = Icons.AutoMirrored.Filled.List
                 )
                 SummaryMiniCard(
-                    label = "Pendapatan",
+                    label = stringResource(R.string.order_list_income_label),
                     value = orders.sumOf { it.price?.toInt() ?: 0 }.formatToRupiah(),
                     modifier = Modifier.weight(1.3f),
                     icon = null,
@@ -176,11 +178,11 @@ fun ScreenListOrders(
             }
 
             // --- SECTION LIST ---
-            if (orders.isEmpty()) {
+                if (orders.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     EmptyState(
-                        title = "Tidak ada order",
-                        message = "Belum ada pesanan pada tanggal ini."
+                        title = stringResource(R.string.order_list_empty_title),
+                        message = stringResource(R.string.order_list_empty_message)
                     )
                 }
             } else {
@@ -208,10 +210,10 @@ fun ScreenListOrders(
                         orderRemoteViewModel.fetchOrdersByDate(date, storeID.orEmpty())
                         logMachineRemoteViewModel.fetchLogMachinesByDate(date, storeID.orEmpty())
                     }
-                }) { Text("Konfirmasi", fontWeight = FontWeight.Bold) }
+                }) { Text(stringResource(R.string.order_list_confirm), fontWeight = FontWeight.Bold) }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Batal") }
+                TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.order_list_cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)

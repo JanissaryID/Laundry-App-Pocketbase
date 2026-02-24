@@ -28,8 +28,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.aluma.owner.R
 import com.aluma.owner.data.store.model.StoreLocal
 import com.aluma.owner.utils.formatToRupiah
 import java.time.LocalDate
@@ -106,7 +109,7 @@ fun ItemStoreCardOwner(
 
             Column {
                 Text(
-                    text = "Pendapatan Hari Ini",
+                    text = stringResource(R.string.item_store_income_today),
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.Gray
                 )
@@ -121,7 +124,7 @@ fun ItemStoreCardOwner(
             // Indikator kecil di bawah
             if (isSelected) {
                 Text(
-                    text = "Terpilih",
+                    text = stringResource(R.string.item_store_selected),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
@@ -129,7 +132,7 @@ fun ItemStoreCardOwner(
             } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.TouchApp, null, tint = Color.LightGray, modifier = Modifier.size(12.dp))
-                    Text(" Tap untuk detail", style = MaterialTheme.typography.labelSmall, color = Color.LightGray)
+                    Text(stringResource(R.string.item_store_tap_detail), style = MaterialTheme.typography.labelSmall, color = Color.LightGray)
                 }
             }
         }

@@ -42,7 +42,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.aluma.owner.R
 import com.aluma.owner.data.income.remote.IncomeRemoteViewModel
 import com.aluma.owner.data.logmachine.remote.LogMachineRemoteViewModel
 import com.aluma.owner.data.machine.remote.MachineRemoteViewModel
@@ -121,15 +123,15 @@ fun ScreenHomeOwner(
             TopAppBar(
                 title = {
                     Column {
-                        Text("Ringkasan Bisnis", style = MaterialTheme.typography.labelLarge, color = Color.Gray)
-                        Text("Halo, Owner!", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.home_top_bar_subtitle), style = MaterialTheme.typography.labelLarge, color = Color.Gray)
+                        Text(stringResource(R.string.home_top_bar_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                     }
                 },
                 actions = {
                     IconButton(onClick = { showDialog = true }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = "Logout",
+                            contentDescription = stringResource(R.string.dialog_logout_title),
                             tint = MaterialTheme.colorScheme.error
                         )
                     }
@@ -147,7 +149,7 @@ fun ScreenHomeOwner(
         ) {
             // --- SECTION 1: PEMILIHAN STORE ---
             Text(
-                "Cabang Laundry Anda",
+                stringResource(R.string.home_section_stores),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
@@ -180,15 +182,15 @@ fun ScreenHomeOwner(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    ItemStatBox(
-                        title = "Order Hari Ini",
+                ItemStatBox(
+                        title = stringResource(R.string.home_stat_orders_today),
                         value = "${orderByStore.size}",
                         containerColor = Color(0xFFE8F0FE),
                         contentColor = Color(0xFF1967D2),
                         modifier = Modifier.weight(1f)
                     )
                     ItemStatBox(
-                        title = "Total Mesin",
+                        title = stringResource(R.string.home_stat_total_machines),
                         value = "${machineByStore.size}",
                         containerColor = Color(0xFFE6F4EA),
                         contentColor = Color(0xFF137333),
@@ -200,7 +202,7 @@ fun ScreenHomeOwner(
 
                 // --- SECTION 3: GRAFIK ---
                 Text(
-                    "Grafik Pendapatan $currentMonthName",
+                    stringResource(R.string.home_section_income_chart, currentMonthName),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 16.dp)
@@ -225,7 +227,7 @@ fun ScreenHomeOwner(
 
                 // --- SECTION 4: MENU MANAJEMEN ---
                 Text(
-                    "Kelola Operasional",
+                    stringResource(R.string.home_section_management),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -236,22 +238,22 @@ fun ScreenHomeOwner(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     MenuCard(
-                        title = "Daftar Antrean Order",
-                        subtitle = "Pantau status cucian pelanggan",
+                        title = stringResource(R.string.home_menu_orders_title),
+                        subtitle = stringResource(R.string.home_menu_orders_subtitle),
                         icon = Icons.AutoMirrored.Filled.List,
                         color = Color(0xFF673AB7),
                         onClick = onListOrder
                     )
                     MenuCard(
-                        title = "Layanan & Harga",
-                        subtitle = "Atur paket laundry anda",
+                        title = stringResource(R.string.home_menu_services_title),
+                        subtitle = stringResource(R.string.home_menu_services_subtitle),
                         icon = Icons.Default.DryCleaning,
                         color = Color(0xFFFF9800),
                         onClick = onListService
                     )
                     MenuCard(
-                        title = "Monitoring Mesin",
-                        subtitle = "Cek kondisi mesin aktif",
+                        title = stringResource(R.string.home_menu_machines_title),
+                        subtitle = stringResource(R.string.home_menu_machines_subtitle),
                         icon = Icons.Default.LocalLaundryService,
                         color = Color(0xFF00BCD4),
                         onClick = onListMachine
@@ -262,11 +264,7 @@ fun ScreenHomeOwner(
 
             } else {
                 // Tampilan jika store kosong
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("Belum ada store terpilih", color = Color.Gray)
+                    Text(stringResource(R.string.home_empty_store), color = Color.Gray)
                 }
             }
         }
@@ -274,8 +272,8 @@ fun ScreenHomeOwner(
 
     if (showDialog) {
         ConfirmDialog(
-            title = "Keluar Aplikasi",
-            message = "Apakah anda yakin ingin keluar? Anda perlu login kembali untuk mengakses data.",
+            title = stringResource(R.string.dialog_logout_title),
+            message = stringResource(R.string.dialog_logout_message),
             onDismiss = { showDialog = false },
             onConfirm = { onLogout() }
         )

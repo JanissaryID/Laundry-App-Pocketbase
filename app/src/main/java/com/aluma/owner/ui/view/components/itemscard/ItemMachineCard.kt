@@ -26,8 +26,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.owner.R
 import com.aluma.owner.data.machine.model.MachineRemote
 
 @Composable
@@ -35,8 +37,8 @@ fun ItemMachineCard(
     machine: MachineRemote,
     onClick: () -> Unit = {}
 ) {
-    val machineTypeLabel = if (machine.typeMachine) "Pengering" else "Pencuci"
-    val machineSizeLabel = if (machine.sizeMachine) "Kapasitas Besar" else "Kapasitas Standar"
+    val machineTypeLabel = if (machine.typeMachine) stringResource(R.string.machine_bs_type_dryer) else stringResource(R.string.machine_bs_type_washer)
+    val machineSizeLabel = if (machine.sizeMachine) stringResource(R.string.item_machine_capacity_large) else stringResource(R.string.item_machine_capacity_standard)
 
     // Warna berdasarkan tipe (Pencuci = Biru, Pengering = Oranye/Merah Muda)
     val typeColor = if (machine.typeMachine) Color(0xFFFF9800) else Color(0xFF2196F3)
@@ -76,12 +78,12 @@ fun ItemMachineCard(
             // Tengah: Informasi Mesin
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Mesin $machineTypeLabel",
+                    text = stringResource(R.string.item_machine_label, machineTypeLabel),
                     style = MaterialTheme.typography.labelMedium,
                     color = Color.Gray
                 )
                 Text(
-                    text = "Nomor Seri #${machine.numberMachine}",
+                    text = stringResource(R.string.item_machine_serial, machine.numberMachine ?: ""),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2D3142)
@@ -98,7 +100,7 @@ fun ItemMachineCard(
                         tint = Color.LightGray
                     )
                     Text(
-                        text = " ${machine.timer} mnt",
+                        text = " " + stringResource(R.string.item_machine_duration, machine.timer ?: "0"),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
