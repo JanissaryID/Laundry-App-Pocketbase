@@ -20,8 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.owner.R
 
 @Composable
 fun MachineTypeChips(
@@ -32,9 +34,9 @@ fun MachineTypeChips(
 ) {
     // Definisi data untuk setiap tipe
     val typeItems = listOf(
-        Triple("Cuci", Icons.Default.WaterDrop, Color(0xFF2196F3)),
-        Triple("Kering", Icons.Default.LocalFireDepartment, Color(0xFFFF9800)),
-        Triple("Servis", Icons.Default.CheckCircle, Color(0xFF4CAF50))
+        Triple(stringResource(R.string.chip_type_wash), Icons.Default.WaterDrop, Color(0xFF2196F3)),
+        Triple(stringResource(R.string.chip_type_dry), Icons.Default.LocalFireDepartment, Color(0xFFFF9800)),
+        Triple(stringResource(R.string.chip_type_service), Icons.Default.CheckCircle, Color(0xFF4CAF50))
     )
 
     // Filter tipe mana yang aktif

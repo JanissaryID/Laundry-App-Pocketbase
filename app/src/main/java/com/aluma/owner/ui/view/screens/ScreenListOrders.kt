@@ -89,7 +89,7 @@ fun ScreenListOrders(
     } ?: LocalDate.now()
 
     val formattedDateTitle = remember(selectedDate) {
-        selectedDate.format(DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale("id", "ID")))
+        selectedDate.format(DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault()))
     }
 
     Scaffold(
@@ -128,6 +128,8 @@ fun ScreenListOrders(
         },
         floatingActionButton = {
             if (orders.isNotEmpty()) {
+                val successMsg = stringResource(R.string.export_success)
+                val failedMsg = stringResource(R.string.export_failed)
                 ExtendedFloatingActionButton(
                     onClick = {
                         excelPOIViewModel.createExcelReport(
@@ -137,7 +139,7 @@ fun ScreenListOrders(
                             storeName = storeName.orEmpty(),
                             date = formattedDateTitle
                         ) { success ->
-                            Toast.makeText(context, if (success) "Laporan Excel berhasil diunduh" else "Gagal ekspor", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, if (success) successMsg else failedMsg, Toast.LENGTH_SHORT).show()
                         }
                     },
                     icon = { Icon(Icons.Filled.FileDownload, null) },

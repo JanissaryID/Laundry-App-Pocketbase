@@ -100,4 +100,11 @@
     <!-- Common -->
     <string name="common_delete">Delete</string>
     <string name="common_back">Back</string>
+    <string name="chip_type_wash">Wash</string>
+    <string name="chip_type_dry">Dry</string>
+    <string name="chip_type_service">Service</string>
+    <string name="export_success">Excel report downloaded successfully</string>
+    <string name="export_failed">Export failed</string>
+    <string name="loading_default_message">Loading data...</string>
+    <string name="loading_connection_check">Make sure your internet connection is stable</string>
 </resources>

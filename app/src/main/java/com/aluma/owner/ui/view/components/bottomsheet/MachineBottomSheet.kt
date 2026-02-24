@@ -141,10 +141,10 @@ fun MachineBottomSheet(
                         onClick = {
                             val current = timerMachine.toIntOrNull() ?: 0
                             timerMachine = (current + min).toString()
-                    QuickTimeChip(5) { timerMachine = (timerMachine.toIntOrNull() ?: 0).plus(5).toString() }
-                    QuickTimeChip(10) { timerMachine = (timerMachine.toIntOrNull() ?: 0).plus(10).toString() }
-                    QuickTimeChip(15) { timerMachine = (timerMachine.toIntOrNull() ?: 0).plus(15).toString() }
-                    QuickTimeChip(20) { timerMachine = (timerMachine.toIntOrNull() ?: 0).plus(20).toString() }
+                        },
+                        label = { Text(stringResource(R.string.machine_bs_quick_add_val, min)) },
+                        shape = RoundedCornerShape(8.dp)
+                    )
                 }
             }
 
@@ -177,7 +177,7 @@ fun MachineBottomSheet(
                         modifier = Modifier.size(20.dp)
                     )
                 } else {
-                    Text("Update Durasi Mesin", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.machine_bs_button_update), fontWeight = FontWeight.Bold)
                 }
             }
         }

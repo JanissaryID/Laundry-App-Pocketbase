@@ -80,11 +80,14 @@ fun ScreenLogin(
     val isPasswordValid = password.length >= 6
     val isFormValid = isEmailValid && isPasswordValid
 
+    val welcomeMessage = stringResource(R.string.login_welcome_back)
+    LaunchedEffect(showSnackbar) {
         if (showSnackbar) {
-            snackbarHostState.showSnackbar(stringResource(R.string.login_welcome_back), duration = SnackbarDuration.Short)
+            snackbarHostState.showSnackbar(welcomeMessage, duration = SnackbarDuration.Short)
             showSnackbar = false
             onSuccess()
         }
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },

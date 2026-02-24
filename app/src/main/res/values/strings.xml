@@ -22,7 +22,7 @@
     <string name="home_section_management">Kelola Operasional</string>
     <string name="home_menu_orders_title">Daftar Antrean Order</string>
     <string name="home_menu_orders_subtitle">Pantau status cucian pelanggan</string>
-    <string name="home_menu_services_title">Layanan & Harga</string>
+    <string name="home_menu_services_title">Layanan &amp; Harga</string>
     <string name="home_menu_services_subtitle">Atur paket laundry anda</string>
     <string name="home_menu_machines_title">Monitoring Mesin</string>
     <string name="home_menu_machines_subtitle">Cek kondisi mesin aktif</string>
@@ -100,4 +100,11 @@
     <!-- Common -->
     <string name="common_delete">Hapus</string>
     <string name="common_back">Kembali</string>
+    <string name="chip_type_wash">Cuci</string>
+    <string name="chip_type_dry">Kering</string>
+    <string name="chip_type_service">Servis</string>
+    <string name="export_success">Laporan Excel berhasil diunduh</string>
+    <string name="export_failed">Gagal ekspor</string>
+    <string name="loading_default_message">Memuat data...</string>
+    <string name="loading_connection_check">Pastikan koneksi internet stabil</string>
 </resources>

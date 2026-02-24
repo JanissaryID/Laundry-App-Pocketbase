@@ -1,7 +1,7 @@
 [versions]
 agp = "8.13.2"
-#noinspection NewerVersionAvailable
-vico = "1.13.0"
+vico = "3.0.0"
+ycharts = "2.1.0"
 kotlin = "2.3.10"
 coreKtx = "1.17.0"
 junit = "4.13.2"
@@ -31,9 +31,10 @@ workRuntimeKtx = "2.11.1"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
-compose-vico = { module = "com.patrykandpatrick.vico:compose", version.ref = "vico" }
-compose-m3-vico = { module = "com.patrykandpatrick.vico:compose-m3", version.ref = "vico" }
-core-vico = { module = "com.patrykandpatrick.vico:core", version.ref = "vico" }
+vico-compose = { group = "com.patrykandpatrick.vico", name = "compose", version.ref = "vico" }
+vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
+vico-views = { group = "com.patrykandpatrick.vico", name = "views", version.ref = "vico" }
+ycharts = { group = "co.yml", name = "ycharts", version.ref = "ycharts" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

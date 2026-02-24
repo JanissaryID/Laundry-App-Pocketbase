@@ -81,8 +81,7 @@ fun ScreenHomeOwner(
     val selectedStoreIndex by storeLocalViewModel.selectedStoreIndex.collectAsState()
     val selectedStore = storeList.getOrNull(selectedStoreIndex)
 
-    val locale = Locale.Builder().setLanguage("id").setRegion("ID").build()
-    val currentMonthName = LocalDate.now().month.getDisplayName(TextStyle.FULL, locale)
+    val currentMonthName = LocalDate.now().month.getDisplayName(TextStyle.FULL, Locale.getDefault())
 
     var showDialog by remember { mutableStateOf(false) }
 
@@ -264,18 +263,19 @@ fun ScreenHomeOwner(
 
             } else {
                 // Tampilan jika store kosong
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(stringResource(R.string.home_empty_store), color = Color.Gray)
                 }
             }
         }
-    }
 
-    if (showDialog) {
-        ConfirmDialog(
-            title = stringResource(R.string.dialog_logout_title),
-            message = stringResource(R.string.dialog_logout_message),
-            onDismiss = { showDialog = false },
-            onConfirm = { onLogout() }
-        )
+        if (showDialog) {
+            ConfirmDialog(
+                title = stringResource(R.string.dialog_logout_title),
+                message = stringResource(R.string.dialog_logout_message),
+                onDismiss = { showDialog = false },
+                onConfirm = { onLogout() }
+            )
+        }
     }
 }

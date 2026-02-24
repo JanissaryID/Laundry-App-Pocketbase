@@ -178,7 +178,7 @@ fun ServiceBottomSheet(
                     modifier = Modifier.weight(1f).height(50.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(stringResource(R.string.service_bs_cancel_button))
+                    Text(stringResource(R.string.service_bs_button_cancel))
                 }
 
                 Button(
@@ -204,7 +204,7 @@ fun ServiceBottomSheet(
                     if (isSubmitting) {
                         CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp, color = Color.White)
                     } else {
-                        Text(if (service == null) "Tambah" else "Simpan", fontWeight = FontWeight.Bold)
+                        Text(if (service == null) stringResource(R.string.service_bs_button_add) else stringResource(R.string.service_bs_button_save), fontWeight = FontWeight.Bold)
                     }
                 }
             }

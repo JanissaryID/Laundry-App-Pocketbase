@@ -102,7 +102,5 @@ dependencies {
     implementation(libs.koin.androidx.workmanager)
 
 
-    implementation(libs.core.vico)
-    implementation(libs.compose.vico)
-    implementation(libs.compose.m3.vico)
+    implementation(libs.ycharts)
 }

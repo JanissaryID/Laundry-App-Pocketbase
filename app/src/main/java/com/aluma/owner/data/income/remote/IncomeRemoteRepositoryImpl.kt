@@ -45,7 +45,7 @@ class IncomeRemoteRepositoryImpl(
             val body = json.encodeToString(
                 mapOf("total" to income)
             )
-            client.records.update<Record>(
+            client.records.update<IncomeRemote>(
                 sub = collection,
                 id = incomeId,
                 body = body

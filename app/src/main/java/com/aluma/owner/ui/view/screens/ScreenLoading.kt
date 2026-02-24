@@ -29,15 +29,18 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.aluma.owner.R
 import androidx.compose.ui.unit.sp
 
 @Composable
 fun ScreenLoading(
-    message: String = "Memuat data...",
+    message: String? = null,
     isFullScreen: Boolean = true,
     modifier: Modifier = Modifier
 ) {
+    val displayMessage = message ?: stringResource(R.string.loading_default_message)
     // Animasi Infinite untuk transisi yang halus
     val transition = rememberInfiniteTransition(label = "loading_anim")
 
@@ -93,7 +96,7 @@ fun ScreenLoading(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = message,
+                text = displayMessage,
                 style = MaterialTheme.typography.titleSmall.copy(
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 0.5.sp
@@ -104,7 +107,7 @@ fun ScreenLoading(
 
             // Tambahan opsional: Teks kecil di bawahnya
             Text(
-                text = "Pastikan koneksi internet stabil",
+                text = stringResource(R.string.loading_connection_check),
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.LightGray,
                 modifier = Modifier.padding(top = 4.dp)
