@@ -35,8 +35,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.data.order.local.OrderLocalViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheetReadOnly
@@ -68,14 +70,14 @@ fun ScreenListOrders(
                 CenterAlignedTopAppBar(
                     title = {
                         Text(
-                            "Riwayat Pesanan",
+                            text = stringResource(id = R.string.order_history),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                     },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Kembali")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(id = R.string.back))
                         }
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -87,7 +89,7 @@ fun ScreenListOrders(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Cari nama pelanggan...", style = MaterialTheme.typography.bodyMedium) },
+                    placeholder = { Text(stringResource(id = R.string.search_customer_hint), style = MaterialTheme.typography.bodyMedium) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -119,10 +121,10 @@ fun ScreenListOrders(
         ) {
             if (filteredOrders.isEmpty()) {
                 EmptyState(
-                    title = if (searchQuery.isEmpty()) "Belum ada Order" else "Tidak ditemukan",
+                    title = if (searchQuery.isEmpty()) stringResource(id = R.string.no_orders_found) else stringResource(id = R.string.no_search_results),
                     message = if (searchQuery.isEmpty())
-                        "Semua transaksi Anda akan muncul di sini."
-                    else "Coba gunakan kata kunci nama lain.",
+                        stringResource(id = R.string.no_orders_message_history)
+                    else stringResource(id = R.string.no_search_results),
                     icon = Icons.AutoMirrored.Filled.Notes
                 )
             } else {
@@ -133,14 +135,14 @@ fun ScreenListOrders(
                 ) {
                     item {
                         Text(
-                            text = "Total ${filteredOrders.size} Transaksi",
+                            text = stringResource(id = R.string.total_transactions, filteredOrders.size),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.Gray,
                             modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
                         )
                     }
 
-                    items(filteredOrders, key = { it.id ?: 0 }) { order ->
+                    items(filteredOrders, key = { it.id }) { order ->
                         ItemOrderCard(
                             order = order,
                             onSelect = {

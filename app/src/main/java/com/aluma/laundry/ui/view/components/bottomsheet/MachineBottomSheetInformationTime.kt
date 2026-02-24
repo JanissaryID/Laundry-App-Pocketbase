@@ -29,8 +29,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.data.machine.model.MachineLocal
 import com.aluma.laundry.data.order.utils.Quad
 import com.aluma.laundry.ui.view.components.CountdownTimer
@@ -50,12 +52,12 @@ fun MachineBottomSheetInformationTime(
 
     // Logika Tipe Mesin (Warna & Ikon yang berbeda)
     val (machineLabel, machineIcon, accentColor) = if (machine.typeMachine) {
-        Triple("Mesin Pengering", Icons.Default.LocalFireDepartment, Color(0xFFEF6C00)) // Oranye
+        Triple(stringResource(id = R.string.machine_dryer), Icons.Default.LocalFireDepartment, Color(0xFFEF6C00)) // Oranye
     } else {
-        Triple("Mesin Cuci", Icons.Default.WaterDrop, Color(0xFF2196F3)) // Biru
+        Triple(stringResource(id = R.string.machine_washer), Icons.Default.WaterDrop, Color(0xFF2196F3)) // Biru
     }
 
-    val machineSize = if (machine.sizeMachine) "KAPASITAS BESAR" else "KAPASITAS KECIL"
+    val machineSize = if (machine.sizeMachine) stringResource(id = R.string.capacity_large_upper) else stringResource(id = R.string.capacity_small_upper)
 
     // Perhitungan Waktu
     val (startTimeStr, endTimeStr, startTimeMillis, endTimeMillis) = remember(machine.timeOn, machine.timer) {
@@ -96,7 +98,7 @@ fun MachineBottomSheetInformationTime(
             ) {
                 Column {
                     Text(
-                        text = "Unit Mesin #${machine.numberMachine}",
+                        text = stringResource(id = R.string.machine_unit_number, machine.numberMachine),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -150,14 +152,14 @@ fun MachineBottomSheetInformationTime(
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        TimeInfoBlock(label = "Mulai", time = startTimeStr)
+                        TimeInfoBlock(label = stringResource(id = R.string.start), time = startTimeStr)
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                             tint = Color.LightGray
                         )
-                        TimeInfoBlock(label = "Estimasi Selesai", time = endTimeStr, highlightColor = accentColor)
+                        TimeInfoBlock(label = stringResource(id = R.string.estimated_finish), time = endTimeStr, highlightColor = accentColor)
                     }
                 }
             }
@@ -171,7 +173,7 @@ fun MachineBottomSheetInformationTime(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = accentColor)
             ) {
-                Text("Selesai Memantau", fontWeight = FontWeight.Bold)
+                Text(stringResource(id = R.string.finish_monitoring), fontWeight = FontWeight.Bold)
             }
         }
     }

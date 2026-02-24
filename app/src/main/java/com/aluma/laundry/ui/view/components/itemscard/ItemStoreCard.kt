@@ -29,9 +29,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.data.store.model.StoreRemote
 
 @Composable
@@ -99,7 +101,7 @@ fun ItemStoreCard(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = storeRemote.storeName.orEmpty().ifBlank { "Toko Aluma" },
+                    text = storeRemote.storeName.orEmpty().ifBlank { stringResource(R.string.default_store_name_placeholder) },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.ExtraBold,
                     color = Color(0xFF2D3142)
@@ -125,7 +127,7 @@ fun ItemStoreCard(
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
-                    contentDescription = "Terpilih",
+                    contentDescription = stringResource(R.string.selected),
                     tint = Color(0xFF4CAF50),
                     modifier = Modifier.size(24.dp)
                 )

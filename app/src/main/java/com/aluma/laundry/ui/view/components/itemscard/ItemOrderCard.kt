@@ -28,8 +28,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.data.order.model.OrderLocal
 import com.aluma.laundry.data.order.utils.Quad
 
@@ -44,31 +46,31 @@ fun ItemOrderCard(
     val machineNumber = order.numberMachine
     val (statusMessage, statusColor, statusIcon, iconTint) = when (order.stepMachine) {
         0 -> Quad(
-            "Perlu dinyalakan: Mesin Cuci",
+            stringResource(R.string.needs_activation_washer),
             Color(0xFFFFEBEE), // Merah sangat muda
             Icons.Default.ErrorOutline,
             Color(0xFFD32F2F)
         )
         1 -> Quad(
-            "Perlu dinyalakan: Mesin Pengering",
+            stringResource(R.string.needs_activation_dryer),
             Color(0xFFFFF8E1), // Kuning sangat muda
             Icons.Default.WarningAmber,
             Color(0xFFFFA000)
         )
         2 -> Quad(
-            "Mencuci di Nomor $machineNumber",
+            stringResource(R.string.washing_at_number, machineNumber ?: 0),
             Color(0xFFE3F2FD),
             Icons.Default.LocalLaundryService,
             Color(0xFF2196F3)
         )
         3 -> Quad(
-            "Mengeringkan di Nomor $machineNumber",
+            stringResource(R.string.drying_at_number, machineNumber ?: 0),
             Color(0xFFF3E5F5),
             Icons.Default.DryCleaning,
             Color(0xFF9C27B0)
         )
         else -> Quad(
-            "Selesai",
+            stringResource(R.string.done),
             Color(0xFFE8F5E9),
             Icons.Default.CheckCircleOutline,
             Color(0xFF4CAF50)
@@ -92,7 +94,7 @@ fun ItemOrderCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = order.customerName.orEmpty().ifBlank { "Pelanggan Umum" },
+                    text = order.customerName.orEmpty().ifBlank { stringResource(R.string.default_customer_name) },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.ExtraBold,
                     color = Color(0xFF2D3142)
@@ -138,7 +140,7 @@ fun ItemOrderCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = if (order.sizeMachine) "Kapasitas Besar" else "Kapasitas Kecil",
+                        text = if (order.sizeMachine) stringResource(R.string.capacity_large_machine) else stringResource(R.string.capacity_small_machine),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
@@ -177,7 +179,7 @@ fun ItemOrderCard(
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(
                             imageVector = Icons.Default.BluetoothConnected,
-                            contentDescription = "Ready to Sync",
+                            contentDescription = stringResource(R.string.ready_to_sync),
                             tint = iconTint,
                             modifier = Modifier.size(16.dp)
                         )

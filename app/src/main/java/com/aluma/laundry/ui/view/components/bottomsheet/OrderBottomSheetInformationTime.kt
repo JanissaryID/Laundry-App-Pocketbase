@@ -39,8 +39,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.bluetooth.BluetoothPrinter
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.data.machine.model.MachineLocal
@@ -98,9 +100,9 @@ fun OrderBottomSheetInformationTime(
 
     // Identifikasi Status Berdasarkan Step
     val (statusTitle, statusColor, statusIcon) = when (stepMachine) {
-        2 -> Triple("Proses Pencucian", Color(0xFF2196F3), Icons.Default.LocalLaundryService)
-        3 -> Triple("Proses Pengeringan", Color(0xFF4CAF50), Icons.Default.DryCleaning)
-        else -> Triple("Status Aktif", Color.Gray, Icons.Default.Info)
+        2 -> Triple(stringResource(id = R.string.status_washing), Color(0xFF2196F3), Icons.Default.LocalLaundryService)
+        3 -> Triple(stringResource(id = R.string.status_drying), Color(0xFF4CAF50), Icons.Default.DryCleaning)
+        else -> Triple(stringResource(id = R.string.status_active), Color.Gray, Icons.Default.Info)
     }
 
     ModalBottomSheet(
@@ -138,7 +140,7 @@ fun OrderBottomSheetInformationTime(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "Unit Mesin Nomor $machineNumber",
+                        text = stringResource(id = R.string.machine_unit_number, machineNumber ?: 0),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
@@ -155,10 +157,10 @@ fun OrderBottomSheetInformationTime(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    OrderInfoRow(label = "Pelanggan", value = order.customerName ?: "-")
-                    OrderInfoRow(label = "Layanan", value = order.serviceName ?: "-")
-                    OrderInfoRow(label = "Kapasitas", value = if (order.sizeMachine) "Mesin Besar" else "Mesin Kecil")
-                    OrderInfoRow(label = "Total Bayar", value = formatRupiah(order.price ?: "0"), isHighlighted = true)
+                    OrderInfoRow(label = stringResource(id = R.string.customer), value = order.customerName ?: "-")
+                    OrderInfoRow(label = stringResource(id = R.string.service), value = order.serviceName ?: "-")
+                    OrderInfoRow(label = stringResource(id = R.string.capacity), value = if (order.sizeMachine) stringResource(id = R.string.capacity_large) else stringResource(id = R.string.capacity_small))
+                    OrderInfoRow(label = stringResource(id = R.string.total_payment), value = formatRupiah(order.price ?: "0"), isHighlighted = true)
                 }
             }
 
@@ -168,7 +170,7 @@ fun OrderBottomSheetInformationTime(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Sisa Waktu",
+                    text = stringResource(id = R.string.time_left),
                     style = MaterialTheme.typography.labelMedium,
                     color = Color.Gray
                 )
@@ -186,7 +188,7 @@ fun OrderBottomSheetInformationTime(
                 ) {
                     Icon(Icons.Default.AccessTime, null, modifier = Modifier.size(14.dp), tint = Color.Gray)
                     Text(
-                        text = "Estimasi selesai pukul $endTimeStr",
+                        text = stringResource(id = R.string.estimated_finish_at, endTimeStr),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
@@ -212,7 +214,7 @@ fun OrderBottomSheetInformationTime(
                             customerName = order.customerName.orEmpty(),
                             paymentMethod = order.typePayment.orEmpty()
                         )
-                        if (!stat) Toast.makeText(context, "Printer Gagal", Toast.LENGTH_SHORT).show()
+                        if (!stat) Toast.makeText(context, context.getString(R.string.print_failed_toast), Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.weight(1f).height(50.dp),
                     shape = RoundedCornerShape(12.dp),
@@ -220,7 +222,7 @@ fun OrderBottomSheetInformationTime(
                 ) {
                     Icon(Icons.Default.Print, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Nota")
+                    Text(stringResource(id = R.string.print_receipt))
                 }
 
                 // Tutup
@@ -230,7 +232,7 @@ fun OrderBottomSheetInformationTime(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = statusColor)
                 ) {
-                    Text("Kembali", fontWeight = FontWeight.Bold)
+                    Text(stringResource(id = R.string.back), fontWeight = FontWeight.Bold)
                 }
             }
         }

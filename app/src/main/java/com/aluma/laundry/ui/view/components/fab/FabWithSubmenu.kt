@@ -39,8 +39,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 
 @Composable
 fun FabWithSubmenu(
@@ -90,10 +92,10 @@ fun FabWithSubmenu(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     horizontalAlignment = Alignment.End
                 ) {
-                    FabWithLabels("Daftar Riwayat", Icons.AutoMirrored.Filled.FormatListBulleted, onClick = listOrder)
-                    FabWithLabels("Status Mesin", Icons.Default.LocalLaundryService, onClick = listMachine)
+                    FabWithLabels(stringResource(R.string.order_history_fab), Icons.AutoMirrored.Filled.FormatListBulleted, onClick = listOrder)
+                    FabWithLabels(stringResource(R.string.machine_status_fab), Icons.Default.LocalLaundryService, onClick = listMachine)
                     FabWithLabel(
-                        label = "Order Baru",
+                        label = stringResource(R.string.new_order),
                         icon = Icons.Default.Add,
                         containerColor = MaterialTheme.colorScheme.primary,
                         iconColor = Color.White,

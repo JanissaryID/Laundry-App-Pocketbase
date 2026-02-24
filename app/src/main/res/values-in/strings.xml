@@ -1,0 +1,160 @@
+<resources>
+    <string name="app_name">Aluma Laundry</string>
+    
+    <!-- General -->
+    <string name="back">Kembali</string>
+    <string name="cancel">Batal</string>
+    <string name="confirm_continue">Ya, Lanjut</string>
+    <string name="settings">Pengaturan</string>
+    <string name="close">Tutup</string>
+    <string name="save">Simpan</string>
+    <string name="start">Mulai</string>
+    <string name="search_hint">Cari…</string>
+    <string name="success">Berhasil</string>
+    <string name="failed">Gagal</string>
+    <string name="total">TOTAL</string>
+
+    <!-- ScreenHome -->
+    <string name="admin_mode">• Mode Admin •</string>
+    <string name="order_count">Jumlah Pesanan</string>
+    <string name="machines_running">Mesin Beroperasi</string>
+    <string name="no_orders_yet">Belum Ada Pesanan</string>
+    <string name="no_orders_message">Klik tombol + untuk membuat pesanan baru\ndan memulai pencucian.</string>
+    <string name="active_queue">Antrean Aktif</string>
+    <string name="machine_active_toast">Mesin %1$s Aktif</string>
+    <string name="bluetooth_failed">Bluetooth Gagal Terhubung</string>
+
+    <!-- ScreenLogin -->
+    <string name="admin_portal">Portal Admin</string>
+    <string name="login_subtitle">Silahkan masuk untuk mulai melayani pelanggan</string>
+    <string name="email_staff_id">ID Email Staff</string>
+    <string name="pin_password">PIN / Password</string>
+    <string name="shift_started">Shift Dimulai!</string>
+    <string name="start_duty">Mulai Bertugas</string>
+
+    <!-- ScreenChoseStore -->
+    <string name="work_location">Lokasi Tugas</string>
+    <string name="chose_store_subtitle">Pilih cabang untuk memulai operasional</string>
+    <string name="store_not_found">Toko Tidak Ditemukan</string>
+    <string name="store_not_found_message">Akun Anda belum terhubung ke toko manapun.\nHubungi Owner untuk akses cabang.</string>
+    <string name="available_branches">Cabang Tersedia (%1$d)</string>
+
+    <!-- ScreenSettings -->
+    <string name="app_version">Versi %1$s</string>
+    <string name="default_store_name">Toko Laundry</string>
+    <string name="change_store_title">Ganti Toko?</string>
+    <string name="change_store_message">Data lokal toko ini akan dihapus dari perangkat. Pastikan semua data sudah tersinkron.</string>
+    <string name="change_branch_button">Ganti Cabang Toko</string>
+    <string name="digital_devices">Perangkat Digital</string>
+    <string name="printer_not_selected">Printer Belum Dipilih</string>
+    <string name="printer_search_hint">Klik untuk mencari printer thermal Bluetooth</string>
+    <string name="admin_account">Akun Admin</string>
+    <string name="logout_button">Keluar dari Akun</string>
+    <string name="logout_title">Logout?</string>
+    <string name="logout_message">Anda harus login kembali untuk mengakses data toko ini.</string>
+
+    <!-- ScreenListOrders -->
+    <string name="order_history">Riwayat Pesanan</string>
+    <string name="search_customer_hint">Cari nama pelanggan…</string>
+    <string name="no_orders_found">Belum ada Order</string>
+    <string name="no_orders_message_history">Semua transaksi Anda akan muncul di sini.</string>
+    <string name="no_search_results">Coba gunakan kata kunci nama lain…</string>
+    <string name="total_transactions">Total %1$d Transaksi</string>
+
+    <!-- Activation & Machine Status Bottom Sheets -->
+    <string name="machine_activation">Aktivasi Mesin</string>
+    <string name="customer">Pelanggan</string>
+    <string name="service">Layanan</string>
+    <string name="capacity">Kapasitas</string>
+    <string name="capacity_large_machine">Mesin Besar</string>
+    <string name="capacity_small_machine">Mesin Kecil</string>
+    <string name="total_payment">Total Bayar</string>
+    <string name="select_machine_unit">Pilih Unit Mesin</string>
+    <string name="no_machines_available_warning">Maaf, semua mesin kapasitas ini sedang penuh.</string>
+    <string name="print_failed_toast">Gagal Mencetak! Periksa Bluetooth Printer.</string>
+    <string name="activate_machine">Aktifkan Mesin</string>
+    <string name="machine_dryer">Mesin Pengering</string>
+    <string name="machine_washer">Mesin Cuci</string>
+    <string name="capacity_large_upper">KAPASITAS BESAR</string>
+    <string name="capacity_small_upper">KAPASITAS KECIL</string>
+    <string name="estimated_finish">Estimasi Selesai</string>
+    <string name="finish_monitoring">Selesai Memantau</string>
+    <string name="status_washing">Proses Pencucian</string>
+    <string name="status_drying">Proses Pengeringan</string>
+    <string name="status_active">Status Aktif</string>
+    <string name="machine_unit_number">Unit Mesin Nomor %1$d</string>
+    <string name="time_left">Sisa Waktu</string>
+    <string name="estimated_finish_at">Estimasi selesai pukul %1$s</string>
+    <string name="transaction_detail">Detail Transaksi</string>
+    <string name="synced">Terdata</string>
+    <string name="pending">Tertunda</string>
+    <string name="order_id">ID Order</string>
+    <string name="date">Tanggal</string>
+    <string name="payment">Pembayaran</string>
+    <string name="print_receipt">Cetak Nota</string>
+    <string name="done">Selesai</string>
+
+    <!-- ScreenMachines -->
+    <string name="machine_status">Status Mesin</string>
+    <string name="machines_registered_count">%1$d Mesin Terdaftar</string>
+    <string name="no_machines_yet">Belum Ada Mesin</string>
+    <string name="no_machines_message">Hubungi pengembang untuk mendaftarkan mesin laundry di cabang ini.</string>
+    <string name="available">Tersedia</string>
+    <string name="running">Berjalan</string>
+
+    <!-- ScreenLoading -->
+    <string name="processing">Sedang Memproses…</string>
+    <string name="dont_close_app">Jangan tutup aplikasi</string>
+
+    <!-- OrderBottomSheet -->
+    <string name="input_new_order">Input Order Baru</string>
+    <string name="customer_name">Nama Pelanggan</string>
+    <string name="customer_name_placeholder">Contoh: Budi Santoso</string>
+    <string name="laundry_service">Layanan Laundry</string>
+    <string name="payment_method">Metode Pembayaran</string>
+    <string name="total_bill">Total Tagihan</string>
+    <string name="create_order">Buat Pesanan</string>
+
+    <!-- ServiceDropdown -->
+    <string name="select_laundry_service">Pilih Layanan Laundry</string>
+    <string name="select_package_placeholder">Pilih paket…</string>
+    <string name="no_services_available">Tidak ada layanan tersedia</string>
+    <string name="capacity_large">Kapasitas Besar (12kg)</string>
+    <string name="capacity_small">Kapasitas Kecil (7kg)</string>
+
+    <!-- PaymentTypes -->
+    <string name="payment_cash">Tunai</string>
+    <string name="payment_qris">QRIS</string>
+    
+    <!-- Machine Selection -->
+    <string name="select_machine">Pilih Mesin</string>
+    <string name="select_machine_unit_placeholder">Pilih Unit Mesin</string>
+    <string name="no_machines_available">Tidak ada mesin tersedia</string>
+    <string name="small_machine_header">MESIN KECIL (7KG)</string>
+    <string name="big_machine_header">MESIN BESAR (12KG)</string>
+    <string name="machine_unit_item_format">Unit Mesin #%1$s</string>
+
+    <!-- FAB -->
+    <string name="new_order">Order Baru</string>
+    <string name="machine_status_fab">Status Mesin</string>
+    <string name="order_history_fab">Daftar Riwayat</string>
+
+    <!-- ItemOrderCard -->
+    <string name="needs_activation_washer">Perlu dinyalakan: Mesin Cuci</string>
+    <string name="needs_activation_dryer">Perlu dinyalakan: Mesin Pengering</string>
+    <string name="washing_at_number">Mencuci di Nomor %1$s</string>
+    <string name="drying_at_number">Mengeringkan di Nomor %1$s</string>
+    <string name="default_customer_name">Pelanggan Umum</string>
+    <string name="ready_to_sync">Siap Sinkron</string>
+
+    <!-- ItemMachineCard -->
+    <string name="in_use">Sedang Digunakan</string>
+    <string name="machine_unit_format">Unit #0%1$d</string>
+    <string name="machine_type_format">Mesin %1$s</string>
+    <string name="selected">Terpilih</string>
+    <string name="capacity_12kg">12 KG</string>
+    <string name="capacity_7kg">7 KG</string>
+
+    <!-- ItemStoreCard -->
+    <string name="default_store_name_placeholder">Toko Aluma</string>
+</resources>

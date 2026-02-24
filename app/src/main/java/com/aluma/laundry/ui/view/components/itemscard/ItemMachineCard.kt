@@ -26,9 +26,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.aluma.laundry.R
 import com.aluma.laundry.data.machine.model.MachineLocal
 import com.aluma.laundry.data.order.utils.Quad
 
@@ -41,16 +43,16 @@ fun ItemMachineCard(
 
     // Logika Warna & Ikon berdasarkan Tipe (Cuci vs Pengering)
     val (machineLabel, typeIcon, typeColor) = if (machine.typeMachine) {
-        Triple("Pengering", Icons.Default.LocalFireDepartment, Color(0xFFEF6C00))
+        Triple(stringResource(R.string.machine_dryer), Icons.Default.LocalFireDepartment, Color(0xFFEF6C00))
     } else {
-        Triple("Cuci", Icons.Default.WaterDrop, Color(0xFF2196F3))
+        Triple(stringResource(R.string.machine_washer), Icons.Default.WaterDrop, Color(0xFF2196F3))
     }
 
     // Logika Status Penggunaan
     val (statusLabel, statusColor, statusTextColor, statusIcon) = if (machine.inUse) {
-        Quad("Sedang Digunakan", Color(0xFFFFEBEE), Color(0xFFD32F2F), Icons.Default.HourglassTop)
+        Quad(stringResource(R.string.in_use), Color(0xFFFFEBEE), Color(0xFFD32F2F), Icons.Default.HourglassTop)
     } else {
-        Quad("Tersedia", Color(0xFFE8F5E9), Color(0xFF388E3C), Icons.Default.CheckCircle)
+        Quad(stringResource(R.string.available), Color(0xFFE8F5E9), Color(0xFF388E3C), Icons.Default.CheckCircle)
     }
 
     Card(
@@ -85,12 +87,12 @@ fun ItemMachineCard(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = "Unit #0${machine.numberMachine}",
+                            text = stringResource(R.string.machine_unit_format, machine.numberMachine),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.ExtraBold
                         )
                         Text(
-                            text = "Mesin $machineLabel",
+                            text = stringResource(R.string.machine_type_format, machineLabel),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.Gray
                         )
@@ -103,7 +105,7 @@ fun ItemMachineCard(
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
-                        text = if (machine.sizeMachine) "12 KG" else "7 KG",
+                        text = if (machine.sizeMachine) stringResource(R.string.capacity_12kg) else stringResource(R.string.capacity_7kg),
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,

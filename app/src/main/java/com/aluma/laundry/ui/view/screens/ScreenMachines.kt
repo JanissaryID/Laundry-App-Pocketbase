@@ -38,8 +38,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
 import com.aluma.laundry.ui.view.components.bottomsheet.MachineBottomSheetInformationTime
@@ -63,8 +65,8 @@ fun ScreenMachine(
             CenterAlignedTopAppBar(
                 title = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Status Mesin", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                        Text("${machines.size} Mesin Terdaftar", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                        Text(stringResource(id = R.string.machine_status), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(stringResource(id = R.string.machines_registered_count, machines.size), style = MaterialTheme.typography.labelSmall, color = Color.Gray)
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -74,7 +76,7 @@ fun ScreenMachine(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Kembali",
+                            contentDescription = stringResource(id = R.string.back),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -89,8 +91,8 @@ fun ScreenMachine(
         ) {
             if (machines.isEmpty()) {
                 EmptyState(
-                    title = "Belum Ada Mesin",
-                    message = "Hubungi pengembang untuk mendaftarkan mesin laundry di cabang ini.",
+                    title = stringResource(id = R.string.no_machines_yet),
+                    message = stringResource(id = R.string.no_machines_message),
                     icon = Icons.Default.Dns // Ikon yang merepresentasikan server/hardware
                 )
             } else {
@@ -104,8 +106,8 @@ fun ScreenMachine(
                     val inUseCount = machines.count { it.inUse }
                     val availableCount = machines.size - inUseCount
 
-                    MachineStatusChip(label = "Tersedia", count = availableCount, color = Color(0xFF4CAF50), modifier = Modifier.weight(1f))
-                    MachineStatusChip(label = "Berjalan", count = inUseCount, color = Color(0xFF2196F3), modifier = Modifier.weight(1f))
+                    MachineStatusChip(label = stringResource(id = R.string.available), count = availableCount, color = Color(0xFF4CAF50), modifier = Modifier.weight(1f))
+                    MachineStatusChip(label = stringResource(id = R.string.running), count = inUseCount, color = Color(0xFF2196F3), modifier = Modifier.weight(1f))
                 }
 
                 LazyColumn(
@@ -113,7 +115,7 @@ fun ScreenMachine(
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 32.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(machines, key = { it.id ?: 0 }) { machine ->
+                    items(machines, key = { it.id }) { machine ->
                         ItemMachineCard(
                             machine = machine,
                             onClick = {

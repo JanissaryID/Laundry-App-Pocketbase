@@ -25,8 +25,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
 import com.aluma.laundry.data.order.local.OrderLocalViewModel
 import com.aluma.laundry.data.service.local.ServiceLocalViewModel
@@ -57,12 +59,12 @@ fun ScreenChoseStore(
                 title = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "Lokasi Tugas",
+                            text = stringResource(id = R.string.work_location),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Pilih cabang untuk memulai operasional",
+                            text = stringResource(id = R.string.chose_store_subtitle),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.Gray
                         )
@@ -71,7 +73,7 @@ fun ScreenChoseStore(
                 navigationIcon = {
                     if (canGoBack) {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Kembali")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(id = R.string.back))
                         }
                     }
                 },
@@ -98,8 +100,8 @@ fun ScreenChoseStore(
     ) { innerPadding ->
         if (storeList.isEmpty()) {
             EmptyState(
-                title = "Toko Tidak Ditemukan",
-                message = "Akun Anda belum terhubung ke toko manapun.\nHubungi Owner untuk akses cabang.",
+                title = stringResource(id = R.string.store_not_found),
+                message = stringResource(id = R.string.store_not_found_message),
                 icon = Icons.Default.Storefront
             )
         } else {
@@ -115,7 +117,7 @@ fun ScreenChoseStore(
             ) {
                 item {
                     Text(
-                        text = "Cabang Tersedia (${storeList.size})",
+                        text = stringResource(id = R.string.available_branches, storeList.size),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,

@@ -1,3 +1,158 @@
 <resources>
     <string name="app_name">Aluma Laundry</string>
+    
+    <!-- General -->
+    <string name="back">Back</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm_continue">Yes, Continue</string>
+    <string name="settings">Settings</string>
+    <string name="close">Close</string>
+    <string name="save">Save</string>
+    <string name="start">Start</string>
+    <string name="search_hint">Search…</string>
+    <string name="success">Success</string>
+    <string name="failed">Failed</string>
+    <string name="total">Total</string>
+
+    <!-- ScreenHome -->
+    <string name="admin_mode">• Admin Mode •</string>
+    <string name="order_count">Order Count</string>
+    <string name="machines_running">Machines Running</string>
+    <string name="no_orders_yet">No Orders Yet</string>
+    <string name="no_orders_message">Click the + button to create a new order\nand start washing.</string>
+    <string name="active_queue">Active Queue</string>
+    <string name="machine_active_toast">Machine %1$s Active</string>
+    <string name="bluetooth_failed">Bluetooth Failed to Connect</string>
+
+    <!-- ScreenLogin -->
+    <string name="admin_portal">Admin Portal</string>
+    <string name="login_subtitle">Please login to start serving customers</string>
+    <string name="email_staff_id">Staff Email ID</string>
+    <string name="pin_password">PIN / Password</string>
+    <string name="shift_started">Shift Started!</string>
+    <string name="start_duty">Start Duty</string>
+
+    <!-- ScreenChoseStore -->
+    <string name="work_location">Work Location</string>
+    <string name="chose_store_subtitle">Select a branch to start operations</string>
+    <string name="store_not_found">Store Not Found</string>
+    <string name="store_not_found_message">Your account is not connected to any store.\nContact Owner for branch access.</string>
+    <string name="available_branches">Available Branches (%1$d)</string>
+
+    <!-- ScreenSettings -->
+    <string name="app_version">Version %1$s</string>
+    <string name="default_store_name">Laundry Store</string>
+    <string name="change_store_title">Change Store?</string>
+    <string name="change_store_message">Local store data will be deleted from the device. Ensure all data is synced.</string>
+    <string name="change_branch_button">Change Store Branch</string>
+    <string name="digital_devices">Digital Devices</string>
+    <string name="printer_not_selected">Printer Not Selected</string>
+    <string name="printer_search_hint">Click to search for Bluetooth thermal printers</string>
+    <string name="admin_account">Admin Account</string>
+    <string name="logout_button">Logout from Account</string>
+    <string name="logout_title">Logout?</string>
+    <string name="logout_message">You must login again to access this store data.</string>
+
+    <!-- ScreenListOrders -->
+    <string name="order_history">Order History</string>
+    <string name="search_customer_hint">Search customer name…</string>
+    <string name="no_orders_found">No Orders Found</string>
+    <string name="no_orders_message_history">All your transactions will appear here.</string>
+    <string name="no_search_results">Try using another name keyword…</string>
+    <string name="total_transactions">Total %1$d Transactions</string>
+
+    <!-- Activation & Machine Status Bottom Sheets -->
+    <string name="machine_activation">Machine Activation</string>
+    <string name="customer">Customer</string>
+    <string name="service">Service</string>
+    <string name="capacity">Capacity</string>
+    <string name="capacity_large_machine">Large Machine</string>
+    <string name="capacity_small_machine">Small Machine</string>
+    <string name="total_payment">Total Payment</string>
+    <string name="select_machine_unit">Select Machine Unit</string>
+    <string name="select_machine">Select Machine</string>
+    <string name="select_machine_unit_placeholder">Select Machine Unit</string>
+    <string name="no_machines_available">No machines available</string>
+    <string name="no_machines_available_warning">Sorry, all machines of this capacity are full.</string>
+    <string name="small_machine_header">SMALL MACHINE (7KG)</string>
+    <string name="big_machine_header">BIG MACHINE (12KG)</string>
+    <string name="machine_unit_item_format">Machine Unit #%1$s</string>
+    <string name="print_failed_toast">Print Failed! Check Bluetooth Printer.</string>
+    <string name="activate_machine">Activate Machine</string>
+    <string name="machine_dryer">Dryer Machine</string>
+    <string name="machine_washer">Washing Machine</string>
+    <string name="capacity_large_upper">LARGE CAPACITY</string>
+    <string name="capacity_small_upper">SMALL CAPACITY</string>
+    <string name="estimated_finish">Estimated Finish</string>
+    <string name="finish_monitoring">Finish Monitoring</string>
+    <string name="status_washing">Washing Process</string>
+    <string name="status_drying">Drying Process</string>
+    <string name="status_active">Active Status</string>
+    <string name="machine_unit_number">Machine Unit Number %1$d</string>
+    <string name="time_left">Time Left</string>
+    <string name="estimated_finish_at">Estimated finish at %1$s</string>
+    <string name="transaction_detail">Transaction Detail</string>
+    <string name="synced">Synced</string>
+    <string name="pending">Pending</string>
+    <string name="order_id">Order ID</string>
+    <string name="date">Date</string>
+    <string name="payment">Payment</string>
+    <string name="print_receipt">Print Receipt</string>
+    <string name="done">Done</string>
+
+    <!-- ScreenMachines -->
+    <string name="machine_status">Machine Status</string>
+    <string name="machines_registered_count">%1$d Machines Registered</string>
+    <string name="no_machines_yet">No Machines Yet</string>
+    <string name="no_machines_message">Contact developer to register laundry machines in this branch.</string>
+    <string name="available">Available</string>
+    <string name="running">Running</string>
+
+    <!-- ScreenLoading -->
+    <string name="processing">Processing…</string>
+    <string name="dont_close_app">Do not close the app</string>
+
+    <!-- OrderBottomSheet -->
+    <string name="input_new_order">Input New Order</string>
+    <string name="customer_name">Customer Name</string>
+    <string name="customer_name_placeholder">Example: Budi Santoso</string>
+    <string name="laundry_service">Laundry Service</string>
+    <string name="payment_method">Payment Method</string>
+    <string name="total_bill">Total Bill</string>
+    <string name="create_order">Create Order</string>
+
+    <!-- ServiceDropdown -->
+    <string name="select_laundry_service">Select Laundry Service</string>
+    <string name="select_package_placeholder">Select package…</string>
+    <string name="no_services_available">No services available</string>
+    <string name="capacity_large">Large Capacity (12kg)</string>
+    <string name="capacity_small">Small Capacity (7kg)</string>
+    
+    <!-- PaymentTypes -->
+    <string name="payment_cash">Cash</string>
+    <string name="payment_qris">QRIS</string>
+
+    <!-- FAB -->
+    <string name="new_order">New Order</string>
+    <string name="machine_status_fab">Machine Status</string>
+    <string name="order_history_fab">Order History</string>
+
+    <!-- ItemOrderCard -->
+    <string name="needs_activation_washer">Needs activation: Washing Machine</string>
+    <string name="needs_activation_dryer">Needs activation: Dryer Machine</string>
+    <string name="washing_at_number">Washing at Number %1$s</string>
+    <string name="drying_at_number">Drying at Number %1$s</string>
+    <string name="default_customer_name">General Customer</string>
+    <string name="ready_to_sync">Ready to Sync</string>
+
+    <!-- ItemMachineCard -->
+    <string name="in_use">In Use</string>
+    <string name="machine_unit_format">Unit #0%1$d</string>
+    <string name="machine_type_format">%1$s Machine</string>
+    <string name="selected">Selected</string>
+    <string name="capacity_12kg">12 KG</string>
+    <string name="capacity_7kg">7 KG</string>
+
+    <!-- ItemStoreCard -->
+    <string name="default_store_name_placeholder">Aluma Store</string>
 </resources>

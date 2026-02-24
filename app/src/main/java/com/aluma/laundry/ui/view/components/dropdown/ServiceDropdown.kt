@@ -11,11 +11,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -27,8 +27,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.data.service.model.ServiceLocal
 import com.aluma.laundry.utils.formatRupiah
 
@@ -52,8 +54,8 @@ fun ServiceDropdown(
                 "${it.nameService} - ${formatRupiah(it.priceService)}"
             } ?: "",
             onValueChange = {},
-            label = { Text("Pilih Layanan Laundry") },
-            placeholder = { Text("Pilih paket...") },
+            label = { Text(stringResource(id = R.string.select_laundry_service)) },
+            placeholder = { Text(stringResource(id = R.string.select_package_placeholder)) },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
@@ -65,7 +67,7 @@ fun ServiceDropdown(
                 )
             },
             modifier = Modifier
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -81,7 +83,7 @@ fun ServiceDropdown(
         ) {
             if (serviceLocal.isEmpty()) {
                 DropdownMenuItem(
-                    text = { Text("Tidak ada layanan tersedia") },
+                    text = { Text(stringResource(id = R.string.no_services_available)) },
                     onClick = {},
                     enabled = false
                 )
@@ -102,7 +104,7 @@ fun ServiceDropdown(
                                     )
                                     // Badge Kapasitas di bawah nama layanan
                                     Text(
-                                        text = if (service.sizeMachine) "Kapasitas Besar (12kg)" else "Kapasitas Kecil (7kg)",
+                                        text = if (service.sizeMachine) stringResource(id = R.string.capacity_large) else stringResource(id = R.string.capacity_small),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = if (service.sizeMachine) Color(0xFF9C27B0) else Color(0xFF00796B)
                                     )

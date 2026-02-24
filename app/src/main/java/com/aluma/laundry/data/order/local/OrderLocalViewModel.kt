@@ -2,7 +2,6 @@ package com.aluma.laundry.data.order.local
 
 import android.util.Log
 import com.aluma.laundry.data.datastore.StorePreferences
-import com.aluma.laundry.data.income.model.IncomeRemote
 import com.aluma.laundry.data.income.remote.IncomeRemoteRepository
 import com.aluma.laundry.data.logmachine.local.LogMachineLocalRepository
 import com.aluma.laundry.data.logmachine.model.LogMachineLocal
@@ -13,7 +12,6 @@ import com.aluma.laundry.data.machine.model.MachineLocal
 import com.aluma.laundry.data.order.model.OrderLocal
 import com.aluma.laundry.data.order.model.OrderRemote
 import com.aluma.laundry.data.order.remote.OrderRemoteRepository
-import com.aluma.laundry.data.order.utils.SyncStatus
 import com.aluma.laundry.workmanager.SyncUtils
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
@@ -30,10 +28,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import kotlin.coroutines.cancellation.CancellationException
 
 class OrderLocalViewModel(
     private val repo: OrderLocalRepository,

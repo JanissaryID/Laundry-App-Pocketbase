@@ -14,12 +14,12 @@ import androidx.compose.material.icons.filled.LocalLaundryService
 import androidx.compose.material.icons.filled.SettingsRemote
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -31,8 +31,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.data.machine.model.MachineLocal
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,10 +58,10 @@ fun MachineDropdown(
         OutlinedTextField(
             readOnly = true,
             value = selectedMachine?.let {
-                "Unit #${it.numberMachine} (${if (it.sizeMachine) "12kg" else "7kg"})"
-            } ?: "Pilih Unit Mesin",
+                stringResource(R.string.machine_unit_format, it.numberMachine) + " (${if (it.sizeMachine) "12kg" else "7kg"})"
+            } ?: stringResource(R.string.select_machine_unit_placeholder),
             onValueChange = {},
-            label = { Text("Pilih Mesin") },
+            label = { Text(stringResource(R.string.select_machine)) },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
@@ -72,7 +74,7 @@ fun MachineDropdown(
             },
             modifier = Modifier
                 .menuAnchor(
-                    type = MenuAnchorType.PrimaryNotEditable,
+                    type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
                     enabled = enabled
                 )
                 .fillMaxWidth(),
@@ -91,14 +93,14 @@ fun MachineDropdown(
         ) {
             if (availableMachines.isEmpty()) {
                 DropdownMenuItem(
-                    text = { Text("Tidak ada mesin tersedia") },
+                    text = { Text(stringResource(R.string.no_machines_available)) },
                     onClick = {},
                     enabled = false
                 )
             } else {
                 // --- KELOMPOK MESIN KECIL ---
                 if (smallMachines.isNotEmpty()) {
-                    DropdownHeader(label = "MESIN KECIL (7KG)")
+                    DropdownHeader(label = stringResource(R.string.small_machine_header))
                     smallMachines.forEach { machine ->
                         MachineItem(
                             number = machine.numberMachine.toString(),
@@ -117,7 +119,7 @@ fun MachineDropdown(
 
                 // --- KELOMPOK MESIN BESAR ---
                 if (bigMachines.isNotEmpty()) {
-                    DropdownHeader(label = "MESIN BESAR (12KG)")
+                    DropdownHeader(label = stringResource(R.string.big_machine_header))
                     bigMachines.forEach { machine ->
                         MachineItem(
                             number = machine.numberMachine.toString(),
@@ -156,7 +158,7 @@ fun MachineItem(number: String, onClick: () -> Unit) {
                     tint = Color.Gray
                 )
                 Spacer(modifier = Modifier.width(12.dp))
-                Text("Unit Mesin #$number", style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.machine_unit_item_format, number), style = MaterialTheme.typography.bodyLarge)
             }
         },
         onClick = onClick

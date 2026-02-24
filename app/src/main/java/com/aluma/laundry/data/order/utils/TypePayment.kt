@@ -1,12 +1,13 @@
 package com.aluma.laundry.data.order.utils
 
-enum class TypePayment(val label: String) {
-    TUNAI("Tunai"),
-    QRIS("QRIS");
+import androidx.annotation.StringRes
+import com.aluma.laundry.R
+
+enum class TypePayment(@StringRes val labelRes: Int) {
+    TUNAI(R.string.payment_cash),
+    QRIS(R.string.payment_qris);
 
     companion object {
-        fun fromLabel(label: String): TypePayment? {
-            return entries.firstOrNull { it.label.equals(label, ignoreCase = true) }
-        }
+        // fromLabel removed as it relied on hardcoded strings
     }
 }

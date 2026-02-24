@@ -38,8 +38,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.bluetooth.BluetoothHelper
 import com.aluma.laundry.bluetooth.BluetoothSender
 import com.aluma.laundry.data.logmachine.local.LogMachineLocalViewModel
@@ -66,7 +68,7 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
-@SuppressLint("MissingPermission")
+@SuppressLint("MissingPermission", "LocalContextGetResourceValueCall", "StringFormatMatches")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenHome(
@@ -101,12 +103,12 @@ fun ScreenHome(
                 title = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = nameStore ?: "Aluma Laundry",
+                            text = nameStore ?: stringResource(id = R.string.app_name),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.ExtraBold
                         )
                         Text(
-                            text = "• Mode Admin •",
+                            text = stringResource(id = R.string.admin_mode),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.Gray
                         )
@@ -114,10 +116,10 @@ fun ScreenHome(
                 },
                 actions = {
                     IconButton(onClick = onNavigateSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.Gray)
+                        Icon(Icons.Default.Settings, contentDescription = stringResource(id = R.string.settings), tint = Color.Gray)
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         }
         // floatingActionButton sengaja dikosongkan agar kita bisa mengontrol posisi custom FAB secara bebas
@@ -141,13 +143,13 @@ fun ScreenHome(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     StatusMiniCard(
-                        label = "Pesanan",
+                        label = stringResource(id = R.string.order_count),
                         value = orders.size.toString(),
                         modifier = Modifier.weight(1f),
                         color = MaterialTheme.colorScheme.primary
                     )
                     StatusMiniCard(
-                        label = "Mesin Jalan",
+                        label = stringResource(id = R.string.machines_running),
                         value = machines.count { it.inUse }.toString(),
                         modifier = Modifier.weight(1f),
                         color = Color(0xFF4CAF50)
@@ -157,8 +159,8 @@ fun ScreenHome(
                 // Daftar Pesanan
                 if (orders.isEmpty()) {
                     EmptyState(
-                        title = "Belum Ada Pesanan",
-                        message = "Klik tombol + untuk membuat pesanan baru\ndan memulai pencucian.",
+                        title = stringResource(id = R.string.no_orders_yet),
+                        message = stringResource(id = R.string.no_orders_message),
                         icon = Icons.AutoMirrored.Filled.ReceiptLong
                     )
                 } else {
@@ -169,14 +171,14 @@ fun ScreenHome(
                     ) {
                         item {
                             Text(
-                                text = "Antrean Aktif",
+                                text = stringResource(id = R.string.active_queue),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = Color.Gray,
                                 modifier = Modifier.padding(start = 4.dp)
                             )
                         }
 
-                        items(orders, key = { it.id ?: 0 }) { order ->
+                        items(orders, key = { it.id }) { order ->
                             ItemOrderCard(
                                 order = order,
                                 onSelect = {
@@ -248,9 +250,9 @@ fun ScreenHome(
                                         machineLocalViewModel = machineLocalViewModel,
                                         logMachineLocalViewModel = logMachineLocalViewModel
                                     )
-                                    Toast.makeText(context, "Mesin ${machine.numberMachine} Aktif", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.machine_active_toast, machine.numberMachine), Toast.LENGTH_SHORT).show()
                                 } else {
-                                    Toast.makeText(context, "Bluetooth Gagal Terhubung", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.bluetooth_failed), Toast.LENGTH_SHORT).show()
                                 }
                                 onDone()
                             }

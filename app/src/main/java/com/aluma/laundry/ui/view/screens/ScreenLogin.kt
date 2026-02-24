@@ -43,7 +43,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -51,6 +53,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.data.user.remote.UserRemoteViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -61,6 +64,7 @@ fun ScreenLogin(
     userRemoteViewModel: UserRemoteViewModel = koinInject(),
     onSuccess: () -> Unit
 ) {
+    val context = LocalContext.current
     val email by userRemoteViewModel.email.collectAsState()
     val password by userRemoteViewModel.password.collectAsState()
     val isLoading by userRemoteViewModel.isLoading.collectAsState()
@@ -108,14 +112,14 @@ fun ScreenLogin(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    text = "Portal Admin",
+                    text = stringResource(id = R.string.admin_portal),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFF1A1C1E)
                 )
 
                 Text(
-                    text = "Silahkan masuk untuk mulai melayani pelanggan",
+                    text = stringResource(id = R.string.login_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray,
                     textAlign = TextAlign.Center
@@ -127,7 +131,7 @@ fun ScreenLogin(
                 OutlinedTextField(
                     value = email,
                     onValueChange = userRemoteViewModel::onEmailChange,
-                    label = { Text("ID Email Staff") },
+                    label = { Text(stringResource(id = R.string.email_staff_id)) },
                     leadingIcon = { Icon(Icons.Default.AccountCircle, null) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -147,7 +151,7 @@ fun ScreenLogin(
                 OutlinedTextField(
                     value = password,
                     onValueChange = userRemoteViewModel::onPasswordChange,
-                    label = { Text("PIN / Password") },
+                    label = { Text(stringResource(id = R.string.pin_password)) },
                     leadingIcon = { Icon(Icons.Default.VpnKey, null) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -179,7 +183,7 @@ fun ScreenLogin(
                         userRemoteViewModel.login(
                             onSuccess = {
                                 coroutineScope.launch {
-                                    snackbarHostState.showSnackbar("Shift Dimulai!")
+                                    snackbarHostState.showSnackbar(context.getString(R.string.shift_started))
                                     onSuccess()
                                 }
                             },
@@ -202,7 +206,7 @@ fun ScreenLogin(
                     if (isLoading) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
                     } else {
-                        Text("Mulai Bertugas", fontWeight = FontWeight.Bold)
+                        Text(stringResource(id = R.string.start_duty), fontWeight = FontWeight.Bold)
                     }
                 }
             }

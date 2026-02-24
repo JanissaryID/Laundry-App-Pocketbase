@@ -36,13 +36,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.bluetooth.BluetoothPrinter
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
 import com.aluma.laundry.data.machine.model.MachineLocal
 import com.aluma.laundry.data.order.model.OrderLocal
+import com.aluma.laundry.data.order.utils.TypePayment
 import com.aluma.laundry.ui.view.components.dropdown.MachineDropdown
 import com.aluma.laundry.utils.formatRupiah
 import org.koin.compose.koinInject
@@ -93,7 +96,7 @@ fun OrderBottomSheetInformation(
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "Aktivasi Mesin",
+                    text = stringResource(id = R.string.machine_activation),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -109,19 +112,30 @@ fun OrderBottomSheetInformation(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    OrderInfoRow(label = "Pelanggan", value = order.customerName ?: "-")
+                    OrderInfoRow(label = stringResource(id = R.string.customer), value = order.customerName ?: "-")
                     OrderInfoRow(
-                        label = "Layanan",
+                        label = stringResource(id = R.string.service),
                         value = order.serviceName ?: "-",
                         isHighlighted = true
                     )
                     OrderInfoRow(
-                        label = "Kapasitas",
-                        value = if (order.sizeMachine) "Mesin Besar" else "Mesin Kecil"
+                        label = stringResource(id = R.string.capacity),
+                        value = if (order.sizeMachine) stringResource(id = R.string.capacity_large) else stringResource(id = R.string.capacity_small)
                     )
                     OrderInfoRow(
-                        label = "Total",
-                        value = "${formatRupiah(order.price ?: "0")} (${order.typePayment})"
+                        label = stringResource(id = R.string.total),
+                        value = buildString {
+                            append(formatRupiah(order.price ?: "0"))
+                            order.typePayment?.let { type ->
+                                val resId = try {
+                                    TypePayment.valueOf(type).labelRes
+                                } catch (e: Exception) {
+                                    null
+                                }
+                                val label = resId?.let { stringResource(it) } ?: type
+                                append(" ($label)")
+                            }
+                        }
                     )
                 }
             }
@@ -129,7 +143,7 @@ fun OrderBottomSheetInformation(
             // --- PEMILIHAN MESIN ---
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    text = "Pilih Unit Mesin",
+                    text = stringResource(id = R.string.select_machine_unit),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -147,7 +161,7 @@ fun OrderBottomSheetInformation(
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
-                            text = "Maaf, semua mesin kapasitas ini sedang penuh.",
+                            text = stringResource(id = R.string.no_machines_available_warning),
                             modifier = Modifier.padding(8.dp),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error
@@ -178,7 +192,7 @@ fun OrderBottomSheetInformation(
                             paymentMethod = order.typePayment.orEmpty()
                         )
                         if (!success) {
-                            Toast.makeText(context, "Gagal Mencetak! Periksa Bluetooth Printer.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.print_failed_toast), Toast.LENGTH_SHORT).show()
                         }
                     },
                     modifier = Modifier.weight(0.4f).height(52.dp),
@@ -208,7 +222,7 @@ fun OrderBottomSheetInformation(
                     if (isSubmitting) {
                         CircularProgressIndicator(color = Color.White, strokeWidth = 2.dp, modifier = Modifier.size(20.dp))
                     } else {
-                        Text("Aktifkan Mesin", fontWeight = FontWeight.Bold)
+                        Text(stringResource(id = R.string.activate_machine), fontWeight = FontWeight.Bold)
                     }
                 }
             }

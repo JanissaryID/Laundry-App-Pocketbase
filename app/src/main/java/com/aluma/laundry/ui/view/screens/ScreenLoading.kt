@@ -32,13 +32,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 
 @Composable
 fun ScreenLoading(
-    message: String = "Sedang Memproses...",
+    message: String = stringResource(id = R.string.processing),
     isFullScreen: Boolean = true,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
@@ -126,7 +128,7 @@ fun ScreenLoading(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "Jangan tutup aplikasi",
+                    text = stringResource(id = R.string.dont_close_app),
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.Gray
                 )

@@ -35,12 +35,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.bluetooth.BluetoothPrinter
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.data.order.model.OrderLocal
 import com.aluma.laundry.data.order.utils.SyncStatus
+import com.aluma.laundry.data.order.utils.TypePayment
 import com.aluma.laundry.utils.formatRupiah
 import org.koin.compose.koinInject
 
@@ -81,7 +84,7 @@ fun OrderBottomSheetReadOnly(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Detail Transaksi",
+                    text = stringResource(id = R.string.transaction_detail),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -104,7 +107,7 @@ fun OrderBottomSheetReadOnly(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = if (isSynced) "Terdata" else "Tertunda",
+                            text = if (isSynced) stringResource(id = R.string.synced) else stringResource(id = R.string.pending),
                             style = MaterialTheme.typography.labelSmall,
                             color = if (isSynced) Color(0xFF4CAF50) else Color(0xFFFFA000)
                         )
@@ -122,27 +125,35 @@ fun OrderBottomSheetReadOnly(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    OrderInfoRow(label = "ID Order", value = "#${order.id ?: "N/A"}")
-                    OrderInfoRow(label = "Tanggal", value = order.date ?: "-")
+                    OrderInfoRow(label = stringResource(id = R.string.order_id), value = "#${order.id}")
+                    OrderInfoRow(label = stringResource(id = R.string.date), value = order.date ?: "-")
 
                     HorizontalDivider(thickness = 1.dp, color = Color(0xFFEEEEEE))
 
-                    OrderInfoRow(label = "Pelanggan", value = order.customerName ?: "-")
+                    OrderInfoRow(label = stringResource(id = R.string.customer), value = order.customerName ?: "-")
                     OrderInfoRow(
-                        label = "Layanan",
-                        value = "${order.serviceName} (${if (order.sizeMachine) "Besar" else "Kecil"})",
+                        label = stringResource(id = R.string.service),
+                        value = "${order.serviceName} (${if (order.sizeMachine) stringResource(id = R.string.capacity_large) else stringResource(id = R.string.capacity_small)})",
                         isHighlighted = true
                     )
-                    OrderInfoRow(label = "Pembayaran", value = order.typePayment ?: "-")
-
-                    HorizontalDivider(thickness = 1.dp, color = Color(0xFFEEEEEE))
+                    OrderInfoRow(
+                        label = stringResource(id = R.string.payment),
+                        value = order.typePayment?.let { type ->
+                            val resId = try {
+                                TypePayment.valueOf(type).labelRes
+                            } catch (e: Exception) {
+                                null
+                            }
+                            resId?.let { stringResource(it) } ?: type
+                        } ?: "-"
+                    )
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "TOTAL",
+                            text = stringResource(id = R.string.total),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.ExtraBold
                         )
@@ -174,14 +185,14 @@ fun OrderBottomSheetReadOnly(
                             customerName = order.customerName.orEmpty(),
                             paymentMethod = order.typePayment.orEmpty()
                         )
-                        if (!stat) Toast.makeText(context, "Printer Gagal", Toast.LENGTH_SHORT).show()
+                        if (!stat) Toast.makeText(context, context.getString(R.string.print_failed_toast), Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.weight(1f).height(52.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(Icons.Default.Print, null, modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Cetak Nota")
+                    Text(stringResource(id = R.string.print_receipt))
                 }
 
                 Button(
@@ -189,7 +200,7 @@ fun OrderBottomSheetReadOnly(
                     modifier = Modifier.weight(1f).height(52.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Selesai", fontWeight = FontWeight.Bold)
+                    Text(stringResource(id = R.string.done), fontWeight = FontWeight.Bold)
                 }
             }
         }

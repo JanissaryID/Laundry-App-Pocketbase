@@ -41,9 +41,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.bluetooth.BluetoothHelper
 import com.aluma.laundry.bluetooth.BluetoothPrinter
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
@@ -86,10 +88,10 @@ fun ScreenSettings(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Pengaturan", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(id = R.string.settings), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
@@ -110,7 +112,7 @@ fun ScreenSettings(
                     color = Color.Gray
                 )
                 Text(
-                    text = "Versi $appVersion",
+                    text = stringResource(id = R.string.app_version, appVersion),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.LightGray
                 )
@@ -147,7 +149,7 @@ fun ScreenSettings(
                     }
                     Spacer(Modifier.height(16.dp))
                     Text(
-                        text = nameStore.orEmpty().ifBlank { "Toko Laundry" },
+                        text = nameStore.orEmpty().ifBlank { stringResource(id = R.string.default_store_name) },
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.ExtraBold,
                         textAlign = TextAlign.Center
@@ -164,25 +166,25 @@ fun ScreenSettings(
                     OutlinedButton(
                         onClick = {
                             isLogoutAction = false
-                            titleDialog = "Ganti Toko?"
-                            messageDialog = "Data lokal toko ini akan dihapus dari perangkat. Pastikan semua data sudah tersinkron."
+                            titleDialog = context.getString(R.string.change_store_title)
+                            messageDialog = context.getString(R.string.change_store_message)
                             showDialog = true
                         },
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(Icons.Default.SyncAlt, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Ganti Cabang Toko")
+                        Text(stringResource(id = R.string.change_branch_button))
                     }
                 }
             }
 
             // --- SECTION: PERANGKAT & PRINTER ---
-            item { SettingSectionHeader(title = "Perangkat Digital") }
+            item { SettingSectionHeader(title = stringResource(id = R.string.digital_devices)) }
             item {
                 ItemSettingCard(
-                    title = if (!bluetoothName.isNullOrBlank()) bluetoothName.orEmpty() else "Printer Belum Dipilih",
-                    subtitle = if (!bluetoothAddress.isNullOrBlank()) bluetoothAddress.orEmpty() else "Klik untuk mencari printer thermal Bluetooth",
+                    title = if (!bluetoothName.isNullOrBlank()) bluetoothName.orEmpty() else stringResource(id = R.string.printer_not_selected),
+                    subtitle = if (!bluetoothAddress.isNullOrBlank()) bluetoothAddress.orEmpty() else stringResource(id = R.string.printer_search_hint),
                     icon = Icons.Default.Bluetooth,
                     onClick = {
                         bluetoothHelper.requestBluetooth {
@@ -194,18 +196,18 @@ fun ScreenSettings(
 
             // --- SECTION: AKUN ---
             item { Spacer(Modifier.height(16.dp)) }
-            item { SettingSectionHeader(title = "Akun Admin") }
+            item { SettingSectionHeader(title = stringResource(id = R.string.admin_account)) }
             item {
                 ItemSettingCard(
-                    title = "Keluar dari Akun",
+                    title = stringResource(id = R.string.logout_button),
                     subtitle = email.orEmpty().ifBlank { "admin@laundry.com" },
                     icon = Icons.AutoMirrored.Filled.ExitToApp,
                     iconTint = MaterialTheme.colorScheme.error,
                     textColor = MaterialTheme.colorScheme.error,
                     onClick = {
                         isLogoutAction = true
-                        titleDialog = "Logout?"
-                        messageDialog = "Anda harus login kembali untuk mengakses data toko ini."
+                        titleDialog = context.getString(R.string.logout_title)
+                        messageDialog = context.getString(R.string.logout_message)
                         showDialog = true
                     }
                 )

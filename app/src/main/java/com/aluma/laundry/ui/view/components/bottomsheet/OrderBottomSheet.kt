@@ -36,10 +36,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import com.aluma.laundry.R
 import com.aluma.laundry.data.order.model.OrderLocal
 import com.aluma.laundry.data.order.utils.SyncStatus
 import com.aluma.laundry.data.order.utils.TypePayment
@@ -87,7 +89,7 @@ fun OrderBottomSheet(
         ) {
             // --- HEADER ---
             Text(
-                text = "Input Order Baru",
+                text = stringResource(id = R.string.input_new_order),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -100,8 +102,8 @@ fun OrderBottomSheet(
                         word.lowercase().replaceFirstChar { it.uppercase() }
                     }
                 },
-                label = { Text("Nama Pelanggan") },
-                placeholder = { Text("Contoh: Budi Santoso") },
+                label = { Text(stringResource(id = R.string.customer_name)) },
+                placeholder = { Text(stringResource(id = R.string.customer_name_placeholder)) },
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = { Icon(Icons.Default.Person, null) },
                 shape = RoundedCornerShape(12.dp),
@@ -114,7 +116,7 @@ fun OrderBottomSheet(
 
             // --- PILIH LAYANAN ---
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Layanan Laundry", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(id = R.string.laundry_service), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 ServiceDropdown(
                     serviceLocal = services,
                     selectedServiceLocal = selectedServiceLocal,
@@ -124,7 +126,7 @@ fun OrderBottomSheet(
 
             // --- METODE PEMBAYARAN ---
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Metode Pembayaran", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(id = R.string.payment_method), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -157,7 +159,7 @@ fun OrderBottomSheet(
                                     modifier = Modifier.size(24.dp)
                                 )
                                 Text(
-                                    text = method.label,
+                                    text = stringResource(id = method.labelRes),
                                     style = MaterialTheme.typography.labelLarge,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                     color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray
@@ -182,7 +184,7 @@ fun OrderBottomSheet(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Total Tagihan", style = MaterialTheme.typography.labelMedium)
+                        Text(stringResource(id = R.string.total_bill), style = MaterialTheme.typography.labelMedium)
                         Text(
                             text = selectedServiceLocal?.let { formatRupiah(it.priceService) } ?: "Rp 0",
                             style = MaterialTheme.typography.titleLarge,
@@ -239,7 +241,7 @@ fun OrderBottomSheet(
                         if (isSubmitting) {
                             CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
                         } else {
-                            Text("Buat Pesanan", fontWeight = FontWeight.Bold)
+                            Text(stringResource(id = R.string.create_order), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
