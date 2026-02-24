@@ -52,14 +52,34 @@ fun ChartIncome(
 
     if (pointsData.isEmpty()) return
 
-    val maxIncome = pointsData.maxOf { it.y }
+    val rawMaxIncome = pointsData.maxOf { it.y }
     val steps = 5
     
+    // Calculate a "nice" max income for better scaling
+    val niceMaxIncome = remember(rawMaxIncome) {
+        if (rawMaxIncome <= 0f) 50000f
+        else {
+            val exponent = Math.floor(Math.log10(rawMaxIncome.toDouble())).toInt()
+            val fraction = rawMaxIncome / Math.pow(10.0, exponent.toDouble()).toFloat()
+            val niceFraction = when {
+                fraction <= 1.0f -> 1.0f
+                fraction <= 2.0f -> 2.0f
+                fraction <= 5.0f -> 5.0f
+                else -> 10.0f
+            }
+            niceFraction * Math.pow(10.0, exponent.toDouble()).toFloat()
+        }
+    }
+
     val xAxisData = AxisData.Builder()
-        .axisStepSize(40.dp)
+        .axisStepSize(45.dp) // Slightly wider for better spacing
         .backgroundColor(Color.Transparent)
         .steps(pointsData.size - 1)
-        .labelData { i -> "${i + 1}" }
+        .labelData { i -> 
+            val day = i + 1
+            // Show labels for 1st, 5th, 10th, 15th, 20th, 25th, and last day to avoid crowding
+            if (day == 1 || day % 5 == 0 || day == daysInMonth) day.toString() else ""
+        }
         .labelAndAxisLinePadding(15.dp)
         .axisLabelColor(MaterialTheme.colorScheme.onSurface)
         .axisLineColor(MaterialTheme.colorScheme.outline)
@@ -70,10 +90,10 @@ fun ChartIncome(
         .backgroundColor(Color.Transparent)
         .labelAndAxisLinePadding(20.dp)
         .labelData { i ->
-            val value = (i * maxIncome / steps).toLong()
+            val value = (i * niceMaxIncome / steps).toLong()
             when {
-                value >= 1_000_000 -> "Rp ${(value / 1_000_000f).formatToSinglePrecision()}jt"
-                value >= 1_000 -> "Rp ${value / 1_000}rb"
+                value >= 1_000_000 -> "Rp ${(value / 1_000_000f).formatToSinglePrecision()} Jt"
+                value >= 1_000 -> "Rp ${value / 1_000} Rb"
                 else -> "Rp $value"
             }
         }
