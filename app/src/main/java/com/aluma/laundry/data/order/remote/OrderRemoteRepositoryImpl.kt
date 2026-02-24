@@ -4,6 +4,7 @@ import android.util.Log
 import com.aluma.laundry.data.order.model.OrderRemote
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
 import kotlinx.coroutines.CancellationException
+import io.github.agrevster.pocketbaseKotlin.models.Record
 import kotlinx.serialization.json.Json
 
 class OrderRemoteRepositoryImpl(
@@ -15,7 +16,7 @@ class OrderRemoteRepositoryImpl(
 
     override suspend fun createOrder(order: OrderRemote) {
         try {
-            client.records.create<OrderRemote>(
+            client.records.create<Record>(
                 collection,
                 json.encodeToString(order)
             )

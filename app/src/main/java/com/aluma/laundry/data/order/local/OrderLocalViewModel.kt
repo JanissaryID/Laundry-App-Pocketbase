@@ -185,15 +185,13 @@ class OrderLocalViewModel(
             }
         }
 
+        // REMOVED: Redundant sync logic that caused duplication.
+        // Sync is now handled exclusively by SyncWorker (WorkManager).
         if (_isLoggedIn.value) {
-            syncPendingOrders(orders)
             repo.deleteOldSyncedOrders()
-
-            syncPendingLogMachine(logMachineLocal)
             logMachineLocalRepository.deleteOldSyncedLogMachine()
         }
     }
-
     private fun determineUpdatedStep(order: OrderLocal): Int {
         return when (order.typeMachineService) {
             0, 1 -> 4
@@ -202,87 +200,15 @@ class OrderLocalViewModel(
         }
     }
 
-    private suspend fun syncPendingOrders(orders: List<OrderLocal>) {
-        val pendingOrders = orders.filter {
-            it.syncStatus == SyncStatus.PENDING || it.syncStatus == SyncStatus.FAILED
-        }
-
-        var total = 0
-        for (order in pendingOrders) {
-            try {
-                orderRemoteRepository.createOrder(order.toRemoteModel())
-                repo.updateSyncStatusOnly(order.id,SyncStatus.SYNCED)
-
-                total += order.price?.toIntOrNull() ?: 0
-
-                Log.d("SyncChecker", "✅ Synced order ${order.id}")
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                repo.updateSyncStatusOnly(order.id,SyncStatus.FAILED)
-                Log.e("SyncChecker", "❌ Failed to sync order ${order.id}", e)
-                SyncUtils.enqueueSync(context = storePreferences.context)
-            }
-        }
-
-        val ordersByDate = pendingOrders.groupBy { it.date?.take(10) ?: LocalDate.now().toString() }
-
-        ordersByDate.forEach { (date, orders) ->
-            val dailyTotal = orders.sumOf { it.price?.toIntOrNull() ?: 0 }
-            if (dailyTotal > 0) {
-                try {
-                    val incomes = incomeRemoteRepository.getIncomeByDate(storeId = _storeID.value.orEmpty(), date = date)
-                    if (incomes.isEmpty()) {
-                        val incomeRemote = IncomeRemote(
-                            store = _storeID.value.orEmpty(),
-                            user = _userID.value.orEmpty(),
-                            date = date,
-                            total = dailyTotal.toString()
-                        )
-                        incomeRemoteRepository.createIncome(incomeRemote)
-                    } else {
-                        val currentTotal = incomes[0].total?.toIntOrNull() ?: 0
-                        val newTotal = currentTotal + dailyTotal
-                        incomeRemoteRepository.updateIncome(incomeId = incomes[0].id.orEmpty(), income = newTotal.toString())
-                    }
-                } catch (e: Exception) {
-                    Log.e("SyncChecker", "❌ Failed to update income for $date", e)
-                }
-            }
-        }
-    }
-
-    private suspend fun syncPendingLogMachine(logMachine: List<LogMachineLocal>) {
-        val pendingLogMachine = logMachine.filter {
-            it.syncStatus == SyncStatus.PENDING || it.syncStatus == SyncStatus.FAILED
-        }
-
-        for (logMachine in pendingLogMachine) {
-            try {
-                logMachineRemoteRepository.createLogMachine(logMachine.toRemoteModel())
-                logMachineLocalRepository.updateSyncStatusOnly(logMachine.id,SyncStatus.SYNCED)
-                Log.d("SyncChecker", "✅ Synced Log Machine ${logMachine.id}")
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                logMachineLocalRepository.updateSyncStatusOnly(logMachine.id,SyncStatus.FAILED)
-                Log.e("SyncChecker", "❌ Failed to Log Machine order ${logMachine.id}", e)
-                SyncUtils.enqueueSync(context = storePreferences.context)
-            }
-        }
-    }
-
 
     fun syncNow() = viewModelScope.launch {
-        val latest = repo.orders.first()
-        val latestLog = logMachineLocalRepository.logMachine.first()
-        syncPendingOrders(latest)
-        syncPendingLogMachine(latestLog)
+        SyncUtils.enqueueSync(storePreferences.context)
     }
 }
 
 fun OrderLocal.toRemoteModel(): OrderRemote {
     return OrderRemote(
+        id = id,
         customerName = customerName,
         serviceName = serviceName,
         sizeMachine = sizeMachine,
@@ -297,6 +223,7 @@ fun OrderLocal.toRemoteModel(): OrderRemote {
 
 fun LogMachineLocal.toRemoteModel(): LogMachineRemote {
     return LogMachineRemote(
+        id = id,
         numberMachine = numberMachine,
         typeMachine = typeMachine,
         sizeMachine = sizeMachine,

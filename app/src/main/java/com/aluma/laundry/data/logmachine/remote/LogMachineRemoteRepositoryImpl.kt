@@ -3,6 +3,7 @@ package com.aluma.laundry.data.logmachine.remote
 import android.util.Log
 import com.aluma.laundry.data.logmachine.model.LogMachineRemote
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
+import io.github.agrevster.pocketbaseKotlin.models.Record
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
 
@@ -15,7 +16,7 @@ class LogMachineRemoteRepositoryImpl(
 
     override suspend fun createLogMachine(logMachineRemote: LogMachineRemote) {
         try {
-            client.records.create<LogMachineRemote>(
+            client.records.create<Record>(
                 collection,
                 json.encodeToString(logMachineRemote)
             )

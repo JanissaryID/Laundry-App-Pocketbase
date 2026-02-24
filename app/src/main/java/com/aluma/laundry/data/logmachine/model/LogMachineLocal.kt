@@ -4,11 +4,11 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.aluma.laundry.data.order.utils.SyncStatus
-import java.util.UUID
+import com.aluma.laundry.utils.IdGenerator
 
 @Entity(tableName = "log_machine")
 data class LogMachineLocal(
-    @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    @PrimaryKey val id: String = IdGenerator.generateId(),
     val numberMachine: Int = 0,
     val typeMachine: Boolean = false,
     val sizeMachine: Boolean = false,

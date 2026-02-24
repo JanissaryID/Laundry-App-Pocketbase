@@ -1,10 +1,10 @@
 package com.aluma.laundry.data.order.model
 
-import io.github.agrevster.pocketbaseKotlin.models.Record
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class OrderRemote(
+    val id: String = "",
     val customerName: String? = null,
     val serviceName: String? = null,
     val sizeMachine: Boolean = false,
@@ -14,4 +14,4 @@ data class OrderRemote(
     val user: String? = null,
     val store: String? = null,
     val date: String? = null,
-) : Record()
+)
