@@ -23,6 +23,7 @@ import com.aluma.owner.ui.view.screens.ScreenMachine
 import com.aluma.owner.ui.view.screens.ScreenServices
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.aluma.owner.utils.safePopBackStack
 import org.koin.compose.koinInject
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -92,17 +93,17 @@ fun AppNavHost(
         }
         composable(Screens.Machines.route) {
             ScreenMachine(
-                onBack = { navController.popBackStack() },
+                onBack = { navController.safePopBackStack() },
             )
         }
         composable(Screens.Orders.route) {
             ScreenListOrders(
-                onBack = { navController.popBackStack() },
+                onBack = { navController.safePopBackStack() },
             )
         }
         composable(Screens.Services.route) {
             ScreenServices(
-                onBack = { navController.popBackStack() },
+                onBack = { navController.safePopBackStack() },
             )
         }
         composable(Screens.Login.route) {
