@@ -13,6 +13,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BluetoothConnected
 import androidx.compose.material.icons.filled.CheckCircleOutline
+import androidx.compose.material.icons.filled.CloudDone
+import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material.icons.filled.DryCleaning
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.LocalLaundryService
@@ -33,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.R
 import com.aluma.laundry.data.order.model.OrderLocal
+import com.aluma.laundry.data.order.utils.SyncStatus
 import com.aluma.laundry.data.order.utils.Quad
 
 @Composable
@@ -100,12 +104,29 @@ fun ItemOrderCard(
                     color = Color(0xFF2D3142)
                 )
 
-                // Format tanggal/waktu (Misal diambil dari string order.date)
-                Text(
-                    text = order.date?.take(10) ?: "", // Menampilkan YYYY-MM-DD
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.Gray
-                )
+                // Format tanggal/waktu & Status Sinkronisasi
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = when (order.syncStatus) {
+                            SyncStatus.SYNCED -> Icons.Default.CloudDone
+                            SyncStatus.FAILED -> Icons.Default.CloudOff
+                            else -> Icons.Default.CloudQueue
+                        },
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = when (order.syncStatus) {
+                            SyncStatus.SYNCED -> Color(0xFF4CAF50)
+                            SyncStatus.FAILED -> Color(0xFFD32F2F)
+                            else -> Color.Gray
+                        }
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = order.date?.take(10) ?: "", // Menampilkan YYYY-MM-DD
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Gray
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))

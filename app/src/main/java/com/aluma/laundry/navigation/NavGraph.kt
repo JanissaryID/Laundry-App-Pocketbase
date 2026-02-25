@@ -69,13 +69,22 @@ fun AppNavHost(
         composable(Screens.Home.route) {
             ScreenHome(
                 onNavigateOrder = {
-                    navController.navigate(Screens.Orders.route)
+                    navController.navigate(Screens.Orders.route) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 },
                 onNavigateMachine = {
-                    navController.navigate(Screens.Machines.route)
+                    navController.navigate(Screens.Machines.route) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 },
                 onNavigateSettings = {
-                    navController.navigate(Screens.Settings.route)
+                    navController.navigate(Screens.Settings.route) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 },
                 bluetoothHelper = bluetoothHelper
             )
@@ -94,7 +103,11 @@ fun AppNavHost(
 
             ScreenChoseStore(
                 canGoBack = canGoBack,
-                onBack = { navController.popBackStack() },
+                onBack = { 
+                    if (canGoBack) {
+                        navController.navigateUp()
+                    }
+                },
                 nextScreen = {
                     if (canGoBack){
                         showLoading = true
@@ -124,7 +137,11 @@ fun AppNavHost(
         }
         composable(Screens.Settings.route) {
             ScreenSettings(
-                onBack = { navController.popBackStack() },
+                onBack = { 
+                    if (navController.previousBackStackEntry != null) {
+                        navController.navigateUp()
+                    }
+                },
                 onChangeStore = {
                     navController.navigate(Screens.ChoseStore.route) {
                         launchSingleTop = true
@@ -133,7 +150,7 @@ fun AppNavHost(
                 onLogout = {
                     showLoading = true
                     storePreferenceViewModel.clearData()
-
+/*
                     // Tunda navigasi untuk tampilkan loading dulu
                     coroutineScope.launch {
                         delay(500)
@@ -144,18 +161,33 @@ fun AppNavHost(
                             launchSingleTop = true // Hindari multiple instance jika sudah di stack
                         }
                     }
+*/
+                    // Simplifying logout to avoid potential race conditions with state while navigating
+                    navController.navigate(Screens.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                    showLoading = false
                 },
                 bluetoothHelper = bluetoothHelper
             )
         }
         composable(Screens.Machines.route) {
             ScreenMachine(
-                onBack = { navController.popBackStack() },
+                onBack = { 
+                    if (navController.previousBackStackEntry != null) {
+                        navController.navigateUp()
+                    }
+                },
             )
         }
         composable(Screens.Orders.route) {
             ScreenListOrders(
-                onBack = { navController.popBackStack() },
+                onBack = { 
+                    if (navController.previousBackStackEntry != null) {
+                        navController.navigateUp()
+                    }
+                },
             )
         }
     }

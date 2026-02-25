@@ -21,10 +21,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.LocalLaundryService
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -49,8 +47,6 @@ fun FabWithSubmenu(
     isFabExpanded: Boolean,
     onFabToggle: () -> Unit,
     onDismissRequest: () -> Unit,
-    listMachine: () -> Unit,
-    listOrder: () -> Unit,
     addOrder: () -> Unit,
 ) {
     // Kita gunakan Box fillMaxSize tanpa padding apa pun di layer ini
@@ -92,8 +88,6 @@ fun FabWithSubmenu(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     horizontalAlignment = Alignment.End
                 ) {
-                    FabWithLabels(stringResource(R.string.order_history_fab), Icons.AutoMirrored.Filled.FormatListBulleted, onClick = listOrder)
-                    FabWithLabels(stringResource(R.string.machine_status_fab), Icons.Default.LocalLaundryService, onClick = listMachine)
                     FabWithLabel(
                         label = stringResource(R.string.new_order),
                         icon = Icons.Default.Add,

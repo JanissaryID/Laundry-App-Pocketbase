@@ -13,6 +13,7 @@
     <string name="success">Success</string>
     <string name="failed">Failed</string>
     <string name="total">Total</string>
+    <string name="click_to_view_details">Click to view details</string>
 
     <!-- ScreenHome -->
     <string name="admin_mode">• Admin Mode •</string>
