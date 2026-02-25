@@ -29,6 +29,7 @@
     <string name="home_empty_store">Belum ada store terpilih</string>
     <string name="dialog_logout_title">Keluar Aplikasi</string>
     <string name="dialog_logout_message">Apakah anda yakin ingin keluar? Anda perlu login kembali untuk mengakses data.</string>
+    <string name="dialog_logout_confirm">Ya, Keluar</string>
     <string name="dialog_confirm_no">Tidak</string>
     <string name="dialog_confirm_yes_delete">Ya, Hapus</string>
     

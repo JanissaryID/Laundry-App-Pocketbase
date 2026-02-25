@@ -273,6 +273,7 @@ fun ScreenHomeOwner(
             ConfirmDialog(
                 title = stringResource(R.string.dialog_logout_title),
                 message = stringResource(R.string.dialog_logout_message),
+                confirmText = stringResource(R.string.dialog_logout_confirm),
                 onDismiss = { showDialog = false },
                 onConfirm = { onLogout() }
             )

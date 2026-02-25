@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.aluma.owner.R
 
 @Composable
@@ -39,20 +41,25 @@ fun ConfirmDialog(
     title: String,
     message: String,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
+    confirmText: String = stringResource(R.string.dialog_confirm_yes_delete),
+    dismissText: String = stringResource(R.string.dialog_confirm_no)
 ) {
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Surface(
             shape = RoundedCornerShape(24.dp), // Konsisten dengan sudut kartu lain
             color = Color.White,
             tonalElevation = 8.dp,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(horizontal = 32.dp) // Sesuaikan lebar agar lebih besar di screen
         ) {
             Column(
                 modifier = Modifier
-                    .padding(24.dp),
+                    .padding(horizontal = 16.dp, vertical = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Ikon Peringatan (Opsional, untuk memperjelas konteks)
@@ -107,14 +114,15 @@ fun ConfirmDialog(
                         onClick = onDismiss,
                         modifier = Modifier
                             .weight(1f)
-                            .height(48.dp),
+                            .heightIn(min = 48.dp),
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.dp, Color.LightGray)
                     ) {
                         Text(
-                            stringResource(R.string.dialog_confirm_no),
+                            dismissText,
                             style = MaterialTheme.typography.labelLarge,
-                            color = Color.Gray
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center
                         )
                     }
 
@@ -123,17 +131,18 @@ fun ConfirmDialog(
                         onClick = onConfirm,
                         modifier = Modifier
                             .weight(1f)
-                            .height(48.dp),
+                            .heightIn(min = 48.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.error // Merah jika hapus, atau Primary
                         )
                     ) {
                         Text(
-                            stringResource(R.string.dialog_confirm_yes_delete),
+                            confirmText,
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = Color.White,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }

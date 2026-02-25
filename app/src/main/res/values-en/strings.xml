@@ -29,6 +29,7 @@
     <string name="home_empty_store">No store selected</string>
     <string name="dialog_logout_title">Logout</string>
     <string name="dialog_logout_message">Are you sure you want to logout? You will need to login again to access data.</string>
+    <string name="dialog_logout_confirm">Yes, Logout</string>
     <string name="dialog_confirm_no">No</string>
     <string name="dialog_confirm_yes_delete">Yes, Delete</string>
     
