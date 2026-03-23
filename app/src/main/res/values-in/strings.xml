@@ -64,6 +64,7 @@
     <string name="no_orders_message_history">Semua transaksi Anda akan muncul di sini.</string>
     <string name="no_search_results">Coba gunakan kata kunci nama lain…</string>
     <string name="total_transactions">Total %1$d Transaksi</string>
+    <string name="sync_now">Sinkron Sekarang</string>
 
     <!-- Activation & Machine Status Bottom Sheets -->
     <string name="machine_activation">Aktivasi Mesin</string>

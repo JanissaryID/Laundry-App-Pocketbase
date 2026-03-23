@@ -12,19 +12,23 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.LocalLaundryService
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -66,7 +70,6 @@ import com.aluma.laundry.ui.view.components.EmptyState
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheet
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheetInformation
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheetInformationTime
-import com.aluma.laundry.ui.view.components.fab.FabWithSubmenu
 import com.aluma.laundry.ui.view.components.itemscard.ItemOrderCard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -96,7 +99,6 @@ fun ScreenHome(
     val machines by machineLocalViewModel.machines.collectAsState()
     val selectedOrder by orderLocalViewModel.selectedOrder.collectAsState()
 
-    var isFabExpanded by remember { mutableStateOf(false) }
     var showOrderSheet by remember { mutableStateOf(false) }
     var showOrderSheetMachine by remember { mutableStateOf(false) }
     var showOrderSheetMachineRunning by remember { mutableStateOf(false) }
@@ -214,16 +216,33 @@ fun ScreenHome(
                 }
             }
 
-            // 2. CUSTOM FAB & OVERLAY (Di luar innerPadding agar full screen)
-            FabWithSubmenu(
-                isFabExpanded = isFabExpanded,
-                onFabToggle = {
+            // 2. Simple FAB (Extended)
+            ExtendedFloatingActionButton(
+                onClick = {
                     machineRemoteViewModel.fetchMachine()
                     serviceRemoteViewModel.fetchServices()
-                    isFabExpanded = !isFabExpanded
+                    showOrderSheet = true
                 },
-                onDismissRequest = { isFabExpanded = false },
-                addOrder = { showOrderSheet = true }
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = Color.White,
+                shape = RoundedCornerShape(16.dp),
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(id = R.string.new_order),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 16.dp, end = 16.dp)
+                    .navigationBarsPadding()
             )
         }
     }

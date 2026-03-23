@@ -64,6 +64,7 @@
     <string name="no_orders_message_history">All your transactions will appear here.</string>
     <string name="no_search_results">Try using another name keyword…</string>
     <string name="total_transactions">Total %1$d Transactions</string>
+    <string name="sync_now">Sync Now</string>
 
     <!-- Activation & Machine Status Bottom Sheets -->
     <string name="machine_activation">Machine Activation</string>
