@@ -123,4 +123,13 @@
     <string name="employee_bs_placeholder_name">Masukkan nama lengkap</string>
     <string name="employee_bs_label_user">Hubungkan ke User ID</string>
     <string name="employee_bs_placeholder_user">Pilih User ID</string>
+
+    <!-- Attendance Menu -->
+    <string name="attendance_list_subtitle">Riwayat kehadiran staf</string>
+    <string name="attendance_list_empty_title">Data Kehadiran Kosong</string>
+    <string name="attendance_list_empty_message">Belum ada catatan kehadiran untuk karyawan ini.</string>
+    <string name="attendance_status_present">Hadir</string>
+    <string name="attendance_status_absent">Tidak Hadir</string>
+    <string name="attendance_label_checkin">Jam Masuk</string>
+    <string name="attendance_label_checkout">Jam Keluar</string>
 </resources>

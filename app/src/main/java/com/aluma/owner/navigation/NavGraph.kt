@@ -11,10 +11,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.aluma.owner.data.datastore.StorePreferenceViewModel
+import com.aluma.owner.ui.view.screens.ScreenAttendance
 import com.aluma.owner.ui.view.screens.ScreenEmployees
 import com.aluma.owner.ui.view.screens.ScreenHomeOwner
 import com.aluma.owner.ui.view.screens.ScreenListOrders
@@ -97,7 +100,26 @@ fun AppNavHost(
         }
         composable(Screens.Employees.route) {
             ScreenEmployees(
-                onBack = { navController.safePopBackStack() }
+                onBack = { navController.navigateUp() },
+                onAttendance = { id, name ->
+                    navController.navigate(Screens.Attendance.createRoute(id, name))
+                }
+            )
+        }
+
+        composable(
+            Screens.Attendance.route,
+            arguments = listOf(
+                navArgument("employeeId") { type = NavType.StringType },
+                navArgument("employeeName") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val employeeId = backStackEntry.arguments?.getString("employeeId").orEmpty()
+            val employeeName = backStackEntry.arguments?.getString("employeeName").orEmpty()
+            ScreenAttendance(
+                employeeId = employeeId,
+                employeeName = employeeName,
+                onBack = { navController.navigateUp() }
             )
         }
         composable(Screens.Machines.route) {

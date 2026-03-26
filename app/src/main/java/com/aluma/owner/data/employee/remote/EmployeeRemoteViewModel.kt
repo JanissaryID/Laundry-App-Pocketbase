@@ -11,8 +11,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+import com.aluma.owner.data.attendance.remote.AttendanceRemoteRepository
+import java.util.Calendar
+
 class EmployeeRemoteViewModel(
     private val employeeRepository: EmployeeRemoteRepository,
+    private val attendanceRepository: AttendanceRemoteRepository,
     private val client: PocketbaseClient,
     private val storePreferences: StorePreferences
 ) : ViewModel() {
@@ -28,6 +32,9 @@ class EmployeeRemoteViewModel(
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
+
+    private val _attendanceCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
+    val attendanceCounts: StateFlow<Map<String, Int>> = _attendanceCounts
 
     private val _ownerId = MutableStateFlow<String?>(null)
 
@@ -59,7 +66,22 @@ class EmployeeRemoteViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                _employees.value = employeeRepository.fetchEmployees(ownerId)
+                val employeesList = employeeRepository.fetchEmployees(ownerId)
+                _employees.value = employeesList
+                
+                // Fetch attendance counts for current month
+                val calendar = Calendar.getInstance()
+                val month = calendar.get(Calendar.MONTH) + 1
+                val year = calendar.get(Calendar.YEAR)
+                val monthStr = if (month < 10) "0$month" else "$month"
+                val monthFilter = "$year-$monthStr"
+                
+                val counts = mutableMapOf<String, Int>()
+                employeesList.forEach { emp ->
+                    val attendance = attendanceRepository.fetchAttendanceByEmployee(emp.id.orEmpty(), monthFilter)
+                    counts[emp.id.orEmpty()] = attendance.count { it.status == 1 }
+                }
+                _attendanceCounts.value = counts
             } catch (e: Exception) {
                 _errorMessage.value = "Gagal memuat data karyawan"
                 Log.e("EmployeeViewModel", "❌ fetchEmployees failed", e)

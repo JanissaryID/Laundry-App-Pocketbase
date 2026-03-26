@@ -5,6 +5,9 @@ import com.aluma.owner.data.AppDatabase
 import com.aluma.owner.data.PocketbaseClientProvider
 import com.aluma.owner.data.datastore.StorePreferenceViewModel
 import com.aluma.owner.data.datastore.StorePreferences
+import com.aluma.owner.data.attendance.remote.AttendanceRemoteRepository
+import com.aluma.owner.data.attendance.remote.AttendanceRemoteRepositoryImpl
+import com.aluma.owner.data.attendance.remote.AttendanceRemoteViewModel
 import com.aluma.owner.data.employee.remote.EmployeeRemoteRepository
 import com.aluma.owner.data.employee.remote.EmployeeRemoteRepositoryImpl
 import com.aluma.owner.data.employee.remote.EmployeeRemoteViewModel
@@ -51,6 +54,7 @@ val appModule = module {
     single<ServiceRemoteRepository> { ServiceRemoteRepositoryImpl(get()) }
     single<LogMachineRemoteRepository> { LogMachineRemoteRepositoryImpl(get()) }
     single<IncomeRemoteRepository> { IncomeRemoteRepositoryImpl(get()) }
+    single<AttendanceRemoteRepository> { AttendanceRemoteRepositoryImpl(get()) }
     single<EmployeeRemoteRepository> { EmployeeRemoteRepositoryImpl(get()) }
 
     // ViewModel
@@ -114,8 +118,15 @@ val appModule = module {
     single {
         EmployeeRemoteViewModel(
             employeeRepository = get(),
+            attendanceRepository = get(),
             client = get(),
             storePreferences = get()
+        )
+    }
+
+    single {
+        AttendanceRemoteViewModel(
+            attendanceRepository = get()
         )
     }
 

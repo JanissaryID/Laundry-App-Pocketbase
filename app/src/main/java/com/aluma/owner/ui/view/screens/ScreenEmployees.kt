@@ -48,9 +48,11 @@ import org.koin.compose.koinInject
 fun ScreenEmployees(
     employeeRemoteViewModel: EmployeeRemoteViewModel = koinInject(),
     onBack: () -> Unit,
+    onAttendance: (String, String) -> Unit
 ) {
     val employees by employeeRemoteViewModel.employees.collectAsState()
     val employeesSelected by employeeRemoteViewModel.selectedEmployee.collectAsState()
+    val attendanceCounts by employeeRemoteViewModel.attendanceCounts.collectAsState()
 
     var showBottomSheet by remember { mutableStateOf(false) }
     var editOrAdd by remember { mutableStateOf(false) }
@@ -111,7 +113,11 @@ fun ScreenEmployees(
                     items(employees) { employee ->
                         ItemEmployeeCard(
                             employee = employee,
+                            attendanceCount = attendanceCounts[employee.id] ?: 0,
                             onClick = {
+                                onAttendance(employee.id.orEmpty(), employee.name.orEmpty())
+                            },
+                            onEdit = {
                                 employeeRemoteViewModel.setSelectedEmployee(employee)
                                 editOrAdd = false
                                 showBottomSheet = true

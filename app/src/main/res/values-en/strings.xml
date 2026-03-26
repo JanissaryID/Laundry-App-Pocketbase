@@ -123,4 +123,18 @@
     <string name="employee_bs_placeholder_name">Enter full name</string>
     <string name="employee_bs_label_user">Link to User ID</string>
     <string name="employee_bs_placeholder_user">Select User ID</string>
+
+    <!-- Attendance Menu -->
+    <string name="attendance_list_subtitle">Staff attendance history</string>
+    <string name="attendance_list_empty_title">Empty Attendance Data</string>
+    <string name="attendance_list_empty_message">There are no attendance records for this employee yet.</string>
+    <string name="attendance_status_present">Present</string>
+    <string name="attendance_status_absent">Absent</string>
+    <string name="attendance_label_checkin">Clock In</string>
+    <string name="attendance_label_checkout">Clock Out</string>
+    <string name="attendance_total_label">Total Present</string>
+    <string name="attendance_error_fetch">Failed to load attendance data</string>
+    <string name="employee_list_attendance_count">Present This Month: %1$d</string>
+    <string name="common_prev_year">Previous Year</string>
+    <string name="common_next_year">Next Year</string>
 </resources>

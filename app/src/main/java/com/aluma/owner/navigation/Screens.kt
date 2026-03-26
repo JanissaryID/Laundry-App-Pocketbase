@@ -6,5 +6,8 @@ sealed class Screens(val route: String) {
     object Machines : Screens("machines")
     object Orders : Screens("orders")
     object Services : Screens("services")
-    object Employees : Screens("employees")
+    data object Employees : Screens("employees")
+    data object Attendance : Screens("attendance/{employeeId}/{employeeName}") {
+        fun createRoute(employeeId: String, employeeName: String) = "attendance/$employeeId/$employeeName"
+    }
 }
