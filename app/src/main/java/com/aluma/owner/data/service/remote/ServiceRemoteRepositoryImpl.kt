@@ -11,7 +11,7 @@ class ServiceRemoteRepositoryImpl(
     private val client: PocketbaseClient
 ) : ServiceRemoteRepository {
 
-    private val collection = "Service"
+    private val collection = "LaundryService"
     private val json = Json { ignoreUnknownKeys = true }
 
     override suspend fun fetchServices(storeID: String): List<ServiceRemote> {

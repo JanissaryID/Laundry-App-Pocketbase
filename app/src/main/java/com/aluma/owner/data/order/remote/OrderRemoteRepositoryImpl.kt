@@ -12,7 +12,7 @@ class OrderRemoteRepositoryImpl(
     private val client: PocketbaseClient
 ) : OrderRemoteRepository {
 
-    private val collection = "Order"
+    private val collection = "LaundryOrder"
 
     override suspend fun fetchOrder(storeID: String, date: LocalDate?): List<OrderRemote> {
         val baseFilter = "store=\"$storeID\""

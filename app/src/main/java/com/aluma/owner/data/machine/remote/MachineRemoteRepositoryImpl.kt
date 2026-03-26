@@ -11,7 +11,7 @@ class MachineRemoteRepositoryImpl(
     private val client: PocketbaseClient
 ) : MachineRemoteRepository {
 
-    private val collection = "Machine"
+    private val collection = "LaundryMachine"
     private val json = Json { ignoreUnknownKeys = true }
 
     override suspend fun fetchRemoteMachines(storeID: String): List<MachineRemote> {

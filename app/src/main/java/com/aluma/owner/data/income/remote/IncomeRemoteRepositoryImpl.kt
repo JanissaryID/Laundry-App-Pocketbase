@@ -11,7 +11,7 @@ class IncomeRemoteRepositoryImpl(
     private val client: PocketbaseClient
 ) : IncomeRemoteRepository {
 
-    private val collection = "Income"
+    private val collection = "LaundryIncome"
     private val json = Json { ignoreUnknownKeys = true }
 
     override suspend fun fetchRemoteIncome(date: String): List<IncomeRemote> {
