@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.DryCleaning
 import androidx.compose.material.icons.filled.LocalLaundryService
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -75,6 +76,7 @@ fun ScreenHomeOwner(
     onListOrder: () -> Unit,
     onListService: () -> Unit,
     onListMachine: () -> Unit,
+    onListEmployee: () -> Unit,
     onLogout: () -> Unit
 ) {
     val storeList by storeLocalViewModel.stores.collectAsState()
@@ -256,6 +258,13 @@ fun ScreenHomeOwner(
                         icon = Icons.Default.LocalLaundryService,
                         color = Color(0xFF00BCD4),
                         onClick = onListMachine
+                    )
+                    MenuCard(
+                        title = stringResource(R.string.employee_list_title),
+                        subtitle = stringResource(R.string.employee_list_subtitle),
+                        icon = Icons.Default.Person,
+                        color = Color(0xFF4CAF50),
+                        onClick = onListEmployee
                     )
                 }
 

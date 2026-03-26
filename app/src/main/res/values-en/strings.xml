@@ -101,6 +101,8 @@
     <!-- Common -->
     <string name="common_delete">Delete</string>
     <string name="common_back">Back</string>
+    <string name="common_save">Save</string>
+    <string name="common_add">Add</string>
     <string name="chip_type_wash">Wash</string>
     <string name="chip_type_dry">Dry</string>
     <string name="chip_type_service">Service</string>
@@ -108,4 +110,17 @@
     <string name="export_failed">Export failed</string>
     <string name="loading_default_message">Loading data...</string>
     <string name="loading_connection_check">Make sure your internet connection is stable</string>
+
+    <!-- Employee Menu -->
+    <string name="employee_list_title">Employee Management</string>
+    <string name="employee_list_subtitle">Manage staff and operational access</string>
+    <string name="employee_list_add_button">Add Employee</string>
+    <string name="employee_list_empty_title">No Employees Yet</string>
+    <string name="employee_list_empty_message">Staff list will appear here.\nTap the + button to add one.</string>
+    <string name="employee_bs_add_title">Add New Employee</string>
+    <string name="employee_bs_edit_title">Edit Employee Data</string>
+    <string name="employee_bs_label_name">Employee Name</string>
+    <string name="employee_bs_placeholder_name">Enter full name</string>
+    <string name="employee_bs_label_user">Link to User ID</string>
+    <string name="employee_bs_placeholder_user">Select User ID</string>
 </resources>

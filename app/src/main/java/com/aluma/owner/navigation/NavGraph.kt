@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.aluma.owner.data.datastore.StorePreferenceViewModel
+import com.aluma.owner.ui.view.screens.ScreenEmployees
 import com.aluma.owner.ui.view.screens.ScreenHomeOwner
 import com.aluma.owner.ui.view.screens.ScreenListOrders
 import com.aluma.owner.ui.view.screens.ScreenLoading
@@ -88,7 +89,15 @@ fun AppNavHost(
                 },
                 onListMachine = {
                     navController.navigate(Screens.Machines.route)
+                },
+                onListEmployee = {
+                    navController.navigate(Screens.Employees.route)
                 }
+            )
+        }
+        composable(Screens.Employees.route) {
+            ScreenEmployees(
+                onBack = { navController.safePopBackStack() }
             )
         }
         composable(Screens.Machines.route) {

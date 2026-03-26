@@ -101,6 +101,8 @@
     <!-- Common -->
     <string name="common_delete">Hapus</string>
     <string name="common_back">Kembali</string>
+    <string name="common_save">Simpan</string>
+    <string name="common_add">Tambah</string>
     <string name="chip_type_wash">Cuci</string>
     <string name="chip_type_dry">Kering</string>
     <string name="chip_type_service">Servis</string>
@@ -108,4 +110,17 @@
     <string name="export_failed">Gagal ekspor</string>
     <string name="loading_default_message">Memuat data...</string>
     <string name="loading_connection_check">Pastikan koneksi internet stabil</string>
+
+    <!-- Employee Menu -->
+    <string name="employee_list_title">Manajemen Karyawan</string>
+    <string name="employee_list_subtitle">Kelola staf dan akses operasional</string>
+    <string name="employee_list_add_button">Tambah Karyawan</string>
+    <string name="employee_list_empty_title">Belum ada karyawan</string>
+    <string name="employee_list_empty_message">Daftar staf akan muncul di sini.\nKetuk tombol + untuk menambah.</string>
+    <string name="employee_bs_add_title">Tambah Karyawan Baru</string>
+    <string name="employee_bs_edit_title">Edit Data Karyawan</string>
+    <string name="employee_bs_label_name">Nama Karyawan</string>
+    <string name="employee_bs_placeholder_name">Masukkan nama lengkap</string>
+    <string name="employee_bs_label_user">Hubungkan ke User ID</string>
+    <string name="employee_bs_placeholder_user">Pilih User ID</string>
 </resources>
