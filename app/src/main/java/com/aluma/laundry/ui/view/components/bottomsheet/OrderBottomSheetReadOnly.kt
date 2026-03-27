@@ -126,7 +126,19 @@ fun OrderBottomSheetReadOnly(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     OrderInfoRow(label = stringResource(id = R.string.order_id), value = "#${order.id}")
-                    OrderInfoRow(label = stringResource(id = R.string.date), value = order.date ?: "-")
+                    OrderInfoRow(
+                        label = stringResource(id = R.string.date), 
+                        value = order.date?.let { dateStr ->
+                            try {
+                                val instant = java.time.Instant.parse(dateStr.replace(" ", "T"))
+                                java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")
+                                    .withZone(java.time.ZoneId.systemDefault())
+                                    .format(instant)
+                            } catch (e: Exception) {
+                                dateStr
+                            }
+                        } ?: "-"
+                    )
 
                     HorizontalDivider(thickness = 1.dp, color = Color(0xFFEEEEEE))
 

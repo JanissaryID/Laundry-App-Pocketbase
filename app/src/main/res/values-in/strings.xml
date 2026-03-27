@@ -162,4 +162,17 @@
 
     <!-- ItemStoreCard -->
     <string name="default_store_name_placeholder">Toko Aluma</string>
+
+    <!-- Employee & Attendance -->
+    <string name="select_employee">Pilih Karyawan ▾</string>
+    <string name="select_employee_first">Silahkan pilih karyawan terlebih dahulu</string>
+    <string name="no_employees_found">Karyawan tidak ditemukan</string>
+    <string name="check_in_first">Absen masuk terlebih dahulu sebelum membuat pesanan</string>
+    <string name="checked_in">✓ Sudah Masuk</string>
+    <string name="checked_out">✗ Belum Masuk</string>
+    <string name="check_in">Masuk</string>
+    <string name="check_out">Keluar</string>
+    <string name="clear_employee">Hapus Karyawan</string>
+    <string name="check_in_success">Berhasil Absen Masuk</string>
+    <string name="check_out_success">Berhasil Absen Keluar</string>
 </resources>

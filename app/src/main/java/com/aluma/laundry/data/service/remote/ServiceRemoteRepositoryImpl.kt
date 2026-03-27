@@ -8,7 +8,7 @@ class ServiceRemoteRepositoryImpl(
     private val client: PocketbaseClient
 ) : ServiceRemoteRepository {
 
-    private val collection = "Service"
+    private val collection = "LaundryService"
 
     override suspend fun fetchServices(storeID: String): List<ServiceRemote> {
         return client.records.getList<ServiceRemote>(

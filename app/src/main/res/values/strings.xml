@@ -160,4 +160,17 @@
 
     <!-- ItemStoreCard -->
     <string name="default_store_name_placeholder">Aluma Store</string>
+
+    <!-- Employee & Attendance -->
+    <string name="select_employee">Select Employee ▾</string>
+    <string name="select_employee_first">Please select an employee first</string>
+    <string name="no_employees_found">No employees found</string>
+    <string name="check_in_first">Please check in first before creating an order</string>
+    <string name="checked_in">✓ Checked In</string>
+    <string name="checked_out">✗ Not Checked In</string>
+    <string name="check_in">Check In</string>
+    <string name="check_out">Check Out</string>
+    <string name="clear_employee">Clear Employee</string>
+    <string name="check_in_success">Check In Success</string>
+    <string name="check_out_success">Check Out Success</string>
 </resources>

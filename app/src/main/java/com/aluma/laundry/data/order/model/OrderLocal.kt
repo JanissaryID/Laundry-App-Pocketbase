@@ -20,6 +20,7 @@ data class OrderLocal(
     val user: String? = null,
     val store: String? = null,
     val date: String? = null,
+    val admin: String? = null,
     @ColumnInfo(defaultValue = "PENDING")
     val syncStatus: SyncStatus = SyncStatus.PENDING
 )

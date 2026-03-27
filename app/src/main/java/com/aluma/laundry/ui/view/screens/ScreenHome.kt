@@ -3,6 +3,7 @@ package com.aluma.laundry.ui.view.screens
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,9 +25,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.LocalLaundryService
+import androidx.compose.material.icons.filled.Login
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -35,8 +42,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,11 +60,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aluma.laundry.R
 import com.aluma.laundry.bluetooth.BluetoothHelper
 import com.aluma.laundry.bluetooth.BluetoothSender
+import com.aluma.laundry.data.attendance.remote.AttendanceRemoteViewModel
+import com.aluma.laundry.data.employee.remote.EmployeeRemoteViewModel
 import com.aluma.laundry.data.logmachine.local.LogMachineLocalViewModel
 import com.aluma.laundry.data.logmachine.model.LogMachineLocal
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
@@ -67,6 +79,7 @@ import com.aluma.laundry.data.order.utils.SyncStatus
 import com.aluma.laundry.data.service.remote.ServiceRemoteViewModel
 import com.aluma.laundry.data.store.StoreRemoteViewModel
 import com.aluma.laundry.ui.view.components.EmptyState
+import com.aluma.laundry.ui.view.components.bottomsheet.AttendanceBottomSheet
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheet
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheetInformation
 import com.aluma.laundry.ui.view.components.bottomsheet.OrderBottomSheetInformationTime
@@ -89,6 +102,8 @@ fun ScreenHome(
     machineRemoteViewModel: MachineRemoteViewModel = koinInject(),
     serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
     logMachineLocalViewModel: LogMachineLocalViewModel = koinInject(),
+    employeeRemoteViewModel: EmployeeRemoteViewModel = koinInject(),
+    attendanceRemoteViewModel: AttendanceRemoteViewModel = koinInject(),
     bluetoothHelper: BluetoothHelper,
     onNavigateMachine: () -> Unit,
     onNavigateOrder: () -> Unit,
@@ -99,29 +114,59 @@ fun ScreenHome(
     val machines by machineLocalViewModel.machines.collectAsState()
     val selectedOrder by orderLocalViewModel.selectedOrder.collectAsState()
 
+    // Employee & Attendance states
+    val employees by employeeRemoteViewModel.employees.collectAsState()
+    val employeeId by employeeRemoteViewModel.employeeId.collectAsState()
+    val employeeName by employeeRemoteViewModel.employeeName.collectAsState()
+    val isCheckedIn by attendanceRemoteViewModel.isCheckedIn.collectAsState()
+    val todayAttendance by attendanceRemoteViewModel.todayAttendance.collectAsState()
+    val attendanceLoading by attendanceRemoteViewModel.isLoading.collectAsState()
+
     var showOrderSheet by remember { mutableStateOf(false) }
     var showOrderSheetMachine by remember { mutableStateOf(false) }
     var showOrderSheetMachineRunning by remember { mutableStateOf(false) }
+    var showEmployeeDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    // Fetch today's attendance when employee is already selected
+    LaunchedEffect(employeeId) {
+        if (!employeeId.isNullOrEmpty()) {
+            attendanceRemoteViewModel.fetchTodayAttendance(employeeId!!)
+        }
+    }
 
     Scaffold(
         containerColor = Color(0xFFF8F9FA),
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.clickable {
+                            employeeRemoteViewModel.fetchEmployees()
+                            showEmployeeDialog = true
+                        }
+                    ) {
                         Text(
                             text = nameStore ?: stringResource(id = R.string.app_name),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.ExtraBold
                         )
-                        Text(
-                            text = stringResource(id = R.string.admin_mode),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.Gray
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = if (!employeeName.isNullOrEmpty()) {
+                                    "• $employeeName •"
+                                } else {
+                                    stringResource(id = R.string.select_employee)
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                                color = if (!employeeName.isNullOrEmpty()) Color(0xFF4CAF50) else Color.Gray
+                            )
+                        }
                     }
                 },
                 actions = {
@@ -219,6 +264,14 @@ fun ScreenHome(
             // 2. Simple FAB (Extended)
             ExtendedFloatingActionButton(
                 onClick = {
+                    if (employeeId.isNullOrEmpty()) {
+                        Toast.makeText(context, context.getString(R.string.select_employee_first), Toast.LENGTH_SHORT).show()
+                        return@ExtendedFloatingActionButton
+                    }
+                    if (!isCheckedIn) {
+                        Toast.makeText(context, context.getString(R.string.check_in_first), Toast.LENGTH_SHORT).show()
+                        return@ExtendedFloatingActionButton
+                    }
                     machineRemoteViewModel.fetchMachine()
                     serviceRemoteViewModel.fetchServices()
                     showOrderSheet = true
@@ -251,7 +304,8 @@ fun ScreenHome(
     if (showOrderSheet) {
         OrderBottomSheet(
             onDismissRequest = { showOrderSheet = false },
-            onSubmit = { orderLocalViewModel.addOrder(orderLocal = it) }
+            onSubmit = { orderLocalViewModel.addOrder(orderLocal = it) },
+            adminEmployeeId = employeeId
         )
     }
 
@@ -302,6 +356,51 @@ fun ScreenHome(
                 machineNumber = selectedOrder!!.numberMachine
             )
         }
+    }
+
+    // --- ATTENDANCE BOTTOM SHEET ---
+    if (showEmployeeDialog) {
+        AttendanceBottomSheet(
+            employees = employees,
+            currentEmployeeId = employeeId,
+            employeeName = employeeName,
+            todayAttendance = todayAttendance,
+            isCheckedIn = isCheckedIn,
+            isLoading = attendanceLoading,
+            onDismissRequest = { showEmployeeDialog = false },
+            onSelectEmployee = { employee ->
+                employeeRemoteViewModel.selectEmployee(employee)
+            },
+            onCheckIn = {
+                if (!employeeId.isNullOrEmpty()) {
+                    attendanceRemoteViewModel.checkIn(
+                        employeeId = employeeId!!,
+                        onSuccess = {
+                            Toast.makeText(context, context.getString(R.string.check_in_success), Toast.LENGTH_SHORT).show()
+                            showEmployeeDialog = false
+                        },
+                        onError = { msg ->
+                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+            },
+            onCheckOut = {
+                attendanceRemoteViewModel.checkOut(
+                    onSuccess = {
+                        Toast.makeText(context, context.getString(R.string.check_out_success), Toast.LENGTH_SHORT).show()
+                        showEmployeeDialog = false
+                    },
+                    onError = { msg ->
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    }
+                )
+            },
+            onClearEmployee = {
+                employeeRemoteViewModel.clearEmployee()
+                attendanceRemoteViewModel.resetAttendance()
+            }
+        )
     }
 }
 

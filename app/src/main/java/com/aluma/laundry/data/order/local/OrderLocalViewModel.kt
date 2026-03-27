@@ -213,7 +213,8 @@ fun OrderLocal.toRemoteModel(): OrderRemote {
         typePayment = typePayment,
         user = user,
         store = store,
-        date = date
+        date = date,
+        admin = admin
     )
 }
 

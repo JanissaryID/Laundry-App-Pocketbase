@@ -38,6 +38,12 @@ class StorePreferenceViewModel(
     private val _bluetoothAddress = MutableStateFlow<String?>(null)
     val bluetoothAddress: StateFlow<String?> = _bluetoothAddress
 
+    private val _employeeId = MutableStateFlow<String?>(null)
+    val employeeId: StateFlow<String?> = _employeeId
+
+    private val _employeeName = MutableStateFlow<String?>(null)
+    val employeeName: StateFlow<String?> = _employeeName
+
     private val _loading = MutableStateFlow<Boolean?>(true)
     val loading: StateFlow<Boolean?> = _loading
 
@@ -68,6 +74,12 @@ class StorePreferenceViewModel(
         }
         viewModelScope.launch {
             storePreferences.userStreetStore.collectLatest { _addressStore.value = it.orEmpty() }
+        }
+        viewModelScope.launch {
+            storePreferences.employeeId.collectLatest { _employeeId.value = it }
+        }
+        viewModelScope.launch {
+            storePreferences.employeeName.collectLatest { _employeeName.value = it }
         }
         viewModelScope.launch {
             storePreferences.userToken.collectLatest {

@@ -24,6 +24,8 @@ class StorePreferences(val context: Context) {
         val KEY_STREET_STORE = stringPreferencesKey("street_store")
         val KEY_BLUETOOTH_ADDRESS = stringPreferencesKey("bluetooth_address")
         val KEY_BLUETOOTH_NAME = stringPreferencesKey("bluetooth_name")
+        val KEY_EMPLOYEE_ID = stringPreferencesKey("employee_id")
+        val KEY_EMPLOYEE_NAME = stringPreferencesKey("employee_name")
     }
 
     // ✅ Simpan data login
@@ -75,6 +77,23 @@ class StorePreferences(val context: Context) {
         }
     }
 
+    suspend fun saveEmployee(
+        employeeId: String,
+        employeeName: String
+    ) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_EMPLOYEE_ID] = employeeId
+            prefs[KEY_EMPLOYEE_NAME] = employeeName
+        }
+    }
+
+    suspend fun clearEmployee() {
+        context.dataStore.edit { prefs ->
+            prefs.remove(KEY_EMPLOYEE_ID)
+            prefs.remove(KEY_EMPLOYEE_NAME)
+        }
+    }
+
     // 🧹 Hapus semua data login
     suspend fun clearLogin() {
         context.dataStore.edit { prefs ->
@@ -94,4 +113,6 @@ class StorePreferences(val context: Context) {
     val userStreetStore: Flow<String?> = context.dataStore.data.map { it[KEY_STREET_STORE] }
     val bluetoothName: Flow<String?> = context.dataStore.data.map { it[KEY_BLUETOOTH_NAME] }
     val bluetoothAddress: Flow<String?> = context.dataStore.data.map { it[KEY_BLUETOOTH_ADDRESS] }
+    val employeeId: Flow<String?> = context.dataStore.data.map { it[KEY_EMPLOYEE_ID] }
+    val employeeName: Flow<String?> = context.dataStore.data.map { it[KEY_EMPLOYEE_NAME] }
 }

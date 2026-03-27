@@ -11,7 +11,7 @@ class LogMachineRemoteRepositoryImpl(
     private val client: PocketbaseClient
 ) : LogMachineRemoteRepository {
 
-    private val collection = "LogMachine"
+    private val collection = "LaundryLogMachine"
     private val json = Json { ignoreUnknownKeys = true }
 
     override suspend fun createLogMachine(logMachineRemote: LogMachineRemote) {

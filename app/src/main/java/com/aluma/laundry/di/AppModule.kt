@@ -36,6 +36,12 @@ import com.aluma.laundry.data.store.StoreRemoteViewModel
 import com.aluma.laundry.data.user.remote.UserRemoteRepository
 import com.aluma.laundry.data.user.remote.UserRemoteRepositoryImpl
 import com.aluma.laundry.data.user.remote.UserRemoteViewModel
+import com.aluma.laundry.data.employee.remote.EmployeeRemoteRepository
+import com.aluma.laundry.data.employee.remote.EmployeeRemoteRepositoryImpl
+import com.aluma.laundry.data.employee.remote.EmployeeRemoteViewModel
+import com.aluma.laundry.data.attendance.remote.AttendanceRemoteRepository
+import com.aluma.laundry.data.attendance.remote.AttendanceRemoteRepositoryImpl
+import com.aluma.laundry.data.attendance.remote.AttendanceRemoteViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -62,6 +68,8 @@ val appModule = module {
     single<ServiceRemoteRepository> { ServiceRemoteRepositoryImpl(get()) }
     single<LogMachineRemoteRepository> { LogMachineRemoteRepositoryImpl(get()) }
     single<IncomeRemoteRepository> { IncomeRemoteRepositoryImpl(get()) }
+    single<EmployeeRemoteRepository> { EmployeeRemoteRepositoryImpl(get()) }
+    single<AttendanceRemoteRepository> { AttendanceRemoteRepositoryImpl(get()) }
 
     // ViewModel
     viewModel {
@@ -114,12 +122,28 @@ val appModule = module {
         )
     }
 
+    viewModel {
+        EmployeeRemoteViewModel(
+            storePreferences = get(),
+            client = get(),
+            employeeRepository = get()
+        )
+    }
+
+    viewModel {
+        AttendanceRemoteViewModel(
+            storePreferences = get(),
+            client = get(),
+            attendanceRepository = get()
+        )
+    }
+
     single {
         Room.databaseBuilder(
             androidContext(),
             AppDatabase::class.java,
             "laundry_database"
-        ).fallbackToDestructiveMigration(false).build()
+        ).fallbackToDestructiveMigration(true).build()
     }
 
     single { get<AppDatabase>().machineDao() }

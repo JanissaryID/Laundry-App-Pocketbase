@@ -61,7 +61,8 @@ fun OrderBottomSheet(
     onDismissRequest: () -> Unit,
     serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
     serviceLocalViewModel: ServiceLocalViewModel = koinInject(),
-    onSubmit: (order: OrderLocal) -> Unit
+    onSubmit: (order: OrderLocal) -> Unit,
+    adminEmployeeId: String? = null
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var customerName by remember { mutableStateOf("") }
@@ -229,6 +230,7 @@ fun OrderBottomSheet(
                                     store = idStore,
                                     typeMachineService = typeMachine,
                                     date = formatted,
+                                    admin = adminEmployeeId,
                                     syncStatus = SyncStatus.PENDING
                                 ))
                                 onDismissRequest()

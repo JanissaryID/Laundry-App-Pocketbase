@@ -14,4 +14,5 @@ data class OrderRemote(
     val user: String? = null,
     val store: String? = null,
     val date: String? = null,
+    val admin: String? = null,
 )

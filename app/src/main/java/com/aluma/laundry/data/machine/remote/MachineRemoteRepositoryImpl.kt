@@ -8,7 +8,7 @@ class MachineRemoteRepositoryImpl(
     private val client: PocketbaseClient
 ) : MachineRemoteRepository {
 
-    private val collection = "Machine"
+    private val collection = "LaundryMachine"
 
     override suspend fun fetchRemoteMachines(storeID: String): List<MachineRemote> {
         val result = client.records.getList<MachineRemote>(

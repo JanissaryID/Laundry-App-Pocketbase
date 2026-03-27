@@ -11,7 +11,7 @@ class OrderRemoteRepositoryImpl(
     private val client: PocketbaseClient
 ) : OrderRemoteRepository {
 
-    private val collection = "Order"
+    private val collection = "LaundryOrder"
     private val json = Json { ignoreUnknownKeys = true }
 
     override suspend fun createOrder(order: OrderRemote) {
