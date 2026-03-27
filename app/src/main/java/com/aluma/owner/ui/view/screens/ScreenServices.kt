@@ -38,15 +38,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aluma.owner.R
 import com.aluma.owner.data.service.remote.ServiceRemoteViewModel
+import com.aluma.owner.data.realtime.RealtimeViewModel
 import com.aluma.owner.ui.view.components.EmptyState
 import com.aluma.owner.ui.view.components.bottomsheet.ServiceBottomSheet
 import com.aluma.owner.ui.view.components.itemscard.ItemServiceCard
+import androidx.compose.runtime.LaunchedEffect
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenServices(
     serviceRemoteViewModel: ServiceRemoteViewModel = koinInject(),
+    realtimeViewModel: RealtimeViewModel = koinInject(),
     onBack: () -> Unit,
 ) {
     val services by serviceRemoteViewModel.serviceRemote.collectAsState()
@@ -55,6 +58,15 @@ fun ScreenServices(
 
     var showBottomSheet by remember { mutableStateOf(false) }
     var editOrAdd by remember { mutableStateOf(false) }
+
+    // Realtime SSE: re-fetch services when server-side events arrive
+    LaunchedEffect(Unit) {
+        realtimeViewModel.realtimeEvent.collect { collectionName ->
+            if (collectionName == "LaundryService") {
+                serviceRemoteViewModel.fetchServices(storeID.orEmpty())
+            }
+        }
+    }
 
     Scaffold(
         topBar = {

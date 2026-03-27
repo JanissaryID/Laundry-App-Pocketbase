@@ -35,19 +35,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aluma.owner.R
 import com.aluma.owner.data.machine.remote.MachineRemoteViewModel
+import com.aluma.owner.data.realtime.RealtimeViewModel
 import com.aluma.owner.ui.view.components.EmptyState
 import com.aluma.owner.ui.view.components.bottomsheet.MachineBottomSheet
 import com.aluma.owner.ui.view.components.itemscard.ItemMachineCard
+import androidx.compose.runtime.LaunchedEffect
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenMachine(
     machineRemoteViewModel: MachineRemoteViewModel = koinInject(),
+    realtimeViewModel: RealtimeViewModel = koinInject(),
     onBack: () -> Unit,
 ) {
     val machines by machineRemoteViewModel.machineRemote.collectAsState()
+    val storeId by machineRemoteViewModel.storeId.collectAsState()
     var showBottomSheet by remember { mutableStateOf(false) }
+
+    // Realtime SSE: re-fetch machines when server-side events arrive
+    LaunchedEffect(Unit) {
+        realtimeViewModel.realtimeEvent.collect { collectionName ->
+            if (collectionName == "LaundryMachine") {
+                machineRemoteViewModel.fetchMachine(storeId.orEmpty())
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
