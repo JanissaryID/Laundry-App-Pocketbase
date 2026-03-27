@@ -42,6 +42,9 @@ import com.aluma.laundry.data.store.StoreRemoteViewModel
 import com.aluma.laundry.data.user.remote.UserRemoteRepository
 import com.aluma.laundry.data.user.remote.UserRemoteRepositoryImpl
 import com.aluma.laundry.data.user.remote.UserRemoteViewModel
+import com.aluma.laundry.data.realtime.remote.RealtimeRepository
+import com.aluma.laundry.data.realtime.remote.RealtimeRepositoryImpl
+import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -70,13 +73,22 @@ val appModule = module {
     single<IncomeRemoteRepository> { IncomeRemoteRepositoryImpl(get()) }
     single<EmployeeRemoteRepository> { EmployeeRemoteRepositoryImpl(get()) }
     single<AttendanceRemoteRepository> { AttendanceRemoteRepositoryImpl(get()) }
+    single<RealtimeRepository> { RealtimeRepositoryImpl(get()) }
 
     // ViewModel
+    single {
+        RealtimeViewModel(
+            storePreferences = get(),
+            realtimeRepository = get(),
+            client = get()
+        )
+    }
     viewModel {
         IncomeRemoteViewModel(
             storePreferences = get(),
             client = get(),
-            incomeRemoteRepository = get()
+            incomeRemoteRepository = get(),
+            realtimeViewModel = get()
         )
     }
 
@@ -85,7 +97,8 @@ val appModule = module {
             storePreferences = get(),
             orderRepository = get(),
             client = get(),
-            appContext = androidContext()
+            appContext = androidContext(),
+            realtimeViewModel = get()
         )
     }
 
@@ -109,7 +122,8 @@ val appModule = module {
             storePreferences = get(),
             serviceRepository = get(),
             client = get(),
-            serviceLocalRepository = get()
+            serviceLocalRepository = get(),
+            realtimeViewModel = get()
         )
     }
 
@@ -118,7 +132,8 @@ val appModule = module {
             storePreferences = get(),
             machineRepository = get(),
             machineLocalRepository = get(),
-            client = get()
+            client = get(),
+            realtimeViewModel = get()
         )
     }
 
@@ -126,7 +141,8 @@ val appModule = module {
         EmployeeRemoteViewModel(
             storePreferences = get(),
             client = get(),
-            employeeRepository = get()
+            employeeRepository = get(),
+            realtimeViewModel = get()
         )
     }
 
@@ -134,7 +150,8 @@ val appModule = module {
         AttendanceRemoteViewModel(
             storePreferences = get(),
             client = get(),
-            attendanceRepository = get()
+            attendanceRepository = get(),
+            realtimeViewModel = get()
         )
     }
 

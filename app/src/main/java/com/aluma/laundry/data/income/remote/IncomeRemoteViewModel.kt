@@ -10,11 +10,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 
 class IncomeRemoteViewModel(
     private val storePreferences: StorePreferences,
     private val incomeRemoteRepository: IncomeRemoteRepository,
-    private val client: PocketbaseClient
+    private val client: PocketbaseClient,
+    private val realtimeViewModel: RealtimeViewModel
 ) : ViewModel() {
     private val _storeId = MutableStateFlow<String?>(null)
     val storeId: StateFlow<String?> = _storeId
@@ -28,6 +30,13 @@ class IncomeRemoteViewModel(
             storePreferences.userToken.collectLatest { token ->
                 if (!token.isNullOrEmpty()) {
                     client.login(token)
+                }
+            }
+        }
+        viewModelScope.launch {
+            realtimeViewModel.realtimeEvent.collectLatest { collection ->
+                if (collection == "LaundryIncome") {
+                    Log.d("IncomeRemoteViewModel", "SSE Event: LaundryIncome changed.")
                 }
             }
         }

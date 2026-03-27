@@ -13,11 +13,13 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 
 class AttendanceRemoteViewModel(
     private val storePreferences: StorePreferences,
     private val client: PocketbaseClient,
-    private val attendanceRepository: AttendanceRemoteRepository
+    private val attendanceRepository: AttendanceRemoteRepository,
+    private val realtimeViewModel: RealtimeViewModel
 ) : ViewModel() {
 
     private val _isLoggedIn = MutableStateFlow(false)
@@ -44,6 +46,13 @@ class AttendanceRemoteViewModel(
         }
         viewModelScope.launch {
             storePreferences.userIdStore.collectLatest { _storeID.value = it }
+        }
+        viewModelScope.launch {
+            realtimeViewModel.realtimeEvent.collectLatest { collection ->
+                if (collection == "LaundryAttendance") {
+                    _todayAttendance.value?.employee?.let { fetchTodayAttendance(it) }
+                }
+            }
         }
     }
 

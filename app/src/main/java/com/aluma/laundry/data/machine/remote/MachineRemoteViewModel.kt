@@ -12,12 +12,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 
 class MachineRemoteViewModel(
     private val storePreferences: StorePreferences,
     private val machineLocalRepository: MachineLocalRepository,
     private val machineRepository: MachineRemoteRepository,
-    private val client: PocketbaseClient
+    private val client: PocketbaseClient,
+    private val realtimeViewModel: RealtimeViewModel
 ) : ViewModel() {
 
     private val _machineRemote = MutableStateFlow<List<MachineRemote>>(emptyList())
@@ -46,6 +48,13 @@ class MachineRemoteViewModel(
                 if (!token.isNullOrEmpty()) {
                     client.login(token)
                     _isLoggedIn.value = true
+                }
+            }
+        }
+        viewModelScope.launch {
+            realtimeViewModel.realtimeEvent.collectLatest { collection ->
+                if (collection == "LaundryMachine") {
+                    fetchMachine()
                 }
             }
         }
