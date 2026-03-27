@@ -59,6 +59,7 @@ import com.aluma.owner.ui.view.components.EmptyState
 import com.aluma.owner.ui.view.components.itemscard.ItemOrderCard
 import com.aluma.owner.utils.ExcelPOIViewModel
 import com.aluma.owner.utils.formatToRupiah
+import com.aluma.owner.data.realtime.RealtimeViewModel
 import org.koin.compose.koinInject
 import java.time.Instant
 import java.time.LocalDate
@@ -72,6 +73,7 @@ fun ScreenListOrders(
     orderRemoteViewModel: OrderRemoteViewModel = koinInject(),
     excelPOIViewModel: ExcelPOIViewModel = koinInject(),
     logMachineRemoteViewModel: LogMachineRemoteViewModel = koinInject(),
+    realtimeViewModel: RealtimeViewModel = koinInject(),
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -90,6 +92,16 @@ fun ScreenListOrders(
 
     val formattedDateTitle = remember(selectedDate) {
         selectedDate.format(DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault()))
+    }
+
+    // Realtime SSE: re-fetch orders and logs when server-side events arrive
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        realtimeViewModel.realtimeEvent.collect { collectionName ->
+            when (collectionName) {
+                "LaundryOrder" -> orderRemoteViewModel.fetchOrdersByDate(selectedDate, storeID.orEmpty())
+                "LaundryLogMachine" -> logMachineRemoteViewModel.fetchLogMachinesByDate(selectedDate, storeID.orEmpty())
+            }
+        }
     }
 
     Scaffold(

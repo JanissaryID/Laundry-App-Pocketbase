@@ -58,6 +58,7 @@ import com.aluma.owner.ui.view.components.ConfirmDialog
 import com.aluma.owner.ui.view.components.itemscard.ItemStatBox
 import com.aluma.owner.ui.view.components.itemscard.ItemStoreCardOwner
 import com.aluma.owner.ui.view.components.itemscard.MenuCard
+import com.aluma.owner.data.realtime.RealtimeViewModel
 import org.koin.compose.koinInject
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -73,6 +74,7 @@ fun ScreenHomeOwner(
     orderRemoteViewModel: OrderRemoteViewModel = koinInject(),
     incomeRemoteViewModel: IncomeRemoteViewModel = koinInject(),
     logMachineRemoteViewModel: LogMachineRemoteViewModel = koinInject(),
+    realtimeViewModel: RealtimeViewModel = koinInject(),
     onListOrder: () -> Unit,
     onListService: () -> Unit,
     onListMachine: () -> Unit,
@@ -115,6 +117,24 @@ fun ScreenHomeOwner(
             incomeRemoteViewModel.apply {
                 fetchIncome(date = today.toString())
                 incomeStore()
+            }
+        }
+    }
+
+    // Realtime SSE: re-fetch data when server-side events arrive
+    LaunchedEffect(Unit) {
+        realtimeViewModel.realtimeEvent.collect { collectionName ->
+            selectedStore?.let { store ->
+                when (collectionName) {
+                    "LaundryStore" -> { /* Store is fetched by StoreRemoteViewModel init */ }
+                    "LaundryMachine" -> machineRemoteViewModel.fetchMachine(store.id)
+                    "LaundryService" -> serviceRemoteViewModel.fetchServices(store.id)
+                    "LaundryOrder" -> orderRemoteViewModel.fetchOrdersByDate(LocalDate.now(), store.id)
+                    "LaundryIncome" -> {
+                        incomeRemoteViewModel.fetchIncome(LocalDate.now().toString())
+                        incomeRemoteViewModel.incomeStore()
+                    }
+                }
             }
         }
     }

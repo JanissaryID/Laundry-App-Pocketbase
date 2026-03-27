@@ -38,15 +38,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aluma.owner.R
 import com.aluma.owner.data.employee.remote.EmployeeRemoteViewModel
+import com.aluma.owner.data.realtime.RealtimeViewModel
 import com.aluma.owner.ui.view.components.EmptyState
 import com.aluma.owner.ui.view.components.bottomsheet.EmployeeBottomSheet
 import com.aluma.owner.ui.view.components.itemscard.ItemEmployeeCard
+import androidx.compose.runtime.LaunchedEffect
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenEmployees(
     employeeRemoteViewModel: EmployeeRemoteViewModel = koinInject(),
+    realtimeViewModel: RealtimeViewModel = koinInject(),
     onBack: () -> Unit,
     onAttendance: (String, String) -> Unit
 ) {
@@ -56,6 +59,15 @@ fun ScreenEmployees(
 
     var showBottomSheet by remember { mutableStateOf(false) }
     var editOrAdd by remember { mutableStateOf(false) }
+
+    // Realtime SSE: re-fetch employees when server-side events arrive
+    LaunchedEffect(Unit) {
+        realtimeViewModel.realtimeEvent.collect { collectionName ->
+            if (collectionName == "LaundryEmployee") {
+                employeeRemoteViewModel.fetchEmployees()
+            }
+        }
+    }
 
     Scaffold(
         topBar = {

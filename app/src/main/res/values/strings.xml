@@ -132,4 +132,9 @@
     <string name="attendance_status_absent">Tidak Hadir</string>
     <string name="attendance_label_checkin">Jam Masuk</string>
     <string name="attendance_label_checkout">Jam Keluar</string>
+    <string name="attendance_total_label">Total Hadir</string>
+    <string name="attendance_error_fetch">Gagal memuat data kehadiran</string>
+    <string name="employee_list_attendance_count">Hadir Bulan Ini: %1$d</string>
+    <string name="common_prev_year">Tahun Sebelumnya</string>
+    <string name="common_next_year">Tahun Berikutnya</string>
 </resources>

@@ -34,6 +34,9 @@ import com.aluma.owner.data.store.remote.StoreRemoteViewModel
 import com.aluma.owner.data.user.remote.UserRemoteRepository
 import com.aluma.owner.data.user.remote.UserRemoteRepositoryImpl
 import com.aluma.owner.data.user.remote.UserRemoteViewModel
+import com.aluma.owner.data.realtime.RealtimeRepository
+import com.aluma.owner.data.realtime.RealtimeRepositoryImpl
+import com.aluma.owner.data.realtime.RealtimeViewModel
 import com.aluma.owner.utils.ExcelPOIViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
@@ -56,6 +59,7 @@ val appModule = module {
     single<IncomeRemoteRepository> { IncomeRemoteRepositoryImpl(get()) }
     single<AttendanceRemoteRepository> { AttendanceRemoteRepositoryImpl(get()) }
     single<EmployeeRemoteRepository> { EmployeeRemoteRepositoryImpl(get()) }
+    single<RealtimeRepository> { RealtimeRepositoryImpl(get()) }
 
     // ViewModel
     single {
@@ -132,6 +136,14 @@ val appModule = module {
 
     single {
         ExcelPOIViewModel()
+    }
+
+    single {
+        RealtimeViewModel(
+            storePreferences = get(),
+            realtimeRepository = get(),
+            client = get()
+        )
     }
 
     single {

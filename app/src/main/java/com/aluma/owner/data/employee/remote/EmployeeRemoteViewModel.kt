@@ -120,6 +120,7 @@ class EmployeeRemoteViewModel(
                 onResult(true)
             } catch (e: Exception) {
                 Log.e("EmployeeViewModel", "❌ editEmployee failed", e)
+                fetchEmployees(ownerId)
                 onResult(false)
             } finally {
                 _isLoading.value = false
@@ -137,6 +138,7 @@ class EmployeeRemoteViewModel(
                 onResult(true)
             } catch (e: Exception) {
                 Log.e("EmployeeViewModel", "❌ deleteEmployee failed", e)
+                fetchEmployees(ownerId)
                 onResult(false)
             } finally {
                 _isLoading.value = false

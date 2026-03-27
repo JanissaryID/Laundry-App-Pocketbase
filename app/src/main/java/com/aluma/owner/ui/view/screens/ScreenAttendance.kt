@@ -44,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aluma.owner.R
 import com.aluma.owner.data.attendance.remote.AttendanceRemoteViewModel
+import com.aluma.owner.data.realtime.RealtimeViewModel
 import com.aluma.owner.ui.view.components.EmptyState
 import com.aluma.owner.ui.view.components.itemscard.ItemAttendanceCard
 import org.koin.compose.koinInject
@@ -55,6 +56,7 @@ fun ScreenAttendance(
     employeeId: String,
     employeeName: String,
     attendanceRemoteViewModel: AttendanceRemoteViewModel = koinInject(),
+    realtimeViewModel: RealtimeViewModel = koinInject(),
     onBack: () -> Unit
 ) {
     val attendanceList by attendanceRemoteViewModel.attendanceList.collectAsState()
@@ -65,6 +67,15 @@ fun ScreenAttendance(
 
     LaunchedEffect(employeeId) {
         attendanceRemoteViewModel.fetchAttendance(employeeId)
+    }
+
+    // Realtime SSE: re-fetch attendance when server-side events arrive
+    LaunchedEffect(Unit) {
+        realtimeViewModel.realtimeEvent.collect { collectionName ->
+            if (collectionName == "LaundryAttendance") {
+                attendanceRemoteViewModel.fetchAttendance(employeeId)
+            }
+        }
     }
 
     Scaffold(
