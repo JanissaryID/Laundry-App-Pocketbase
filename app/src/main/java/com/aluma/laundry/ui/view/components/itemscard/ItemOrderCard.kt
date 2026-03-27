@@ -36,8 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.R
 import com.aluma.laundry.data.order.model.OrderLocal
-import com.aluma.laundry.data.order.utils.SyncStatus
 import com.aluma.laundry.data.order.utils.Quad
+import com.aluma.laundry.data.order.utils.SyncStatus
 
 @Composable
 fun ItemOrderCard(

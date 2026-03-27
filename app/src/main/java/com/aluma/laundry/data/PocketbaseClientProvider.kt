@@ -1,8 +1,8 @@
 package com.aluma.laundry.data
 
+import com.aluma.laundry.BuildConfig
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
 import io.ktor.http.URLProtocol
-import com.aluma.laundry.BuildConfig
 
 object PocketbaseClientProvider {
     val client by lazy {

@@ -6,8 +6,14 @@ import androidx.work.WorkManager
 import com.aluma.laundry.bluetooth.BluetoothHelper
 import com.aluma.laundry.data.AppDatabase
 import com.aluma.laundry.data.PocketbaseClientProvider
+import com.aluma.laundry.data.attendance.remote.AttendanceRemoteRepository
+import com.aluma.laundry.data.attendance.remote.AttendanceRemoteRepositoryImpl
+import com.aluma.laundry.data.attendance.remote.AttendanceRemoteViewModel
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.data.datastore.StorePreferences
+import com.aluma.laundry.data.employee.remote.EmployeeRemoteRepository
+import com.aluma.laundry.data.employee.remote.EmployeeRemoteRepositoryImpl
+import com.aluma.laundry.data.employee.remote.EmployeeRemoteViewModel
 import com.aluma.laundry.data.income.remote.IncomeRemoteRepository
 import com.aluma.laundry.data.income.remote.IncomeRemoteRepositoryImpl
 import com.aluma.laundry.data.income.remote.IncomeRemoteViewModel
@@ -36,12 +42,6 @@ import com.aluma.laundry.data.store.StoreRemoteViewModel
 import com.aluma.laundry.data.user.remote.UserRemoteRepository
 import com.aluma.laundry.data.user.remote.UserRemoteRepositoryImpl
 import com.aluma.laundry.data.user.remote.UserRemoteViewModel
-import com.aluma.laundry.data.employee.remote.EmployeeRemoteRepository
-import com.aluma.laundry.data.employee.remote.EmployeeRemoteRepositoryImpl
-import com.aluma.laundry.data.employee.remote.EmployeeRemoteViewModel
-import com.aluma.laundry.data.attendance.remote.AttendanceRemoteRepository
-import com.aluma.laundry.data.attendance.remote.AttendanceRemoteRepositoryImpl
-import com.aluma.laundry.data.attendance.remote.AttendanceRemoteViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
