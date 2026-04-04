@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -87,66 +88,90 @@ fun MachineBottomSheetInformationTime(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)
-                .padding(bottom = 40.dp),
+                .padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // 🔹 HEADER: Nomor Mesin & Badge Ukuran
+            // 🔹 HEADER (Modern)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        text = stringResource(id = R.string.machine_unit_number, machine.numberMachine),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                    Text(
-                        text = machineLabel,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = accentColor,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-
-                Surface(
-                    color = accentColor.copy(alpha = 0.1f),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = machineSize,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = accentColor
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        color = accentColor.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Icon(
+                            imageVector = machineIcon,
+                            contentDescription = null,
+                            tint = accentColor,
+                            modifier = Modifier.padding(12.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column {
+                        Text(
+                            text = stringResource(id = R.string.machine_unit_number, machine.numberMachine),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color(0xFF1E1E1E)
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = machineLabel,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = accentColor,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Surface(
+                                color = accentColor.copy(alpha = 0.1f),
+                                shape = RoundedCornerShape(12.dp),
+                                border = BorderStroke(1.dp, accentColor.copy(alpha = 0.2f))
+                            ) {
+                                Text(
+                                    text = machineSize,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = accentColor
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
-            // 🔹 VISUAL TIMER CARD
+            // 🔹 VISUAL TIMER CARD (Premium)
             Surface(
-                color = Color(0xFFF8F9FA),
+                color = accentColor.copy(alpha = 0.05f),
                 shape = RoundedCornerShape(20.dp),
-                border = BorderStroke(1.dp, Color(0xFFEEEEEE))
+                border = BorderStroke(1.dp, accentColor.copy(alpha = 0.2f)),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Komponen Countdown Utama
+                    Text(
+                        text = stringResource(id = R.string.time_left),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = accentColor.copy(alpha = 0.7f),
+                        fontWeight = FontWeight.SemiBold
+                    )
+
                     CountdownTimer(
                         startTimeMillis = startTimeMillis,
                         endTimeMillis = endTimeMillis,
-                        onFinish = { /* Tambahkan notifikasi atau trigger suara jika perlu */ },
-                        modifier = Modifier.padding(vertical = 8.dp)
+                        onFinish = { /* Finish Logic */ },
+                        modifier = Modifier.padding(vertical = 4.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                    // Detail Waktu Mulai & Selesai
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -156,8 +181,8 @@ fun MachineBottomSheetInformationTime(
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = Color.LightGray
+                            modifier = Modifier.size(20.dp),
+                            tint = Color.Gray.copy(alpha = 0.5f)
                         )
                         TimeInfoBlock(label = stringResource(id = R.string.estimated_finish), time = endTimeStr, highlightColor = accentColor)
                     }
@@ -169,19 +194,19 @@ fun MachineBottomSheetInformationTime(
                 onClick = onDismissRequest,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(12.dp),
+                    .height(54.dp),
+                shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = accentColor)
             ) {
-                Text(stringResource(id = R.string.finish_monitoring), fontWeight = FontWeight.Bold)
+                Text(stringResource(id = R.string.finish_monitoring), fontWeight = FontWeight.ExtraBold)
             }
         }
     }
 }
 
 @Composable
-fun TimeInfoBlock(label: String, time: String, highlightColor: Color = Color.Black) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+fun TimeInfoBlock(label: String, time: String, highlightColor: Color = Color.Gray) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(text = label, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
         Text(text = time, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = highlightColor)
     }

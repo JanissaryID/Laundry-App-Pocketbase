@@ -38,6 +38,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
+import androidx.compose.foundation.BorderStroke
 import kotlinx.coroutines.delay
 
 @Composable
@@ -102,69 +105,80 @@ fun CountdownTimer(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // --- DISPLAY WAKTU ---
-        Box(contentAlignment = Alignment.Center) {
-            Text(
-                text = if (remainingTime > 0) formattedTime else "SELESAI",
-                style = MaterialTheme.typography.displayMedium.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontFamily = FontFamily.Monospace // Angka tetap stabil
-                ),
-                color = animatedColor,
-                modifier = Modifier.scale(pulseScale)
-            )
+        // --- DISPLAY WAKTU (Premium Chip Style) ---
+        Surface(
+            color = animatedColor.copy(alpha = 0.08f),
+            shape = RoundedCornerShape(24.dp),
+            border = BorderStroke(1.dp, animatedColor.copy(alpha = 0.15f))
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.padding(horizontal = 40.dp, vertical = 16.dp)
+            ) {
+                Text(
+                    text = if (remainingTime > 0) formattedTime else "SELESAI",
+                    style = MaterialTheme.typography.displaySmall.copy(
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 2.sp,
+                        fontFamily = FontFamily.Monospace
+                    ),
+                    color = animatedColor,
+                    modifier = Modifier.scale(pulseScale)
+                )
+            }
         }
 
         if (showProgressBar) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Column(modifier = Modifier.fillMaxWidth()) {
-                // Progress Bar dengan desain modern
-                LinearProgressIndicator(
-                    progress = { progress },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(10.dp)
-                        .clip(CircleShape),
-                    color = animatedColor,
-                    trackColor = animatedColor.copy(alpha = 0.15f),
-                    strokeCap = StrokeCap.Round
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Info Persentase untuk Admin
+                // Info Persentase untuk Admin (Diletakkan di atas progress bar agar lebih clean)
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = if (remainingTime > 0) "Sisa proses..." else "Proses Selesai",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Medium,
                         color = Color.Gray
                     )
                     Text(
                         text = "${(progress * 100).toInt()}%",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.ExtraBold,
                         color = animatedColor
                     )
                 }
+
+                // Progress Bar dengan desain modern & tebal
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(12.dp)
+                        .clip(CircleShape),
+                    color = animatedColor,
+                    trackColor = animatedColor.copy(alpha = 0.1f),
+                    strokeCap = StrokeCap.Round
+                )
             }
         }
 
         if (remainingTime == 0L) {
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             Surface(
-                color = Color.Red.copy(alpha = 0.1f),
-                shape = RoundedCornerShape(8.dp)
+                color = Color.Red.copy(alpha = 0.05f),
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, Color.Red.copy(alpha = 0.2f))
             ) {
                 Text(
                     text = "MESIN SIAP DIKOSONGKAN",
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    style = MaterialTheme.typography.labelMedium,
                     color = Color.Red,
-                    fontWeight = FontWeight.Black
+                    fontWeight = FontWeight.ExtraBold
                 )
             }
         }

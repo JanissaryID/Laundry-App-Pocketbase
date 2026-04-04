@@ -15,5 +15,6 @@ data class MachineLocal(
     val bluetoothAddress: String? = null,
     val inUse: Boolean = false,
     val timer: Int = 1,
-    val timeOn: String? = null
+    val timeOn: String? = null,
+    val needsVerification: Boolean = false
 )

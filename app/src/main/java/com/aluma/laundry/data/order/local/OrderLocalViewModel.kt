@@ -148,32 +148,17 @@ class OrderLocalViewModel(
 
                 if (now > expiredMillis) {
                     val relatedOrder = machine.order?.let { repo.getOrderById(it) } ?: continue
-                    val updatedStep = determineUpdatedStep(relatedOrder)
+                    
+                    // Do not auto-advance order step here!
+                    // Mark machine with needsVerification = true instead.
+                    Log.d("TimeoutChecker", "⌛ Order ${relatedOrder.id} timer expired. Waiting for BLE verification.")
 
-                    Log.d("TimeoutChecker", "⌛ Order ${relatedOrder.id} expired. Step: ${relatedOrder.stepMachine} → $updatedStep")
-
-                    val updatedOrder = relatedOrder.copy(
-                        stepMachine = updatedStep,
-                        numberMachine = 0
-                    )
-
-                    Log.d("TimeoutChecker", "📌 About to update order ${updatedOrder.id} to step=${updatedOrder.stepMachine}")
-                    val updatedRows = repo.updateOrderWithResult(updatedOrder)
-                    val reloaded = repo.getOrderById(relatedOrder.id)
-                    Log.d("Checker", "🔁 Reloaded stepMachine: ${reloaded?.stepMachine}")
-                    Log.d("TimeoutChecker", "📦 Updated rows: $updatedRows")
-                    Log.d("TimeoutChecker", "📦 Updated rows 2: $updatedOrder")
-                    if (updatedRows > 0) {
+                    if (!machine.needsVerification) {
                         val updatedMachine = machine.copy(
-                            inUse = false,
-                            order = null,
-                            timeOn = null
+                            needsVerification = true
                         )
                         updateMachine(updatedMachine)
-                        Log.d("TimeoutChecker", "✅ Reset machine ${machine.numberMachine} done.")
-
-                    } else {
-                        Log.w("TimeoutChecker", "⚠️ Order ${relatedOrder.id} failed to update. Machine not updated.")
+                        Log.d("TimeoutChecker", "📌 Tagged machine ${machine.numberMachine} for verification.")
                     }
                 }
             } catch (e: Exception) {

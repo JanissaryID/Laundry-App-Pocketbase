@@ -54,8 +54,12 @@ val workManagerModule = module {
 }
 
 val appModule = module {
-    // Bluetooth
+    // Bluetooth Helper
     factory { (activity: ComponentActivity) -> BluetoothHelper(activity) }
+    // BLE
+    single { com.aluma.laundry.bluetooth.BleConnectionManager(androidContext()) }
+    single { com.aluma.laundry.bluetooth.BleViewModel(get()) }
+    
     // Data Store
     single { StorePreferences(androidContext()) }
     single { StorePreferenceViewModel(storePreferences = get()) }

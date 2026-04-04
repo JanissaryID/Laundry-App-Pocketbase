@@ -105,7 +105,7 @@ fun ItemMachineCard(
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
-                        text = if (machine.sizeMachine) stringResource(R.string.capacity_12kg) else stringResource(R.string.capacity_7kg),
+                        text = if (machine.sizeMachine) stringResource(R.string.capacity_large_upper) else stringResource(R.string.capacity_small_upper),
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,

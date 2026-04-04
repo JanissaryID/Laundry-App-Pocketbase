@@ -11,6 +11,7 @@ import io.github.agrevster.pocketbaseKotlin.dsl.login
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 
@@ -41,7 +42,20 @@ class MachineRemoteViewModel(
 
     init {
         viewModelScope.launch {
-            storePreferences.userIdStore.collectLatest { _storeID.value = it.orEmpty() }
+            storePreferences.userIdStore.collectLatest { storeId ->
+                _storeID.value = storeId.orEmpty()
+                
+                if (!storeId.isNullOrEmpty()) {
+                    try {
+                        val localList = machineLocalRepository.machineLocal.first()
+                        if (localList.isEmpty()) {
+                            fetchMachine()
+                        }
+                    } catch (e: Exception) {
+                        Log.e("MachineVM", "Error checking local machines", e)
+                    }
+                }
+            }
         }
         viewModelScope.launch {
             storePreferences.userToken.collectLatest { token ->

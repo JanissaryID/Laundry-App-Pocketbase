@@ -56,7 +56,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aluma.laundry.R
 import com.aluma.laundry.bluetooth.BluetoothHelper
-import com.aluma.laundry.bluetooth.BluetoothSender
+import com.aluma.laundry.bluetooth.BleViewModel
+import com.aluma.laundry.bluetooth.BleResult
 import com.aluma.laundry.data.attendance.remote.AttendanceRemoteViewModel
 import com.aluma.laundry.data.employee.remote.EmployeeRemoteViewModel
 import com.aluma.laundry.data.logmachine.local.LogMachineLocalViewModel
@@ -95,6 +96,7 @@ fun ScreenHome(
     logMachineLocalViewModel: LogMachineLocalViewModel = koinInject(),
     employeeRemoteViewModel: EmployeeRemoteViewModel = koinInject(),
     attendanceRemoteViewModel: AttendanceRemoteViewModel = koinInject(),
+    bleViewModel: BleViewModel = koinInject(),
     bluetoothHelper: BluetoothHelper,
     onNavigateMachine: () -> Unit,
     onNavigateOrder: () -> Unit,
@@ -125,6 +127,13 @@ fun ScreenHome(
     LaunchedEffect(employeeId) {
         if (!employeeId.isNullOrEmpty()) {
             attendanceRemoteViewModel.fetchTodayAttendance(employeeId!!)
+        }
+    }
+
+    // Mulai background broadcast saat mesin sudah terload dengan benar di database lokal
+    LaunchedEffect(machines) {
+        if (machines.isNotEmpty()) {
+            bleViewModel.broadcastStatusCheck(machines)
         }
     }
 
@@ -301,32 +310,46 @@ fun ScreenHome(
     }
 
     if (showOrderSheetMachine && selectedOrder != null) {
+        // Collect BLE states internally
+        val machineStatuses by bleViewModel.machineStatuses.collectAsState()
+        val isCheckingForOrder by bleViewModel.isCheckingForOrder.collectAsState()
+        
         OrderBottomSheetInformation(
             order = selectedOrder!!,
+            isCheckingStatus = isCheckingForOrder,
+            machineStatuses = machineStatuses,
+            onCheckStatus = { bleViewModel.checkStatusForOrder(machines) },
             onDismissRequest = { showOrderSheetMachine = false },
             onSubmit = { machine, onDone ->
                 if (machine != null) {
                     bluetoothHelper.requestBluetooth {
                         scope.launch(Dispatchers.IO) {
-                            val sender = BluetoothSender()
-                            val success = sender.sendToESP(
-                                context = context,
-                                address = machine.bluetoothAddress.orEmpty(),
-                                message = "m:${machine.numberMachine},t:${machine.timer},s:true"
+                            val result = bleViewModel.turnOnMachine(
+                                machine = machine,
+                                durationMinutes = machine.timer,
+                                transactionId = selectedOrder!!.id
                             )
 
                             withContext(Dispatchers.Main) {
-                                if (success) {
-                                    processMachineActivation(
-                                        order = selectedOrder!!,
-                                        machine = machine,
-                                        orderLocalViewModel = orderLocalViewModel,
-                                        machineLocalViewModel = machineLocalViewModel,
-                                        logMachineLocalViewModel = logMachineLocalViewModel
-                                    )
-                                    Toast.makeText(context, context.getString(R.string.machine_active_toast, machine.numberMachine), Toast.LENGTH_SHORT).show()
-                                } else {
-                                    Toast.makeText(context, context.getString(R.string.bluetooth_failed), Toast.LENGTH_SHORT).show()
+                                when (result) {
+                                    is BleResult.Status -> {
+                                        if (result.stage >= 2) {
+                                            processMachineActivation(
+                                                order = selectedOrder!!,
+                                                machine = machine,
+                                                orderLocalViewModel = orderLocalViewModel,
+                                                machineLocalViewModel = machineLocalViewModel,
+                                                logMachineLocalViewModel = logMachineLocalViewModel
+                                            )
+                                            Toast.makeText(context, context.getString(R.string.machine_active_toast, machine.numberMachine), Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Toast.makeText(context, context.getString(R.string.needs_activation_washer) + " (stage ${result.stage})", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                    is BleResult.Error -> {
+                                        Toast.makeText(context, context.getString(R.string.bluetooth_failed), Toast.LENGTH_SHORT).show()
+                                    }
+                                    else -> {}
                                 }
                                 onDone()
                             }
@@ -343,8 +366,70 @@ fun ScreenHome(
                 order = selectedOrder!!,
                 machine = machine,
                 stepMachine = selectedOrder!!.stepMachine,
+                machineNumber = selectedOrder!!.numberMachine,
                 onDismissRequest = { showOrderSheetMachineRunning = false },
-                machineNumber = selectedOrder!!.numberMachine
+                onVerifyAndComplete = { onResult ->
+                    scope.launch(Dispatchers.IO) {
+                        val result = bleViewModel.checkMachineStatus(machine)
+                        withContext(Dispatchers.Main) {
+                            when (result) {
+                                is BleResult.Status -> {
+                                    if (result.stage == 4 || result.stage == 0 || result.stage == 1) { // 4 is ideally done, 0 or 1 means machine reset to available
+                                        val newStep = determineUpdatedStep(selectedOrder!!)
+                                        orderLocalViewModel.updateOrder(
+                                            selectedOrder!!.copy(
+                                                stepMachine = newStep,
+                                                numberMachine = 0
+                                            )
+                                        )
+                                        machineLocalViewModel.updateMachine(
+                                            machine.copy(inUse = false, order = null, timeOn = null, needsVerification = false)
+                                        )
+                                        onResult(true)
+                                    } else {
+                                        // Stage 2 or 3 means power outage or still running unexpectedly
+                                        onResult(false)
+                                    }
+                                }
+                                is BleResult.Error -> onResult(false)
+                                else -> onResult(false)
+                            }
+                        }
+                    }
+                },
+                onRerun = {
+                    scope.launch(Dispatchers.IO) {
+                        val result = bleViewModel.turnOnMachine(
+                            machine = machine,
+                            durationMinutes = machine.timer,
+                            transactionId = selectedOrder!!.id
+                        )
+                        withContext(Dispatchers.Main) {
+                            when (result) {
+                                is BleResult.Status -> {
+                                    if (result.stage >= 2) {
+                                        val now = Instant.now()
+                                        val formattedDate = DateTimeFormatter
+                                            .ofPattern("yyyy-MM-dd HH:mm:ss.SSSX")
+                                            .withZone(ZoneOffset.UTC)
+                                            .format(now)
+                                        machineLocalViewModel.updateMachine(
+                                            machine.copy(timeOn = formattedDate, needsVerification = false)
+                                        )
+                                        Toast.makeText(context, "Mesin run ulang sukses", Toast.LENGTH_SHORT).show()
+                                        showOrderSheetMachineRunning = false
+                                    } else {
+                                        Toast.makeText(context, "Gagal re-run: stage ${result.stage}", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                                is BleResult.Error -> {
+                                    Toast.makeText(context, "Gagal re-run: ${result.message}", Toast.LENGTH_SHORT).show()
+                                }
+                                else -> {}
+                            }
+                        }
+                    }
+                }
             )
         }
     }
@@ -483,6 +568,14 @@ fun StatusMiniCard(
 }
 
 // --- HELPER FUNCTION (Logic) ---
+private fun determineUpdatedStep(order: OrderLocal): Int {
+    return when (order.typeMachineService) {
+        0, 1 -> 4
+        2 -> if (order.stepMachine == 2) 1 else 4
+        else -> order.stepMachine
+    }
+}
+
 private fun processMachineActivation(
     order: OrderLocal,
     machine: MachineLocal,

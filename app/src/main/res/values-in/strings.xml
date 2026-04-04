@@ -80,8 +80,8 @@
     <string name="activate_machine">Aktifkan Mesin</string>
     <string name="machine_dryer">Mesin Pengering</string>
     <string name="machine_washer">Mesin Cuci</string>
-    <string name="capacity_large_upper">KAPASITAS BESAR</string>
-    <string name="capacity_small_upper">KAPASITAS KECIL</string>
+    <string name="capacity_large_upper">Large</string>
+    <string name="capacity_small_upper">Small</string>
     <string name="estimated_finish">Estimasi Selesai</string>
     <string name="finish_monitoring">Selesai Memantau</string>
     <string name="status_washing">Proses Pencucian</string>
@@ -97,6 +97,13 @@
     <string name="date">Tanggal</string>
     <string name="payment">Pembayaran</string>
     <string name="print_receipt">Cetak Nota</string>
+    <string name="order_info_title">Informasi Pesanan</string>
+    <string name="status_checking">Memeriksa status dari alat…</string>
+    <string name="status_completed_next">Selesai &amp; Lanjut Tahap Berikutnya</string>
+    <string name="machine_error_warning">Terdeteksi Mesin Berjalan Tidak Normal (Alat masih menyala/Mati Listrik). Pastikan cek fisik mesin lalu pilih Ulang atau Lanjut.</string>
+    <string name="btn_proceed">Lanjut</string>
+    <string name="btn_retry">Ulang</string>
+    <string name="checking_machine_availability">Memeriksa ketersediaan mesin…</string>
     <string name="done">Selesai</string>
 
     <!-- ScreenMachines -->

@@ -86,8 +86,8 @@
     <string name="activate_machine">Activate Machine</string>
     <string name="machine_dryer">Dryer Machine</string>
     <string name="machine_washer">Washing Machine</string>
-    <string name="capacity_large_upper">LARGE CAPACITY</string>
-    <string name="capacity_small_upper">SMALL CAPACITY</string>
+    <string name="capacity_large_upper">Large</string>
+    <string name="capacity_small_upper">Small</string>
     <string name="estimated_finish">Estimated Finish</string>
     <string name="finish_monitoring">Finish Monitoring</string>
     <string name="status_washing">Washing Process</string>
@@ -103,6 +103,13 @@
     <string name="date">Date</string>
     <string name="payment">Payment</string>
     <string name="print_receipt">Print Receipt</string>
+    <string name="order_info_title">Order Information</string>
+    <string name="status_checking">Checking device status…</string>
+    <string name="status_completed_next">Complete &amp; Proceed</string>
+    <string name="machine_error_warning">Machine Abnormal State Detected (Running or Power Outage). Check machine physically, then choose Retry or Proceed.</string>
+    <string name="btn_proceed">Proceed</string>
+    <string name="btn_retry">Retry</string>
+    <string name="checking_machine_availability">Checking machine availability…</string>
     <string name="done">Done</string>
 
     <!-- ScreenMachines -->

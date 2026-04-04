@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aluma.laundry.R
+import com.aluma.laundry.bluetooth.BleViewModel
 import com.aluma.laundry.bluetooth.BluetoothPrinter
 import com.aluma.laundry.data.datastore.StorePreferenceViewModel
 import com.aluma.laundry.data.machine.local.MachineLocalViewModel
@@ -56,14 +57,33 @@ fun OrderBottomSheetInformation(
     machineLocalViewModel: MachineLocalViewModel = koinInject(),
     storePreferenceViewModel: StorePreferenceViewModel = koinInject(),
     order: OrderLocal,
+    isCheckingStatus: Boolean,
+    machineStatuses: Map<String, BleViewModel.MachineStatus>,
+    onCheckStatus: () -> Unit,
     onDismissRequest: () -> Unit,
     onSubmit: (MachineLocal?, onDone: () -> Unit) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val machines by machineLocalViewModel.machineFilter.collectAsState()
     var selectedMachine by remember { mutableStateOf<MachineLocal?>(null) }
+    
+    // Auto-check saat sheet dibuka
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        onCheckStatus()
+    }
 
-    val availableMachines = machines.filter { !it.inUse }
+    val availableMachines = machines.filter { machine ->
+        if (machine.inUse) return@filter false
+        
+        val status = machineStatuses[machine.id]
+        // Jika BLE berhasil connect dan merespon, pastikan stage aman (0, 1, 4)
+        // Jika error (timeout/off) atau belum di-cek, tetap tampilkan
+        if (status != null && status.error == null) {
+            status.stage == 0 || status.stage == 1 || status.stage == 4
+        } else {
+            true
+        }
+    }
     val nameStore by storePreferenceViewModel.nameStore.collectAsState()
     val addressStore by storePreferenceViewModel.addressStore.collectAsState()
     val cityStore by storePreferenceViewModel.cityStore.collectAsState()
@@ -148,24 +168,39 @@ fun OrderBottomSheetInformation(
                     fontWeight = FontWeight.Bold
                 )
 
-                MachineDropdown(
-                    availableMachines = availableMachines,
-                    selectedMachine = selectedMachine,
-                    onMachineSelected = { selectedMachine = it },
-                    enabled = availableMachines.isNotEmpty()
-                )
-
-                if (availableMachines.isEmpty()) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(8.dp)
+                if (isCheckingStatus) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = stringResource(id = R.string.no_machines_available_warning),
-                            modifier = Modifier.padding(8.dp),
+                            text = stringResource(id = R.string.checking_machine_availability),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
+                            color = Color.Gray
                         )
+                    }
+                } else {
+                    MachineDropdown(
+                        availableMachines = availableMachines,
+                        selectedMachine = selectedMachine,
+                        onMachineSelected = { selectedMachine = it },
+                        enabled = availableMachines.isNotEmpty()
+                    )
+
+                    if (availableMachines.isEmpty()) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.no_machines_available_warning),
+                                modifier = Modifier.padding(12.dp),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
                     }
                 }
             }
