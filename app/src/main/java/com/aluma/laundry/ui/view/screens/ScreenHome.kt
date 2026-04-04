@@ -55,9 +55,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aluma.laundry.R
-import com.aluma.laundry.bluetooth.BluetoothHelper
-import com.aluma.laundry.bluetooth.BleViewModel
 import com.aluma.laundry.bluetooth.BleResult
+import com.aluma.laundry.bluetooth.BleViewModel
+import com.aluma.laundry.bluetooth.BluetoothHelper
 import com.aluma.laundry.data.attendance.remote.AttendanceRemoteViewModel
 import com.aluma.laundry.data.employee.remote.EmployeeRemoteViewModel
 import com.aluma.laundry.data.logmachine.local.LogMachineLocalViewModel

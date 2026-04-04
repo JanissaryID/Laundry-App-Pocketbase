@@ -3,6 +3,7 @@ package com.aluma.laundry.data.income.remote
 import android.util.Log
 import com.aluma.laundry.data.datastore.StorePreferences
 import com.aluma.laundry.data.income.model.IncomeRemote
+import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
 import io.github.agrevster.pocketbaseKotlin.dsl.login
@@ -10,7 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 
 class IncomeRemoteViewModel(
     private val storePreferences: StorePreferences,

@@ -5,6 +5,7 @@ import com.aluma.laundry.data.datastore.StorePreferences
 import com.aluma.laundry.data.machine.local.MachineLocalRepository
 import com.aluma.laundry.data.machine.model.MachineLocal
 import com.aluma.laundry.data.machine.model.MachineRemote
+import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
 import io.github.agrevster.pocketbaseKotlin.dsl.login
@@ -13,7 +14,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 
 class MachineRemoteViewModel(
     private val storePreferences: StorePreferences,

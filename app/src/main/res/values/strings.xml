@@ -111,7 +111,10 @@
     <string name="btn_retry">Retry</string>
     <string name="checking_machine_availability">Checking machine availability…</string>
     <string name="done">Done</string>
-
+    <string name="finished">FINISHED</string>
+    <string name="process_remaining">Time remaining…</string>
+    <string name="process_finished">Process Finished</string>
+    <string name="machine_ready_empty">MACHINE READY TO BE EMPTIED</string>
     <!-- ScreenMachines -->
     <string name="machine_status">Machine Status</string>
     <string name="machines_registered_count">%1$d Machines Registered</string>

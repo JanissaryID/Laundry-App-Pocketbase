@@ -2,6 +2,7 @@ package com.aluma.laundry.data.service.remote
 
 import android.util.Log
 import com.aluma.laundry.data.datastore.StorePreferences
+import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 import com.aluma.laundry.data.service.local.ServiceLocalRepository
 import com.aluma.laundry.data.service.model.ServiceLocal
 import com.aluma.laundry.data.service.model.ServiceRemote
@@ -12,7 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 
 class ServiceRemoteViewModel(
     private val storePreferences: StorePreferences,

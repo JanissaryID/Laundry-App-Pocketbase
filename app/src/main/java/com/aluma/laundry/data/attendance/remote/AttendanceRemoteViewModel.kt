@@ -3,6 +3,7 @@ package com.aluma.laundry.data.attendance.remote
 import android.util.Log
 import com.aluma.laundry.data.attendance.model.AttendanceRemote
 import com.aluma.laundry.data.datastore.StorePreferences
+import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
 import io.github.agrevster.pocketbaseKotlin.dsl.login
@@ -13,7 +14,6 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 
 class AttendanceRemoteViewModel(
     private val storePreferences: StorePreferences,

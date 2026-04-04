@@ -31,6 +31,9 @@ import com.aluma.laundry.data.order.local.OrderLocalViewModel
 import com.aluma.laundry.data.order.remote.OrderRemoteRepository
 import com.aluma.laundry.data.order.remote.OrderRemoteRepositoryImpl
 import com.aluma.laundry.data.order.remote.OrderRemoteViewModel
+import com.aluma.laundry.data.realtime.remote.RealtimeRepository
+import com.aluma.laundry.data.realtime.remote.RealtimeRepositoryImpl
+import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 import com.aluma.laundry.data.service.local.ServiceLocalRepository
 import com.aluma.laundry.data.service.local.ServiceLocalViewModel
 import com.aluma.laundry.data.service.remote.ServiceRemoteRepository
@@ -42,9 +45,6 @@ import com.aluma.laundry.data.store.StoreRemoteViewModel
 import com.aluma.laundry.data.user.remote.UserRemoteRepository
 import com.aluma.laundry.data.user.remote.UserRemoteRepositoryImpl
 import com.aluma.laundry.data.user.remote.UserRemoteViewModel
-import com.aluma.laundry.data.realtime.remote.RealtimeRepository
-import com.aluma.laundry.data.realtime.remote.RealtimeRepositoryImpl
-import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module

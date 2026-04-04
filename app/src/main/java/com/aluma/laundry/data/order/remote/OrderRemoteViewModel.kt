@@ -1,15 +1,15 @@
 package com.aluma.laundry.data.order.remote
 
 import android.content.Context
+import android.util.Log
 import com.aluma.laundry.data.datastore.StorePreferences
+import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.github.agrevster.pocketbaseKotlin.PocketbaseClient
 import io.github.agrevster.pocketbaseKotlin.dsl.login
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import android.util.Log
-import com.aluma.laundry.data.realtime.remote.RealtimeViewModel
 
 class OrderRemoteViewModel(
     private val storePreferences: StorePreferences,
