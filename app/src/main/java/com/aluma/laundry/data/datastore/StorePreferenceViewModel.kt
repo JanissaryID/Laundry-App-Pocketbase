@@ -116,6 +116,7 @@ class StorePreferenceViewModel(
             return true
         }
         return false
+    }
 
     fun clearData(){
         viewModelScope.launch {
