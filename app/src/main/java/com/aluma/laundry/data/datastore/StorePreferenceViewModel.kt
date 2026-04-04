@@ -82,16 +82,40 @@ class StorePreferenceViewModel(
             storePreferences.employeeName.collectLatest { _employeeName.value = it }
         }
         viewModelScope.launch {
-            storePreferences.userToken.collectLatest {
-                _token.value = it
-                val loggedIn = !it.isNullOrEmpty()
+            storePreferences.userToken.collectLatest { tokenStr ->
+                if (!tokenStr.isNullOrEmpty() && isTokenExpired(tokenStr)) {
+                    android.util.Log.w("StorePreference", "Token expired! Clearing data...")
+                    clearData()
+                    return@collectLatest
+                }
+
+                _token.value = tokenStr
+                val loggedIn = !tokenStr.isNullOrEmpty()
                 _isLoggedIn.value = loggedIn
-                if (loggedIn) {
-                    client.login(it)
+                if (loggedIn && tokenStr != null) {
+                    client.login(tokenStr)
                 }
             }
         }
     }
+
+    private fun isTokenExpired(token: String): Boolean {
+        try {
+            val parts = token.split(".")
+            if (parts.size != 3) return true
+            val payload = parts[1]
+            val decodedBytes = android.util.Base64.decode(payload, android.util.Base64.URL_SAFE)
+            val decodedString = String(decodedBytes, Charsets.UTF_8)
+            val expOpt = org.json.JSONObject(decodedString).optLong("exp")
+            if (expOpt > 0) {
+                val currentTimeSeconds = System.currentTimeMillis() / 1000
+                // 5 minutes buffer
+                return currentTimeSeconds >= (expOpt - 300)
+            }
+        } catch (e: Exception) {
+            return true
+        }
+        return false
 
     fun clearData(){
         viewModelScope.launch {
