@@ -15,16 +15,28 @@ class LogMachineRemoteRepositoryImpl(
     private val json = Json { ignoreUnknownKeys = true }
 
     override suspend fun createLogMachine(logMachineRemote: LogMachineRemote) {
+        val body = json.encodeToString(logMachineRemote)
         try {
-            client.records.create<Record>(
-                collection,
-                json.encodeToString(logMachineRemote)
-            )
+            client.records.create<Record>(collection, body)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            Log.e("OrderRepository", "❌ Create Log Machine failed", e)
-            throw e
+            Log.e("OrderRepository", "❌ Create Log Machine failed, attempting update", e)
+            try {
+                if (logMachineRemote.id.isNotEmpty()) {
+                    client.records.update<Record>(
+                        sub = collection,
+                        id = logMachineRemote.id,
+                        body = body
+                    )
+                    Log.d("OrderRepository", "✅ Successfully updated existing log machine ${logMachineRemote.id}")
+                } else {
+                    throw e
+                }
+            } catch (updateE: Exception) {
+                Log.e("OrderRepository", "❌ Update Log Machine failed as well", updateE)
+                throw e
+            }
         }
     }
 }

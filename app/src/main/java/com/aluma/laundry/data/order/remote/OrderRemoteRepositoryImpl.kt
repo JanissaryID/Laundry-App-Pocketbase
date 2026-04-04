@@ -15,16 +15,28 @@ class OrderRemoteRepositoryImpl(
     private val json = Json { ignoreUnknownKeys = true }
 
     override suspend fun createOrder(order: OrderRemote) {
+        val body = json.encodeToString(order)
         try {
-            client.records.create<Record>(
-                collection,
-                json.encodeToString(order)
-            )
+            client.records.create<Record>(collection, body)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            Log.e("OrderRepository", "❌ Create Order failed", e)
-            throw e
+            Log.e("OrderRepository", "❌ Create Order failed, attempting update", e)
+            try {
+                if (order.id.isNotEmpty()) {
+                    client.records.update<Record>(
+                        sub = collection,
+                        id = order.id,
+                        body = body
+                    )
+                    Log.d("OrderRepository", "✅ Successfully updated existing order ${order.id}")
+                } else {
+                    throw e
+                }
+            } catch (updateE: Exception) {
+                Log.e("OrderRepository", "❌ Update Order failed as well", updateE)
+                throw e
+            }
         }
     }
 }
