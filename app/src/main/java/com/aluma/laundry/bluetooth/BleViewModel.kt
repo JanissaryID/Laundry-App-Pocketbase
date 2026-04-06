@@ -188,7 +188,7 @@ class BleViewModel(
         Log.d(TAG, "Clearing machine ${machine.numberMachine} and checking status")
         return withContext(Dispatchers.IO) {
             bleConnectionManager.sendCommand(mac, "clear")
-            kotlinx.coroutines.delay(500)
+            kotlinx.coroutines.delay(1500)
             bleConnectionManager.sendCommand(mac, "stat_now")
         }
     }
