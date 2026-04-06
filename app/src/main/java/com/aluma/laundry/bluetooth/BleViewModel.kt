@@ -178,6 +178,21 @@ class BleViewModel(
         }
     }
 
+    /**
+     * Send clear command, wait 500ms, then check status.
+     * Used when forcefully proceeding from an error state.
+     */
+    suspend fun clearAndCheckStatus(machine: MachineLocal): BleResult {
+        val mac = machine.bluetoothAddress
+            ?: return BleResult.Error("No MAC address")
+        Log.d(TAG, "Clearing machine ${machine.numberMachine} and checking status")
+        return withContext(Dispatchers.IO) {
+            bleConnectionManager.sendCommand(mac, "clear")
+            kotlinx.coroutines.delay(500)
+            bleConnectionManager.sendCommand(mac, "stat_now")
+        }
+    }
+
     // ==========================================
     // HELPERS
     // ==========================================

@@ -76,6 +76,7 @@ fun OrderBottomSheetInformationTime(
     storePreferenceViewModel: StorePreferenceViewModel = koinInject(),
     onDismissRequest: () -> Unit,
     onVerifyAndComplete: (onResult: (canProceed: Boolean) -> Unit) -> Unit,
+    onProceed: (onResult: (canProceed: Boolean) -> Unit) -> Unit,
     onRerun: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -360,7 +361,16 @@ fun OrderBottomSheetInformationTime(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             OutlinedButton(
-                                onClick = onDismissRequest,
+                                onClick = {
+                                    verificationState = VerificationState.Verifying
+                                    onProceed { canProceed ->
+                                        verificationState = if (canProceed) {
+                                            VerificationState.Completed
+                                        } else {
+                                            VerificationState.PowerOutage
+                                        }
+                                    }
+                                },
                                 modifier = Modifier.weight(1f).height(54.dp),
                                 shape = RoundedCornerShape(14.dp),
                                 border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.outline)

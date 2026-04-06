@@ -397,6 +397,34 @@ fun ScreenHome(
                         }
                     }
                 },
+                onProceed = { onResult ->
+                    scope.launch(Dispatchers.IO) {
+                        val result = bleViewModel.clearAndCheckStatus(machine)
+                        withContext(Dispatchers.Main) {
+                            when (result) {
+                                is BleResult.Status -> {
+                                    if (result.stage == 4 || result.stage == 0 || result.stage == 1) { // 4 is ideally done, 0 or 1 means machine reset to available
+                                        val newStep = determineUpdatedStep(selectedOrder!!)
+                                        orderLocalViewModel.updateOrder(
+                                            selectedOrder!!.copy(
+                                                stepMachine = newStep,
+                                                numberMachine = 0
+                                            )
+                                        )
+                                        machineLocalViewModel.updateMachine(
+                                            machine.copy(inUse = false, order = null, timeOn = null, needsVerification = false)
+                                        )
+                                        onResult(true)
+                                    } else {
+                                        onResult(false)
+                                    }
+                                }
+                                is BleResult.Error -> onResult(false)
+                                else -> onResult(false)
+                            }
+                        }
+                    }
+                },
                 onRerun = {
                     scope.launch(Dispatchers.IO) {
                         val result = bleViewModel.turnOnMachine(
